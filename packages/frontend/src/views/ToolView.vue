@@ -40,7 +40,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
   // placeholder. Implemented tools are added here as they land.
   const modules: Record<string, () => Promise<{ default: unknown }>> = {
     'token-generator': () => import('@/tools/TokenGenerator/index'),
-    // 'hash-text': () => import('@/tools/HashText/index.ts'),
+    'hash-text': () => import('@/tools/HashText/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
