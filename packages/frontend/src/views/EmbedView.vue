@@ -47,7 +47,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
   // yet implemented are absent from this map → the catch above renders the
   // placeholder. Implemented tools are added here as they land.
   const modules: Record<string, () => Promise<{ default: unknown }>> = {
-    // 'token-generator': () => import('@/tools/TokenGenerator/index.ts'),
+    'token-generator': () => import('@/tools/TokenGenerator/index'),
     // 'hash-text': () => import('@/tools/HashText/index.ts'),
     // ...added in M1+ milestones
   };

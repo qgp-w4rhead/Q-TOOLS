@@ -19,7 +19,7 @@ import { getToolBySlug } from '@/data/tools';
 const HomePage = () => import('@/views/HomePage.vue');
 const ToolLayout = () => import('@/views/ToolLayout.vue');
 const EmbedView = () => import('@/views/EmbedView.vue');
-const ToolPlaceholder = () => import('@/views/ToolPlaceholder.vue');
+const ToolView = () => import('@/views/ToolView.vue');
 
 const routes: RouteRecordRaw[] = [
   {
@@ -36,7 +36,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'tool-view',
-        component: ToolPlaceholder,
+        component: ToolView,
         props: true,
       },
     ],
