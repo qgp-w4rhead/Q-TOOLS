@@ -46,6 +46,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'ulid-generator': () => import('@/tools/UlidGenerator/index'),
     'encrypt-decrypt-text': () => import('@/tools/EncryptDecrypt/index'),
     'bip39-generator': () => import('@/tools/Bip39Generator/index'),
+    'hmac-generator': () => import('@/tools/HmacGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
