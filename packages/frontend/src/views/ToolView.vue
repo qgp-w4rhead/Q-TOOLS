@@ -47,6 +47,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'encrypt-decrypt-text': () => import('@/tools/EncryptDecrypt/index'),
     'bip39-generator': () => import('@/tools/Bip39Generator/index'),
     'hmac-generator': () => import('@/tools/HmacGenerator/index'),
+    'rsa-key-pair-generator': () => import('@/tools/RsaKeyPair/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
