@@ -9,6 +9,9 @@
     "node": ">=20.0.0",
     "pnpm": ">=10.0.0"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["bcrypt", "esbuild"]
+  },
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm --filter frontend dev",
