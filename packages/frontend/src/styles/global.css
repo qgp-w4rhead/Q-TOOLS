@@ -22,6 +22,7 @@
   --qt-border: oklch(from var(--qt-surface) 40% c h);
   --qt-accent-soft: oklch(from var(--qt-accent) 85% c h);
   --qt-danger: oklch(from var(--qt-accent) 55% 0.22 25);
+  --qt-warning: oklch(from var(--qt-accent) 72% 0.17 85);
   --qt-success: oklch(from var(--qt-accent) 65% 0.18 145);
 
   /* ---- Layout metrics ---- */
