@@ -49,6 +49,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
   const modules: Record<string, () => Promise<{ default: unknown }>> = {
     'token-generator': () => import('@/tools/TokenGenerator/index'),
     'hash-text': () => import('@/tools/HashText/index'),
+    'bcrypt': () => import('@/tools/Bcrypt/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
