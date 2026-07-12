@@ -1,0 +1,21 @@
+{
+  "name": "@q-tools/backend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Q-Tools backend — Fastify + Mongoose + JWT API (scaffold; full server lands in M0.3).",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "echo 'backend dev server is configured in M0.3' && exit 0",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/index.js",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@q-tools/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1",
+    "typescript": "^5.6.3"
+  }
+}
