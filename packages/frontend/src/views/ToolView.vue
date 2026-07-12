@@ -43,6 +43,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'hash-text': () => import('@/tools/HashText/index'),
     'bcrypt': () => import('@/tools/Bcrypt/index'),
     'uuid-generator': () => import('@/tools/UuidGenerator/index'),
+    'ulid-generator': () => import('@/tools/UlidGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
