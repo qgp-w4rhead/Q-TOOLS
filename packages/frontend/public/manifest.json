@@ -1,0 +1,20 @@
+{
+  "name": "Q-Tools",
+  "short_name": "Q-Tools",
+  "description": "Comprehensive developer & utility tools — offline-first PWA, iframe-embeddable.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0d1117",
+  "theme_color": "#0d1117",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["developer", "utilities", "productivity"]
+}

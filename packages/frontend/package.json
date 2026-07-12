@@ -3,18 +3,29 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Q-Tools frontend — Vue 3 + Vite + Ionic + Pinia SPA (scaffold; full app lands in M0.2).",
+  "description": "Q-Tools frontend — Vue 3 + Vite + Ionic + Pinia SPA (PWA, iframe-embeddable).",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "dev": "echo 'frontend dev server is configured in M0.2' && exit 0",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "clean": "rimraf dist"
+    "build": "vue-tsc --noEmit && vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "typecheck": "vue-tsc --noEmit",
+    "clean": "rimraf dist dev-dist"
   },
   "dependencies": {
-    "@q-tools/shared": "workspace:*"
+    "@ionic/vue": "^8.8.13",
+    "@ionic/vue-router": "^8.8.13",
+    "@q-tools/shared": "workspace:*",
+    "lucide-vue-next": "^0.577.0",
+    "pinia": "^3.0.4",
+    "vue": "^3.5.39",
+    "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.7",
     "rimraf": "^6.0.1",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vite": "^8.1.4",
+    "vite-plugin-pwa": "^1.3.0",
+    "vue-tsc": "^3.3.7"
   }
 }

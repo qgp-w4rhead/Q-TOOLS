@@ -1,0 +1,160 @@
+/**
+ * Q-Tools global stylesheet.
+ *
+ * Master color tokens (pure hex) live here in :root. All component-scoped
+ * colors should derive from these via `oklch(from var(--token) ...)`.
+ * Per project color rules: 3-4 master colors max, pure hex, derived downstream.
+ *
+ * Ionic theme variables are also wired here so Ionic components follow the
+ * same palette. The dark theme is the default; light theme is applied via
+ * the `data-theme="light"` attribute on <html> (set by settingsStore).
+ */
+
+:root {
+  /* ---- Master color tokens (pure hex) ---- */
+  --qt-bg: #0d1117; /* app background */
+  --qt-surface: #161b22; /* cards / panels */
+  --qt-accent: #58a6ff; /* primary accent */
+  --qt-text: #e6edf3; /* primary text */
+
+  /* ---- Derived semantic tokens (oklch from master) ---- */
+  --qt-muted: oklch(from var(--qt-text) 70% c h);
+  --qt-border: oklch(from var(--qt-surface) 40% c h);
+  --qt-accent-soft: oklch(from var(--qt-accent) 85% c h);
+  --qt-danger: oklch(from var(--qt-accent) 55% 0.22 25);
+  --qt-success: oklch(from var(--qt-accent) 65% 0.18 145);
+
+  /* ---- Layout metrics ---- */
+  --qt-radius: 10px;
+  --qt-radius-sm: 6px;
+  --qt-gap: 16px;
+  --qt-sidebar-width: 280px;
+  --qt-header-height: 56px;
+  --qt-max-content: 1100px;
+
+  /* ---- Ionic theme wiring (dark default) ---- */
+  --ion-background-color: var(--qt-bg);
+  --ion-background-color-rgb: 13, 17, 23;
+  --ion-text-color: var(--qt-text);
+  --ion-text-color-rgb: 230, 237, 243;
+  --ion-toolbar-background: var(--qt-surface);
+  --ion-toolbar-color: var(--qt-text);
+  --ion-item-background: var(--qt-surface);
+  --ion-item-color: var(--qt-text);
+  --ion-card-background: var(--qt-surface);
+  --ion-card-color: var(--qt-text);
+  --ion-color-primary: var(--qt-accent);
+  --ion-color-primary-rgb: 88, 166, 255;
+  --ion-color-primary-contrast: #0d1117;
+  --ion-color-primary-contrast-rgb: 13, 17, 23;
+  --ion-color-step-50: #1c2128;
+  --ion-color-step-100: #21262d;
+  --ion-color-step-150: #262b33;
+  --ion-color-step-200: #2b3038;
+  --ion-color-step-250: #30363d;
+  --ion-color-step-550: #6e7681;
+  --ion-color-step-900: #c9d1d9;
+  --ion-color-step-950: #e6edf3;
+}
+
+/* Light theme overrides — applied when settingsStore sets data-theme="light". */
+:root[data-theme='light'] {
+  --qt-bg: #ffffff;
+  --qt-surface: #f6f8fa;
+  --qt-accent: #0969da;
+  --qt-text: #1f2328;
+
+  --ion-background-color: var(--qt-bg);
+  --ion-background-color-rgb: 255, 255, 255;
+  --ion-text-color: var(--qt-text);
+  --ion-text-color-rgb: 31, 35, 40;
+  --ion-toolbar-background: var(--qt-surface);
+  --ion-toolbar-color: var(--qt-text);
+  --ion-item-background: var(--qt-surface);
+  --ion-item-color: var(--qt-text);
+  --ion-card-background: var(--qt-surface);
+  --ion-card-color: var(--qt-text);
+  --ion-color-primary: var(--qt-accent);
+  --ion-color-primary-rgb: 9, 105, 218;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-step-50: #f6f8fa;
+  --ion-color-step-100: #eaeef2;
+  --ion-color-step-550: #8c959f;
+  --ion-color-step-900: #32383f;
+  --ion-color-step-950: #1f2328;
+}
+
+/* ---- Base resets ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--qt-bg);
+  color: var(--qt-text);
+  font-family:
+    'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--qt-accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* ---- Reusable layout helpers ---- */
+.qt-container {
+  width: 100%;
+  max-width: var(--qt-max-content);
+  margin: 0 auto;
+  padding: var(--qt-gap);
+}
+
+.qt-muted {
+  color: var(--qt-muted);
+}
+
+.qt-card {
+  background: var(--qt-surface);
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius);
+  padding: var(--qt-gap);
+}
+
+/* GPU-friendly focus ring (no layout shift). */
+:focus-visible {
+  outline: 2px solid var(--qt-accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar styling (WebKit + Firefox). */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--qt-border) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--qt-border);
+  border-radius: 8px;
+}

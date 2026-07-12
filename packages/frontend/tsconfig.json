@@ -4,7 +4,12 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "jsx": "preserve",
-    "jsxImportSource": "vue"
+    "jsxImportSource": "vue",
+    "types": ["vite/client"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src/**/*", "src/**/*.vue"],
   "exclude": ["node_modules", "dist"],

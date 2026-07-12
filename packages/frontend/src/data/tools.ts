@@ -1,0 +1,943 @@
+/**
+ * Q-Tools tool registry.
+ *
+ * Lists metadata for every tool in the application. Tool components themselves
+ * are implemented in later milestones (M1+); the registry is the single source
+ * of truth for the home page grid, routing, and the backend `/api/tools` list.
+ *
+ * The formal `ToolMetadata` interface lives in `@q-tools/shared` (M0.4). Until
+ * then, a local interface is used here so the scaffold compiles standalone.
+ *
+ * Categories (10): crypto, converter, web, media, dev, network, math,
+ * measurement, text, data.
+ */
+
+export type ToolCategory =
+  | 'crypto'
+  | 'converter'
+  | 'web'
+  | 'media'
+  | 'dev'
+  | 'network'
+  | 'math'
+  | 'measurement'
+  | 'text'
+  | 'data';
+
+export interface ToolMetadata {
+  /** URL slug, also the route param (`/tools/:slug`). */
+  slug: string;
+  /** Human-readable name. */
+  name: string;
+  /** One-line description. */
+  description: string;
+  /** Category id. */
+  category: ToolCategory;
+  /** lucide-vue-next icon name (kebab-case, matched in icon map). */
+  icon: string;
+  /** Search keywords. */
+  keywords: string[];
+  /** npm deps this tool lazy-loads (for code-splitting metadata). */
+  dependencies: string[];
+  /** Iframe `allow` attributes required in embed mode (e.g. camera, clipboard). */
+  iframeRequirements?: string[];
+}
+
+export interface CategoryDefinition {
+  id: ToolCategory;
+  label: string;
+  /** lucide icon name used for the category header. */
+  icon: string;
+  description: string;
+}
+
+export const CATEGORIES: CategoryDefinition[] = [
+  {
+    id: 'crypto',
+    label: 'Crypto',
+    icon: 'shield',
+    description: 'Hashing, encryption, keys, and password tools.',
+  },
+  {
+    id: 'converter',
+    label: 'Converter',
+    icon: 'repeat',
+    description: 'Convert between data formats, encodings, and units.',
+  },
+  {
+    id: 'web',
+    label: 'Web',
+    icon: 'globe',
+    description: 'URL, HTTP, JWT, and browser-related utilities.',
+  },
+  {
+    id: 'media',
+    label: 'Images & Videos',
+    icon: 'image',
+    description: 'QR codes, SVG placeholders, and camera recording.',
+  },
+  {
+    id: 'dev',
+    label: 'Development',
+    icon: 'code',
+    description: 'Git, Docker, JSON, SQL, regex, and dev cheatsheets.',
+  },
+  {
+    id: 'network',
+    label: 'Network',
+    icon: 'network',
+    description: 'IP, subnet, MAC, and IPv6 utilities.',
+  },
+  {
+    id: 'math',
+    label: 'Math',
+    icon: 'calculator',
+    description: 'Evaluators and calculators.',
+  },
+  {
+    id: 'measurement',
+    label: 'Measurement',
+    icon: 'ruler',
+    description: 'Timers, temperature, and benchmarks.',
+  },
+  {
+    id: 'text',
+    label: 'Text',
+    icon: 'type',
+    description: 'Generators, statistics, diffs, and obfuscation.',
+  },
+  {
+    id: 'data',
+    label: 'Data',
+    icon: 'database',
+    description: 'Phone numbers and IBAN validation.',
+  },
+];
+
+export const TOOLS: ToolMetadata[] = [
+  // ---- Crypto (M1) ----
+  {
+    slug: 'token-generator',
+    name: 'Token generator',
+    description: 'Generate cryptographically secure random tokens.',
+    category: 'crypto',
+    icon: 'key-round',
+    keywords: ['random', 'token', 'secure', 'password', 'charset'],
+    dependencies: [],
+  },
+  {
+    slug: 'hash-text',
+    name: 'Hash text',
+    description: 'Hash text with MD5, SHA-1/256/384/512, SHA3, Blake3.',
+    category: 'crypto',
+    icon: 'hash',
+    keywords: ['md5', 'sha1', 'sha256', 'sha512', 'sha3', 'blake3', 'digest'],
+    dependencies: ['hash-wasm'],
+  },
+  {
+    slug: 'bcrypt',
+    name: 'Bcrypt',
+    description: 'Hash and verify passwords with bcrypt.',
+    category: 'crypto',
+    icon: 'lock',
+    keywords: ['bcrypt', 'password', 'hash', 'verify', 'rounds'],
+    dependencies: ['hash-wasm'],
+  },
+  {
+    slug: 'uuid-generator',
+    name: 'UUIDs generator',
+    description: 'Generate UUID v1, v3, v4, v5.',
+    category: 'crypto',
+    icon: 'fingerprint',
+    keywords: ['uuid', 'guid', 'v1', 'v3', 'v4', 'v5'],
+    dependencies: [],
+  },
+  {
+    slug: 'ulid-generator',
+    name: 'ULID generator',
+    description: 'Generate sortable Universally Unique Lexicographic IDs.',
+    category: 'crypto',
+    icon: 'hash',
+    keywords: ['ulid', 'sortable', 'id'],
+    dependencies: ['ulid'],
+  },
+  {
+    slug: 'encrypt-decrypt-text',
+    name: 'Encrypt / decrypt text',
+    description: 'Symmetric AES-GCM encryption and decryption.',
+    category: 'crypto',
+    icon: 'lock-keyhole',
+    keywords: ['aes', 'gcm', 'encrypt', 'decrypt', 'pbkdf2'],
+    dependencies: [],
+  },
+  {
+    slug: 'bip39-generator',
+    name: 'BIP39 passphrase generator',
+    description: 'Generate BIP39 mnemonic phrases.',
+    category: 'crypto',
+    icon: 'key-round',
+    keywords: ['bip39', 'mnemonic', 'seed', 'wallet'],
+    dependencies: ['@scure/bip39'],
+  },
+  {
+    slug: 'hmac-generator',
+    name: 'HMAC generator',
+    description: 'Generate HMAC signatures (SHA-1/256/384/512).',
+    category: 'crypto',
+    icon: 'shield-check',
+    keywords: ['hmac', 'signature', 'sha', 'mac'],
+    dependencies: [],
+  },
+  {
+    slug: 'rsa-key-pair-generator',
+    name: 'RSA key pair generator',
+    description: 'Generate RSA key pairs and export as PEM.',
+    category: 'crypto',
+    icon: 'key',
+    keywords: ['rsa', 'keypair', 'pem', 'public', 'private'],
+    dependencies: ['node-forge'],
+  },
+  {
+    slug: 'password-strength-analyser',
+    name: 'Password strength analyser',
+    description: 'Analyse password strength with zxcvbn.',
+    category: 'crypto',
+    icon: 'shield-alert',
+    keywords: ['password', 'strength', 'zxcvbn', 'entropy', 'crack'],
+    dependencies: ['@zxcvbn-ts/core', '@zxcvbn-ts/language-common', '@zxcvbn-ts/language-en'],
+  },
+  {
+    slug: 'pdf-signature-checker',
+    name: 'PDF signature checker',
+    description: 'Check digital signatures in PDF files.',
+    category: 'crypto',
+    icon: 'file-check',
+    keywords: ['pdf', 'signature', 'pkcs7', 'certificate'],
+    dependencies: ['pdfjs-dist', 'node-forge'],
+  },
+
+  // ---- Converter (M2) ----
+  {
+    slug: 'date-time-converter',
+    name: 'Date-time converter',
+    description: 'Convert between date-time formats and timezones.',
+    category: 'converter',
+    icon: 'calendar',
+    keywords: ['date', 'time', 'unix', 'iso', 'rfc2822', 'timezone'],
+    dependencies: [],
+  },
+  {
+    slug: 'integer-base-converter',
+    name: 'Integer base converter',
+    description: 'Convert integers between bases (2-36).',
+    category: 'converter',
+    icon: 'binary',
+    keywords: ['base', 'binary', 'octal', 'decimal', 'hex'],
+    dependencies: [],
+  },
+  {
+    slug: 'roman-numeral-converter',
+    name: 'Roman numeral converter',
+    description: 'Convert between Roman numerals and integers.',
+    category: 'converter',
+    icon: 'hash',
+    keywords: ['roman', 'numeral', 'integer'],
+    dependencies: [],
+  },
+  {
+    slug: 'base64-string',
+    name: 'Base64 string encoder/decoder',
+    description: 'Encode and decode Base64 strings (UTF-8 safe).',
+    category: 'converter',
+    icon: 'file-code',
+    keywords: ['base64', 'encode', 'decode', 'urlsafe'],
+    dependencies: [],
+  },
+  {
+    slug: 'base64-file-converter',
+    name: 'Base64 file converter',
+    description: 'Convert files to and from Base64.',
+    category: 'converter',
+    icon: 'file-up',
+    keywords: ['base64', 'file', 'data-uri'],
+    dependencies: [],
+  },
+  {
+    slug: 'color-converter',
+    name: 'Color converter',
+    description: 'Convert between HEX, RGB, HSL, and other color spaces.',
+    category: 'converter',
+    icon: 'palette',
+    keywords: ['color', 'hex', 'rgb', 'hsl', 'oklch'],
+    dependencies: [],
+  },
+  {
+    slug: 'case-converter',
+    name: 'Case converter',
+    description: 'Convert text between casing styles.',
+    category: 'converter',
+    icon: 'case-sensitive',
+    keywords: ['case', 'camel', 'snake', 'kebab', 'pascal'],
+    dependencies: [],
+  },
+  {
+    slug: 'text-to-nato',
+    name: 'Text to NATO alphabet',
+    description: 'Spell text using the NATO phonetic alphabet.',
+    category: 'converter',
+    icon: 'languages',
+    keywords: ['nato', 'phonetic', 'alphabet', 'spell'],
+    dependencies: [],
+  },
+  {
+    slug: 'text-to-ascii-binary',
+    name: 'Text to ASCII binary',
+    description: 'Convert text to ASCII binary representation.',
+    category: 'converter',
+    icon: 'binary',
+    keywords: ['ascii', 'binary', 'text'],
+    dependencies: [],
+  },
+  {
+    slug: 'text-to-unicode',
+    name: 'Text to Unicode',
+    description: 'Convert text to Unicode code points and back.',
+    category: 'converter',
+    icon: 'languages',
+    keywords: ['unicode', 'codepoint', 'text'],
+    dependencies: [],
+  },
+  {
+    slug: 'yaml-to-json',
+    name: 'YAML to JSON',
+    description: 'Convert YAML documents to JSON.',
+    category: 'converter',
+    icon: 'braces',
+    keywords: ['yaml', 'json', 'convert'],
+    dependencies: ['yaml'],
+  },
+  {
+    slug: 'yaml-to-toml',
+    name: 'YAML to TOML',
+    description: 'Convert YAML documents to TOML.',
+    category: 'converter',
+    icon: 'braces',
+    keywords: ['yaml', 'toml', 'convert'],
+    dependencies: ['yaml', 'smol-toml'],
+  },
+  {
+    slug: 'json-to-yaml',
+    name: 'JSON to YAML',
+    description: 'Convert JSON to YAML documents.',
+    category: 'converter',
+    icon: 'braces',
+    keywords: ['json', 'yaml', 'convert'],
+    dependencies: ['yaml'],
+  },
+  {
+    slug: 'json-to-toml',
+    name: 'JSON to TOML',
+    description: 'Convert JSON to TOML.',
+    category: 'converter',
+    icon: 'braces',
+    keywords: ['json', 'toml', 'convert'],
+    dependencies: ['smol-toml'],
+  },
+  {
+    slug: 'list-converter',
+    name: 'List converter',
+    description: 'Convert lists between formats (CSV, JSON, arrays).',
+    category: 'converter',
+    icon: 'list',
+    keywords: ['list', 'csv', 'array', 'convert'],
+    dependencies: [],
+  },
+  {
+    slug: 'toml-to-json',
+    name: 'TOML to JSON',
+    description: 'Convert TOML to JSON.',
+    category: 'converter',
+    icon: 'braces',
+    keywords: ['toml', 'json', 'convert'],
+    dependencies: ['smol-toml'],
+  },
+  {
+    slug: 'toml-to-yaml',
+    name: 'TOML to YAML',
+    description: 'Convert TOML to YAML.',
+    category: 'converter',
+    icon: 'braces',
+    keywords: ['toml', 'yaml', 'convert'],
+    dependencies: ['smol-toml', 'yaml'],
+  },
+  {
+    slug: 'xml-to-json',
+    name: 'XML to JSON',
+    description: 'Convert XML documents to JSON.',
+    category: 'converter',
+    icon: 'code',
+    keywords: ['xml', 'json', 'convert'],
+    dependencies: ['fast-xml-parser'],
+  },
+  {
+    slug: 'json-to-xml',
+    name: 'JSON to XML',
+    description: 'Convert JSON to XML documents.',
+    category: 'converter',
+    icon: 'code',
+    keywords: ['json', 'xml', 'convert'],
+    dependencies: ['fast-xml-parser'],
+  },
+  {
+    slug: 'markdown-to-html',
+    name: 'Markdown to HTML',
+    description: 'Render Markdown to sanitized HTML.',
+    category: 'converter',
+    icon: 'file-text',
+    keywords: ['markdown', 'html', 'render'],
+    dependencies: ['marked'],
+  },
+
+  // ---- Web (M3) ----
+  {
+    slug: 'url-encode-decode',
+    name: 'URL encode/decode',
+    description: 'Percent-encode and decode URL strings.',
+    category: 'web',
+    icon: 'link',
+    keywords: ['url', 'encode', 'decode', 'percent'],
+    dependencies: [],
+  },
+  {
+    slug: 'escape-html-entities',
+    name: 'Escape HTML entities',
+    description: 'Escape and unescape HTML entities.',
+    category: 'web',
+    icon: 'code',
+    keywords: ['html', 'escape', 'entities', 'unescape'],
+    dependencies: [],
+  },
+  {
+    slug: 'url-parser',
+    name: 'URL parser',
+    description: 'Parse URLs into their components.',
+    category: 'web',
+    icon: 'link',
+    keywords: ['url', 'parse', 'origin', 'query'],
+    dependencies: [],
+  },
+  {
+    slug: 'device-information',
+    name: 'Device information',
+    description: 'Show browser, OS, and device information.',
+    category: 'web',
+    icon: 'monitor',
+    keywords: ['device', 'browser', 'useragent', 'screen'],
+    dependencies: [],
+  },
+  {
+    slug: 'basic-auth-generator',
+    name: 'Basic auth generator',
+    description: 'Generate HTTP Basic Authentication headers.',
+    category: 'web',
+    icon: 'lock',
+    keywords: ['basic', 'auth', 'header', 'base64'],
+    dependencies: [],
+  },
+  {
+    slug: 'open-graph-meta-generator',
+    name: 'Open Graph meta generator',
+    description: 'Generate Open Graph and social meta tags.',
+    category: 'web',
+    icon: 'share',
+    keywords: ['opengraph', 'meta', 'social', 'tags'],
+    dependencies: [],
+  },
+  {
+    slug: 'otp-code-generator',
+    name: 'OTP code generator',
+    description: 'Generate TOTP/HOTP one-time passwords.',
+    category: 'web',
+    icon: 'smartphone',
+    keywords: ['otp', 'totp', 'hotp', '2fa', 'mfa'],
+    dependencies: [],
+  },
+  {
+    slug: 'mime-types',
+    name: 'MIME types',
+    description: 'Look up MIME types for file extensions and vice versa.',
+    category: 'web',
+    icon: 'file',
+    keywords: ['mime', 'type', 'extension', 'content-type'],
+    dependencies: [],
+  },
+  {
+    slug: 'jwt-parser',
+    name: 'JWT parser',
+    description: 'Decode and inspect JSON Web Tokens.',
+    category: 'web',
+    icon: 'key-round',
+    keywords: ['jwt', 'token', 'decode', 'header', 'payload'],
+    dependencies: [],
+  },
+  {
+    slug: 'keycode-info',
+    name: 'Keycode info',
+    description: 'Show key codes and details for pressed keys.',
+    category: 'web',
+    icon: 'keyboard',
+    keywords: ['keycode', 'key', 'keyboard', 'event'],
+    dependencies: [],
+  },
+  {
+    slug: 'slugify-string',
+    name: 'Slugify string',
+    description: 'Convert text to URL-safe slugs.',
+    category: 'web',
+    icon: 'link',
+    keywords: ['slug', 'slugify', 'url', 'permalink'],
+    dependencies: [],
+  },
+  {
+    slug: 'html-wysiwyg-editor',
+    name: 'HTML WYSIWYG editor',
+    description: 'Rich text editor producing clean HTML.',
+    category: 'web',
+    icon: 'edit',
+    keywords: ['html', 'wysiwyg', 'rich', 'editor', 'tiptap'],
+    dependencies: ['@tiptap/vue-3', '@tiptap/starter-kit'],
+  },
+  {
+    slug: 'user-agent-parser',
+    name: 'User-agent parser',
+    description: 'Parse user-agent strings into browser/OS details.',
+    category: 'web',
+    icon: 'monitor',
+    keywords: ['useragent', 'ua', 'browser', 'os'],
+    dependencies: ['ua-parser-js'],
+  },
+  {
+    slug: 'http-status-codes',
+    name: 'HTTP status codes',
+    description: 'Reference for HTTP status codes with descriptions.',
+    category: 'web',
+    icon: 'server',
+    keywords: ['http', 'status', 'code', 'response'],
+    dependencies: [],
+  },
+  {
+    slug: 'json-diff',
+    name: 'JSON diff',
+    description: 'Compare two JSON documents and show differences.',
+    category: 'web',
+    icon: 'git-compare',
+    keywords: ['json', 'diff', 'compare'],
+    dependencies: ['diff'],
+  },
+  {
+    slug: 'outlook-safelink-decoder',
+    name: 'Outlook Safelink decoder',
+    description: 'Decode Outlook safelink wrapped URLs.',
+    category: 'web',
+    icon: 'mail',
+    keywords: ['outlook', 'safelink', 'url', 'decode'],
+    dependencies: [],
+  },
+
+  // ---- Images & Videos (M4) ----
+  {
+    slug: 'qr-code-generator',
+    name: 'QR Code generator',
+    description: 'Generate QR codes from text or URLs.',
+    category: 'media',
+    icon: 'qr-code',
+    keywords: ['qr', 'code', 'generate'],
+    dependencies: ['qrcode'],
+  },
+  {
+    slug: 'wifi-qr-code-generator',
+    name: 'WiFi QR Code generator',
+    description: 'Generate QR codes for WiFi network credentials.',
+    category: 'media',
+    icon: 'wifi',
+    keywords: ['wifi', 'qr', 'code', 'network'],
+    dependencies: ['qrcode'],
+  },
+  {
+    slug: 'svg-placeholder-generator',
+    name: 'SVG placeholder generator',
+    description: 'Generate SVG placeholder images.',
+    category: 'media',
+    icon: 'image',
+    keywords: ['svg', 'placeholder', 'image'],
+    dependencies: [],
+  },
+  {
+    slug: 'camera-recorder',
+    name: 'Camera recorder',
+    description: 'Record video from the webcam via MediaRecorder.',
+    category: 'media',
+    icon: 'video',
+    keywords: ['camera', 'record', 'video', 'media'],
+    dependencies: [],
+    iframeRequirements: ['camera; microphones'],
+  },
+
+  // ---- Development (M5) ----
+  {
+    slug: 'git-cheatsheet',
+    name: 'Git cheatsheet',
+    description: 'Quick reference for common Git commands.',
+    category: 'dev',
+    icon: 'git-branch',
+    keywords: ['git', 'cheatsheet', 'reference', 'commands'],
+    dependencies: [],
+  },
+  {
+    slug: 'random-port-generator',
+    name: 'Random port generator',
+    description: 'Generate random available network ports.',
+    category: 'dev',
+    icon: 'plug',
+    keywords: ['port', 'random', 'network'],
+    dependencies: [],
+  },
+  {
+    slug: 'crontab-generator',
+    name: 'Crontab generator',
+    description: 'Build and explain cron expressions.',
+    category: 'dev',
+    icon: 'clock',
+    keywords: ['cron', 'crontab', 'schedule'],
+    dependencies: [],
+  },
+  {
+    slug: 'json-prettify-and-format',
+    name: 'JSON prettify and format',
+    description: 'Pretty-print and format JSON.',
+    category: 'dev',
+    icon: 'braces',
+    keywords: ['json', 'prettify', 'format', 'beautify'],
+    dependencies: [],
+  },
+  {
+    slug: 'json-minify',
+    name: 'JSON minify',
+    description: 'Minify JSON by removing whitespace.',
+    category: 'dev',
+    icon: 'braces',
+    keywords: ['json', 'minify', 'compress'],
+    dependencies: [],
+  },
+  {
+    slug: 'json-to-csv',
+    name: 'JSON to CSV',
+    description: 'Convert JSON arrays to CSV.',
+    category: 'dev',
+    icon: 'file-spreadsheet',
+    keywords: ['json', 'csv', 'convert'],
+    dependencies: [],
+  },
+  {
+    slug: 'sql-prettify-and-format',
+    name: 'SQL prettify and format',
+    description: 'Pretty-print SQL queries.',
+    category: 'dev',
+    icon: 'database',
+    keywords: ['sql', 'prettify', 'format'],
+    dependencies: ['sql-formatter'],
+  },
+  {
+    slug: 'chmod-calculator',
+    name: 'Chmod calculator',
+    description: 'Calculate Unix file permissions.',
+    category: 'dev',
+    icon: 'lock',
+    keywords: ['chmod', 'permission', 'unix', 'octal'],
+    dependencies: [],
+  },
+  {
+    slug: 'docker-run-to-compose',
+    name: 'Docker run to Docker compose',
+    description: 'Convert docker run commands to compose files.',
+    category: 'dev',
+    icon: 'container',
+    keywords: ['docker', 'compose', 'run', 'convert'],
+    dependencies: [],
+  },
+  {
+    slug: 'xml-formatter',
+    name: 'XML formatter',
+    description: 'Pretty-print and format XML.',
+    category: 'dev',
+    icon: 'code',
+    keywords: ['xml', 'format', 'prettify'],
+    dependencies: ['fast-xml-parser'],
+  },
+  {
+    slug: 'yaml-prettify-and-format',
+    name: 'YAML prettify and format',
+    description: 'Pretty-print and format YAML.',
+    category: 'dev',
+    icon: 'braces',
+    keywords: ['yaml', 'format', 'prettify'],
+    dependencies: ['yaml'],
+  },
+  {
+    slug: 'email-normalizer',
+    name: 'Email normalizer',
+    description: 'Normalize email addresses for comparison.',
+    category: 'dev',
+    icon: 'mail',
+    keywords: ['email', 'normalize', 'canonical'],
+    dependencies: [],
+  },
+  {
+    slug: 'regex-tester',
+    name: 'Regex tester',
+    description: 'Test regular expressions against input.',
+    category: 'dev',
+    icon: 'regex',
+    keywords: ['regex', 'regexp', 'test', 'match'],
+    dependencies: [],
+  },
+  {
+    slug: 'regex-cheatsheet',
+    name: 'Regex cheatsheet',
+    description: 'Quick reference for regular expression syntax.',
+    category: 'dev',
+    icon: 'regex',
+    keywords: ['regex', 'cheatsheet', 'reference'],
+    dependencies: [],
+  },
+
+  // ---- Network (M6) ----
+  {
+    slug: 'ipv4-subnet-calculator',
+    name: 'IPv4 subnet calculator',
+    description: 'Calculate IPv4 subnets from CIDR notation.',
+    category: 'network',
+    icon: 'network',
+    keywords: ['ipv4', 'subnet', 'cidr', 'network'],
+    dependencies: [],
+  },
+  {
+    slug: 'ipv4-address-converter',
+    name: 'IPv4 address converter',
+    description: 'Convert IPv4 addresses between formats.',
+    category: 'network',
+    icon: 'network',
+    keywords: ['ipv4', 'address', 'convert', 'integer'],
+    dependencies: [],
+  },
+  {
+    slug: 'ipv4-range-expander',
+    name: 'IPv4 range expander',
+    description: 'Expand IPv4 ranges into CIDR blocks.',
+    category: 'network',
+    icon: 'network',
+    keywords: ['ipv4', 'range', 'cidr', 'expand'],
+    dependencies: [],
+  },
+  {
+    slug: 'mac-address-lookup',
+    name: 'MAC address lookup',
+    description: 'Look up vendor by MAC address (OUI database).',
+    category: 'network',
+    icon: 'network',
+    keywords: ['mac', 'oui', 'vendor', 'lookup'],
+    dependencies: [],
+  },
+  {
+    slug: 'mac-address-generator',
+    name: 'MAC address generator',
+    description: 'Generate random MAC addresses.',
+    category: 'network',
+    icon: 'network',
+    keywords: ['mac', 'generate', 'random'],
+    dependencies: [],
+  },
+  {
+    slug: 'ipv6-ula-generator',
+    name: 'IPv6 ULA generator',
+    description: 'Generate IPv6 Unique Local Addresses.',
+    category: 'network',
+    icon: 'network',
+    keywords: ['ipv6', 'ula', 'local', 'generate'],
+    dependencies: [],
+  },
+
+  // ---- Math (M7) ----
+  {
+    slug: 'math-evaluator',
+    name: 'Math evaluator',
+    description: 'Safely evaluate math expressions.',
+    category: 'math',
+    icon: 'calculator',
+    keywords: ['math', 'evaluate', 'expression', 'expr-eval'],
+    dependencies: ['expr-eval'],
+  },
+  {
+    slug: 'eta-calculator',
+    name: 'ETA calculator',
+    description: 'Estimate arrival time from speed and distance.',
+    category: 'math',
+    icon: 'clock',
+    keywords: ['eta', 'time', 'speed', 'distance'],
+    dependencies: [],
+  },
+  {
+    slug: 'percentage-calculator',
+    name: 'Percentage calculator',
+    description: 'Calculate percentages and changes.',
+    category: 'math',
+    icon: 'percent',
+    keywords: ['percentage', 'percent', 'change'],
+    dependencies: [],
+  },
+
+  // ---- Measurement (M8) ----
+  {
+    slug: 'chronometer',
+    name: 'Chronometer',
+    description: 'Precision stopwatch with lap timing.',
+    category: 'measurement',
+    icon: 'timer',
+    keywords: ['chronometer', 'stopwatch', 'timer', 'lap'],
+    dependencies: [],
+  },
+  {
+    slug: 'temperature-converter',
+    name: 'Temperature converter',
+    description: 'Convert between Celsius, Fahrenheit, and Kelvin.',
+    category: 'measurement',
+    icon: 'thermometer',
+    keywords: ['temperature', 'celsius', 'fahrenheit', 'kelvin'],
+    dependencies: [],
+  },
+  {
+    slug: 'benchmark-builder',
+    name: 'Benchmark builder',
+    description: 'Benchmark JavaScript code snippets.',
+    category: 'measurement',
+    icon: 'gauge',
+    keywords: ['benchmark', 'performance', 'measure'],
+    dependencies: [],
+  },
+
+  // ---- Text (M9) ----
+  {
+    slug: 'lorem-ipsum-generator',
+    name: 'Lorem ipsum generator',
+    description: 'Generate Lorem Ipsum placeholder text.',
+    category: 'text',
+    icon: 'align-left',
+    keywords: ['lorem', 'ipsum', 'placeholder', 'text'],
+    dependencies: [],
+  },
+  {
+    slug: 'text-statistics',
+    name: 'Text statistics',
+    description: 'Count words, characters, lines, and reading time.',
+    category: 'text',
+    icon: 'bar-chart',
+    keywords: ['text', 'statistics', 'count', 'words'],
+    dependencies: [],
+  },
+  {
+    slug: 'emoji-picker',
+    name: 'Emoji picker',
+    description: 'Browse and copy emojis.',
+    category: 'text',
+    icon: 'smile',
+    keywords: ['emoji', 'picker', 'copy'],
+    dependencies: [],
+  },
+  {
+    slug: 'string-obfuscator',
+    name: 'String obfuscator',
+    description: 'Obfuscate strings to deter casual reading.',
+    category: 'text',
+    icon: 'eye-off',
+    keywords: ['string', 'obfuscate', 'encode'],
+    dependencies: [],
+  },
+  {
+    slug: 'text-diff',
+    name: 'Text diff',
+    description: 'Compare two text blocks and show differences.',
+    category: 'text',
+    icon: 'git-compare',
+    keywords: ['text', 'diff', 'compare'],
+    dependencies: ['diff'],
+  },
+  {
+    slug: 'numeronym-generator',
+    name: 'Numeronym generator',
+    description: 'Generate numeronyms (e.g. i18n, l10n).',
+    category: 'text',
+    icon: 'hash',
+    keywords: ['numeronym', 'i18n', 'abbreviation'],
+    dependencies: [],
+  },
+  {
+    slug: 'ascii-art-text-generator',
+    name: 'ASCII Art Text Generator',
+    description: 'Render text as ASCII art.',
+    category: 'text',
+    icon: 'type',
+    keywords: ['ascii', 'art', 'figlet', 'text'],
+    dependencies: ['figlet'],
+  },
+
+  // ---- Data (M10) ----
+  {
+    slug: 'phone-parser-and-formatter',
+    name: 'Phone parser and formatter',
+    description: 'Parse and format international phone numbers.',
+    category: 'data',
+    icon: 'phone',
+    keywords: ['phone', 'parse', 'format', 'libphonenumber'],
+    dependencies: ['libphonenumber-js'],
+  },
+  {
+    slug: 'iban-validator-and-parser',
+    name: 'IBAN validator and parser',
+    description: 'Validate and parse IBAN account numbers.',
+    category: 'data',
+    icon: 'credit-card',
+    keywords: ['iban', 'validate', 'parse', 'bank'],
+    dependencies: [],
+  },
+];
+
+/** Map slug → metadata for O(1) lookups. */
+export const TOOLS_BY_SLUG: Record<string, ToolMetadata> = Object.fromEntries(
+  TOOLS.map((t) => [t.slug, t]),
+);
+
+/** Group tools by category, preserving declaration order. */
+export const TOOLS_BY_CATEGORY: Record<ToolCategory, ToolMetadata[]> =
+  Object.fromEntries(
+    CATEGORIES.map((c) => [c.id, TOOLS.filter((t) => t.category === c.id)]),
+  ) as Record<ToolCategory, ToolMetadata[]>;
+
+export function getToolBySlug(slug: string): ToolMetadata | undefined {
+  return TOOLS_BY_SLUG[slug];
+}
+
+export function getCategoryById(id: string): CategoryDefinition | undefined {
+  return CATEGORIES.find((c) => c.id === id);
+}
+
+/** Case-insensitive search across name, description, and keywords. */
+export function searchTools(query: string): ToolMetadata[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return TOOLS;
+  return TOOLS.filter((t) => {
+    const haystack = [t.name, t.description, t.category, ...t.keywords]
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(q);
+  });
+}
