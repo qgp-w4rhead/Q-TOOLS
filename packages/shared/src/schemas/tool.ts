@@ -58,9 +58,13 @@ export const InvokeToolResponseSchema = z.object({
 /* ------------------------------------------------------------------ */
 /* Inferred TypeScript types                                           */
 /* ------------------------------------------------------------------ */
+/*
+ * `ToolCategory` and `ToolMetadata` are exported from `../types/tool.ts` as
+ * hand-written interfaces (the canonical compile-time contract). The Zod
+ * inferred types below are kept only for the request/response DTOs that are
+ * not part of the tool registry contract.
+ */
 
-export type ToolCategory = z.infer<typeof ToolCategoryEnum>;
-export type ToolMetadata = z.infer<typeof ToolMetadataSchema>;
 export type ListToolsResponse = z.infer<typeof ListToolsResponseSchema>;
 export type InvokeToolRequest = z.infer<typeof InvokeToolRequestSchema>;
 export type InvokeToolResponse = z.infer<typeof InvokeToolResponseSchema>;

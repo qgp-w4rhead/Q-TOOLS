@@ -5,114 +5,21 @@
  * are implemented in later milestones (M1+); the registry is the single source
  * of truth for the home page grid, routing, and the backend `/api/tools` list.
  *
- * The formal `ToolMetadata` interface lives in `@q-tools/shared` (M0.4). Until
- * then, a local interface is used here so the scaffold compiles standalone.
+ * The `ToolMetadata` interface, `ToolCategory` type, and `CATEGORIES` constants
+ * live in `@q-tools/shared` (M0.4) and are re-exported here for convenience.
  *
  * Categories (10): crypto, converter, web, media, dev, network, math,
  * measurement, text, data.
  */
 
-export type ToolCategory =
-  | 'crypto'
-  | 'converter'
-  | 'web'
-  | 'media'
-  | 'dev'
-  | 'network'
-  | 'math'
-  | 'measurement'
-  | 'text'
-  | 'data';
+export type { ToolCategory, ToolMetadata } from '@q-tools/shared';
+export type { CategoryDefinition } from '@q-tools/shared';
 
-export interface ToolMetadata {
-  /** URL slug, also the route param (`/tools/:slug`). */
-  slug: string;
-  /** Human-readable name. */
-  name: string;
-  /** One-line description. */
-  description: string;
-  /** Category id. */
-  category: ToolCategory;
-  /** lucide-vue-next icon name (kebab-case, matched in icon map). */
-  icon: string;
-  /** Search keywords. */
-  keywords: string[];
-  /** npm deps this tool lazy-loads (for code-splitting metadata). */
-  dependencies: string[];
-  /** Iframe `allow` attributes required in embed mode (e.g. camera, clipboard). */
-  iframeRequirements?: string[];
-}
+import type { ToolCategory, ToolMetadata, CategoryDefinition } from '@q-tools/shared';
+import { CATEGORIES as SHARED_CATEGORIES } from '@q-tools/shared';
 
-export interface CategoryDefinition {
-  id: ToolCategory;
-  label: string;
-  /** lucide icon name used for the category header. */
-  icon: string;
-  description: string;
-}
-
-export const CATEGORIES: CategoryDefinition[] = [
-  {
-    id: 'crypto',
-    label: 'Crypto',
-    icon: 'shield',
-    description: 'Hashing, encryption, keys, and password tools.',
-  },
-  {
-    id: 'converter',
-    label: 'Converter',
-    icon: 'repeat',
-    description: 'Convert between data formats, encodings, and units.',
-  },
-  {
-    id: 'web',
-    label: 'Web',
-    icon: 'globe',
-    description: 'URL, HTTP, JWT, and browser-related utilities.',
-  },
-  {
-    id: 'media',
-    label: 'Images & Videos',
-    icon: 'image',
-    description: 'QR codes, SVG placeholders, and camera recording.',
-  },
-  {
-    id: 'dev',
-    label: 'Development',
-    icon: 'code',
-    description: 'Git, Docker, JSON, SQL, regex, and dev cheatsheets.',
-  },
-  {
-    id: 'network',
-    label: 'Network',
-    icon: 'network',
-    description: 'IP, subnet, MAC, and IPv6 utilities.',
-  },
-  {
-    id: 'math',
-    label: 'Math',
-    icon: 'calculator',
-    description: 'Evaluators and calculators.',
-  },
-  {
-    id: 'measurement',
-    label: 'Measurement',
-    icon: 'ruler',
-    description: 'Timers, temperature, and benchmarks.',
-  },
-  {
-    id: 'text',
-    label: 'Text',
-    icon: 'type',
-    description: 'Generators, statistics, diffs, and obfuscation.',
-  },
-  {
-    id: 'data',
-    label: 'Data',
-    icon: 'database',
-    description: 'Phone numbers and IBAN validation.',
-  },
-];
+/** Re-export category definitions from the shared package. */
+export const CATEGORIES = SHARED_CATEGORIES;
 
 export const TOOLS: ToolMetadata[] = [
   // ---- Crypto (M1) ----
