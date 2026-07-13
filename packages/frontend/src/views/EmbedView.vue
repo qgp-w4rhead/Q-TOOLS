@@ -86,6 +86,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'open-graph-meta-generator': () => import('@/tools/OpenGraphMeta/index'),
     'otp-code-generator': () => import('@/tools/OtpCodeGenerator/index'),
     'mime-types': () => import('@/tools/MimeTypes/index'),
+    'jwt-parser': () => import('@/tools/JwtParser/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
