@@ -107,6 +107,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'json-to-csv': () => import('@/tools/JsonToCsv/index'),
     'sql-prettify-and-format': () => import('@/tools/SqlPrettify/index'),
     'chmod-calculator': () => import('@/tools/ChmodCalculator/index'),
+    'docker-run-to-compose': () =>
+      import('@/tools/DockerRunToCompose/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
