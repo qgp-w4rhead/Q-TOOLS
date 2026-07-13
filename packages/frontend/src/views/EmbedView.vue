@@ -128,6 +128,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/Ipv6UlaGenerator/index'),
     'math-evaluator': () => import('@/tools/MathEvaluator/index'),
     'eta-calculator': () => import('@/tools/EtaCalculator/index'),
+    'percentage-calculator': () =>
+      import('@/tools/PercentageCalculator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
