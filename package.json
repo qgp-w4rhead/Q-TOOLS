@@ -10,7 +10,11 @@
     "pnpm": ">=10.0.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["bcrypt", "esbuild"]
+    "onlyBuiltDependencies": ["bcrypt", "esbuild"],
+    "overrides": {
+      "@tiptap/core": "3.27.2",
+      "@tiptap/pm": "3.27.2"
+    }
   },
   "scripts": {
     "build": "pnpm -r build",

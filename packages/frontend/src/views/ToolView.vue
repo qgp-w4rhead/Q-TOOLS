@@ -81,6 +81,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'jwt-parser': () => import('@/tools/JwtParser/index'),
     'keycode-info': () => import('@/tools/KeycodeInfo/index'),
     'slugify-string': () => import('@/tools/SlugifyString/index'),
+    'html-wysiwyg-editor': () => import('@/tools/HtmlWysiwygEditor/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];

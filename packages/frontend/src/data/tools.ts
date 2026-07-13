@@ -408,7 +408,7 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'html-wysiwyg-editor',
     name: 'HTML WYSIWYG editor',
-    description: 'Rich text editor producing clean HTML.',
+    description: 'Rich text editor producing clean HTML and Markdown.',
     category: 'web',
     icon: 'edit',
     keywords: ['html', 'wysiwyg', 'rich', 'editor', 'tiptap'],
