@@ -102,6 +102,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'docker-run-to-compose': () =>
       import('@/tools/DockerRunToCompose/index'),
     'xml-formatter': () => import('@/tools/XmlFormatter/index'),
+    'yaml-prettify-and-format': () => import('@/tools/YamlPrettify/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
