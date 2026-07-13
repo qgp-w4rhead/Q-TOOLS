@@ -101,6 +101,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'chmod-calculator': () => import('@/tools/ChmodCalculator/index'),
     'docker-run-to-compose': () =>
       import('@/tools/DockerRunToCompose/index'),
+    'xml-formatter': () => import('@/tools/XmlFormatter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
