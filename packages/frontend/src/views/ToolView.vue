@@ -127,6 +127,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/TemperatureConverter/index'),
     'benchmark-builder': () =>
       import('@/tools/BenchmarkBuilder/index'),
+    'lorem-ipsum-generator': () =>
+      import('@/tools/LoremIpsum/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];

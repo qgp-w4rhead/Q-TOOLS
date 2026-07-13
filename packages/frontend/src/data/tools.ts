@@ -736,10 +736,10 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'lorem-ipsum-generator',
     name: 'Lorem ipsum generator',
-    description: 'Generate Lorem Ipsum placeholder text.',
+    description: 'Generate Lorem Ipsum placeholder text with configurable paragraphs, sentences, and words.',
     category: 'text',
     icon: 'align-left',
-    keywords: ['lorem', 'ipsum', 'placeholder', 'text'],
+    keywords: ['lorem', 'ipsum', 'placeholder', 'text', 'filler', 'dummy'],
     dependencies: [],
   },
   {
