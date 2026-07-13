@@ -69,6 +69,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'text-to-ascii-binary': () => import('@/tools/AsciiBinary/index'),
     'text-to-unicode': () => import('@/tools/TextToUnicode/index'),
     'yaml-to-json': () => import('@/tools/YamlToJson/index'),
+    'yaml-to-toml': () => import('@/tools/YamlToToml/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
