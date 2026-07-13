@@ -133,6 +133,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'chronometer': () => import('@/tools/Chronometer/index'),
     'temperature-converter': () =>
       import('@/tools/TemperatureConverter/index'),
+    'benchmark-builder': () =>
+      import('@/tools/BenchmarkBuilder/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
