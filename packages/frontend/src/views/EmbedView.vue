@@ -96,6 +96,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'outlook-safelink-decoder': () => import('@/tools/OutlookSafelinkDecoder/index'),
     'qr-code-generator': () => import('@/tools/QrCodeGenerator/index'),
     'wifi-qr-code-generator': () => import('@/tools/WifiQrCodeGenerator/index'),
+    'svg-placeholder-generator': () => import('@/tools/SvgPlaceholderGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
