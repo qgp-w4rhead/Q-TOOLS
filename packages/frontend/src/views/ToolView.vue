@@ -86,6 +86,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'http-status-codes': () => import('@/tools/HttpStatusCodes/index'),
     'json-diff': () => import('@/tools/JsonDiff/index'),
     'outlook-safelink-decoder': () => import('@/tools/OutlookSafelinkDecoder/index'),
+    'qr-code-generator': () => import('@/tools/QrCodeGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
