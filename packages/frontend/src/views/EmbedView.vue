@@ -79,6 +79,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'json-to-xml': () => import('@/tools/JsonToXml/index'),
     'markdown-to-html': () => import('@/tools/MarkdownToHtml/index'),
     'url-encode-decode': () => import('@/tools/UrlEncodeDecode/index'),
+    'escape-html-entities': () => import('@/tools/EscapeHtmlEntities/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
