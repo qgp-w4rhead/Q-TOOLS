@@ -63,6 +63,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'roman-numeral-converter': () => import('@/tools/RomanNumeralConverter/index'),
     'base64-string': () => import('@/tools/Base64String/index'),
     'base64-file-converter': () => import('@/tools/Base64File/index'),
+    'color-converter': () => import('@/tools/ColorConverter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
