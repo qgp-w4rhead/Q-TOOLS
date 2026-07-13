@@ -95,6 +95,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'json-diff': () => import('@/tools/JsonDiff/index'),
     'outlook-safelink-decoder': () => import('@/tools/OutlookSafelinkDecoder/index'),
     'qr-code-generator': () => import('@/tools/QrCodeGenerator/index'),
+    'wifi-qr-code-generator': () => import('@/tools/WifiQrCodeGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
