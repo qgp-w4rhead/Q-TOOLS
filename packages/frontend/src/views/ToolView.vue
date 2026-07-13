@@ -83,6 +83,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'slugify-string': () => import('@/tools/SlugifyString/index'),
     'html-wysiwyg-editor': () => import('@/tools/HtmlWysiwygEditor/index'),
     'user-agent-parser': () => import('@/tools/UserAgentParser/index'),
+    'http-status-codes': () => import('@/tools/HttpStatusCodes/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
