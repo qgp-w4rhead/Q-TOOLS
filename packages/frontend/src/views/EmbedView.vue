@@ -81,6 +81,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'url-encode-decode': () => import('@/tools/UrlEncodeDecode/index'),
     'escape-html-entities': () => import('@/tools/EscapeHtmlEntities/index'),
     'url-parser': () => import('@/tools/UrlParser/index'),
+    'device-information': () => import('@/tools/DeviceInformation/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
