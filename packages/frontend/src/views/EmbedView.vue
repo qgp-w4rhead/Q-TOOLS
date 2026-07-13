@@ -124,6 +124,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/MacAddressLookup/index'),
     'mac-address-generator': () =>
       import('@/tools/MacAddressGenerator/index'),
+    'ipv6-ula-generator': () =>
+      import('@/tools/Ipv6UlaGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
