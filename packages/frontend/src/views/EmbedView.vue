@@ -72,6 +72,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'yaml-to-toml': () => import('@/tools/YamlToToml/index'),
     'json-to-yaml': () => import('@/tools/JsonToYaml/index'),
     'json-to-toml': () => import('@/tools/JsonToToml/index'),
+    'list-converter': () => import('@/tools/ListConverter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
