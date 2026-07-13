@@ -57,6 +57,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'base64-file-converter': () => import('@/tools/Base64File/index'),
     'color-converter': () => import('@/tools/ColorConverter/index'),
     'case-converter': () => import('@/tools/CaseConverter/index'),
+    'text-to-nato': () => import('@/tools/NatoConverter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
