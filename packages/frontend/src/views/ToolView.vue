@@ -123,6 +123,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'percentage-calculator': () =>
       import('@/tools/PercentageCalculator/index'),
     'chronometer': () => import('@/tools/Chronometer/index'),
+    'temperature-converter': () =>
+      import('@/tools/TemperatureConverter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];

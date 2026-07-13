@@ -716,10 +716,10 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'temperature-converter',
     name: 'Temperature converter',
-    description: 'Convert between Celsius, Fahrenheit, and Kelvin.',
+    description: 'Convert between Celsius, Fahrenheit, Kelvin, Rankine, Delisle, Newton, Réaumur, and Rømer.',
     category: 'measurement',
     icon: 'thermometer',
-    keywords: ['temperature', 'celsius', 'fahrenheit', 'kelvin'],
+    keywords: ['temperature', 'celsius', 'fahrenheit', 'kelvin', 'rankine', 'delisle', 'newton', 'reaumur', 'romer'],
     dependencies: [],
   },
   {
