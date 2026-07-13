@@ -113,6 +113,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'yaml-prettify-and-format': () => import('@/tools/YamlPrettify/index'),
     'email-normalizer': () => import('@/tools/EmailNormalizer/index'),
     'regex-tester': () => import('@/tools/RegexTester/index'),
+    'regex-cheatsheet': () => import('@/tools/RegexCheatsheet/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
