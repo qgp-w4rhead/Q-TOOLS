@@ -88,6 +88,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'mime-types': () => import('@/tools/MimeTypes/index'),
     'jwt-parser': () => import('@/tools/JwtParser/index'),
     'keycode-info': () => import('@/tools/KeycodeInfo/index'),
+    'slugify-string': () => import('@/tools/SlugifyString/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
