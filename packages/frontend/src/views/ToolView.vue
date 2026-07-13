@@ -110,6 +110,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/Ipv4SubnetCalculator/index'),
     'ipv4-address-converter': () =>
       import('@/tools/Ipv4AddressConverter/index'),
+    'ipv4-range-expander': () =>
+      import('@/tools/Ipv4RangeExpander/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
