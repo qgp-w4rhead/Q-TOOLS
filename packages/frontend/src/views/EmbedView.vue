@@ -120,6 +120,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/Ipv4AddressConverter/index'),
     'ipv4-range-expander': () =>
       import('@/tools/Ipv4RangeExpander/index'),
+    'mac-address-lookup': () =>
+      import('@/tools/MacAddressLookup/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
