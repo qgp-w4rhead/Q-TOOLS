@@ -67,6 +67,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'case-converter': () => import('@/tools/CaseConverter/index'),
     'text-to-nato': () => import('@/tools/NatoConverter/index'),
     'text-to-ascii-binary': () => import('@/tools/AsciiBinary/index'),
+    'text-to-unicode': () => import('@/tools/TextToUnicode/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
