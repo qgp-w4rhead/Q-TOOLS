@@ -98,6 +98,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'json-minify': () => import('@/tools/JsonMinify/index'),
     'json-to-csv': () => import('@/tools/JsonToCsv/index'),
     'sql-prettify-and-format': () => import('@/tools/SqlPrettify/index'),
+    'chmod-calculator': () => import('@/tools/ChmodCalculator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
