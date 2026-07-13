@@ -114,6 +114,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'email-normalizer': () => import('@/tools/EmailNormalizer/index'),
     'regex-tester': () => import('@/tools/RegexTester/index'),
     'regex-cheatsheet': () => import('@/tools/RegexCheatsheet/index'),
+    'ipv4-subnet-calculator': () =>
+      import('@/tools/Ipv4SubnetCalculator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
