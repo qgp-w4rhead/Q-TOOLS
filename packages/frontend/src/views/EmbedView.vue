@@ -98,6 +98,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'wifi-qr-code-generator': () => import('@/tools/WifiQrCodeGenerator/index'),
     'svg-placeholder-generator': () => import('@/tools/SvgPlaceholderGenerator/index'),
     'camera-recorder': () => import('@/tools/CameraRecorder/index'),
+    'git-cheatsheet': () => import('@/tools/GitCheatsheet/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
