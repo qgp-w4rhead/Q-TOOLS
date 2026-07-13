@@ -59,6 +59,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'password-strength-analyser': () => import('@/tools/PasswordStrength/index'),
     'pdf-signature-checker': () => import('@/tools/PdfSignature/index'),
     'date-time-converter': () => import('@/tools/DateTimeConverter/index'),
+    'integer-base-converter': () => import('@/tools/BaseConverter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
