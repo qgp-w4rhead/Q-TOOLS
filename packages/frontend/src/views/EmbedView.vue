@@ -116,6 +116,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'regex-cheatsheet': () => import('@/tools/RegexCheatsheet/index'),
     'ipv4-subnet-calculator': () =>
       import('@/tools/Ipv4SubnetCalculator/index'),
+    'ipv4-address-converter': () =>
+      import('@/tools/Ipv4AddressConverter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
