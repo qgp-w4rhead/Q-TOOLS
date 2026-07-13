@@ -154,6 +154,16 @@ export const TOOLS: ToolMetadata[] = [
     dependencies: [],
     apiAccessible: true,
   },
+  {
+    slug: 'pdf-signature-checker',
+    name: 'PDF signature checker',
+    description: 'Check digital signatures in PDF files.',
+    category: 'crypto',
+    icon: 'file-check',
+    keywords: ['pdf', 'signature', 'pkcs7', 'certificate'],
+    dependencies: ['pdfjs-dist', 'node-forge'],
+    apiAccessible: false,
+  },
 ];
 
 /**

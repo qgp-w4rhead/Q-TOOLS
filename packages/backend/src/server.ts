@@ -18,6 +18,7 @@ import { healthRoutes } from './routes/health.js';
 import { authRoutes } from './routes/auth.js';
 import { userRoutes } from './routes/users.js';
 import { toolRoutes } from './routes/tools.js';
+import { pdfVerifyRoutes } from './routes/pdf-verify.js';
 
 /* ------------------------------------------------------------------ */
 /* Factory                                                             */
@@ -58,6 +59,18 @@ export async function buildServer(): Promise<FastifyInstance> {
 
   await app.register(jwtPlugin);
 
+  // Content-type parser for raw PDF uploads — returns the body as a Buffer so
+  // the /api/pdf/verify route can scan the raw bytes. Fastify only parses
+  // application/json and text/plain by default; without this parser a
+  // application/pdf request would be rejected with FST_ERR_CTP_INVALID_MEDIA.
+  app.addContentTypeParser(
+    'application/pdf',
+    { parseAs: 'buffer' },
+    (_req, body, done) => {
+      done(null, body);
+    },
+  );
+
   // Serve the built SPA in production when STATIC_ROOT is set.
   if (config.staticRoot) {
     await app.register(staticPlugin, {
@@ -73,6 +86,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await app.register(authRoutes);
   await app.register(userRoutes);
   await app.register(toolRoutes);
+  await app.register(pdfVerifyRoutes);
 
   /* ---- 404 fallback (JSON, not HTML) ---- */
 

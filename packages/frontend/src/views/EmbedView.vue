@@ -57,6 +57,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'hmac-generator': () => import('@/tools/HmacGenerator/index'),
     'rsa-key-pair-generator': () => import('@/tools/RsaKeyPair/index'),
     'password-strength-analyser': () => import('@/tools/PasswordStrength/index'),
+    'pdf-signature-checker': () => import('@/tools/PdfSignature/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
