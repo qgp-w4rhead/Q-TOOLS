@@ -745,10 +745,14 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'text-statistics',
     name: 'Text statistics',
-    description: 'Count words, characters, lines, and reading time.',
+    description:
+      'Count characters, words, sentences, paragraphs, lines, average lengths, and estimate reading + speaking time.',
     category: 'text',
     icon: 'bar-chart',
-    keywords: ['text', 'statistics', 'count', 'words'],
+    keywords: [
+      'text', 'statistics', 'count', 'words', 'characters', 'sentences',
+      'paragraphs', 'lines', 'reading', 'speaking', 'time',
+    ],
     dependencies: [],
   },
   {
