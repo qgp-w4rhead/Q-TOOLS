@@ -52,6 +52,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'pdf-signature-checker': () => import('@/tools/PdfSignature/index'),
     'date-time-converter': () => import('@/tools/DateTimeConverter/index'),
     'integer-base-converter': () => import('@/tools/BaseConverter/index'),
+    'roman-numeral-converter': () => import('@/tools/RomanNumeralConverter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
