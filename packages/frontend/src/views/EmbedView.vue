@@ -85,6 +85,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'basic-auth-generator': () => import('@/tools/BasicAuthGenerator/index'),
     'open-graph-meta-generator': () => import('@/tools/OpenGraphMeta/index'),
     'otp-code-generator': () => import('@/tools/OtpCodeGenerator/index'),
+    'mime-types': () => import('@/tools/MimeTypes/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
