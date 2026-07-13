@@ -92,6 +92,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'html-wysiwyg-editor': () => import('@/tools/HtmlWysiwygEditor/index'),
     'user-agent-parser': () => import('@/tools/UserAgentParser/index'),
     'http-status-codes': () => import('@/tools/HttpStatusCodes/index'),
+    'json-diff': () => import('@/tools/JsonDiff/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];

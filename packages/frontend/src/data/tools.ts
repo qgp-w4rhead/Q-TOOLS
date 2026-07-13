@@ -439,7 +439,7 @@ export const TOOLS: ToolMetadata[] = [
     category: 'web',
     icon: 'git-compare',
     keywords: ['json', 'diff', 'compare'],
-    dependencies: ['diff'],
+    dependencies: [],
   },
   {
     slug: 'outlook-safelink-decoder',
