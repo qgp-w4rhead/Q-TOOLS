@@ -91,6 +91,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'svg-placeholder-generator': () => import('@/tools/SvgPlaceholderGenerator/index'),
     'camera-recorder': () => import('@/tools/CameraRecorder/index'),
     'git-cheatsheet': () => import('@/tools/GitCheatsheet/index'),
+    'random-port-generator': () =>
+      import('@/tools/RandomPortGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
