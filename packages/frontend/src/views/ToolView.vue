@@ -96,6 +96,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'crontab-generator': () => import('@/tools/CrontabGenerator/index'),
     'json-prettify-and-format': () => import('@/tools/JsonPrettify/index'),
     'json-minify': () => import('@/tools/JsonMinify/index'),
+    'json-to-csv': () => import('@/tools/JsonToCsv/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
