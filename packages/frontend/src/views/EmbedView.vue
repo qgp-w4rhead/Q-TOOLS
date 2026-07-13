@@ -68,6 +68,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'text-to-nato': () => import('@/tools/NatoConverter/index'),
     'text-to-ascii-binary': () => import('@/tools/AsciiBinary/index'),
     'text-to-unicode': () => import('@/tools/TextToUnicode/index'),
+    'yaml-to-json': () => import('@/tools/YamlToJson/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
