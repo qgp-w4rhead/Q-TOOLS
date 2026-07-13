@@ -101,6 +101,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'git-cheatsheet': () => import('@/tools/GitCheatsheet/index'),
     'random-port-generator': () =>
       import('@/tools/RandomPortGenerator/index'),
+    'crontab-generator': () => import('@/tools/CrontabGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
