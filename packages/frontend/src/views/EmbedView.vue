@@ -61,6 +61,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'date-time-converter': () => import('@/tools/DateTimeConverter/index'),
     'integer-base-converter': () => import('@/tools/BaseConverter/index'),
     'roman-numeral-converter': () => import('@/tools/RomanNumeralConverter/index'),
+    'base64-string': () => import('@/tools/Base64String/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
