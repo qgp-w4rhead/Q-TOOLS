@@ -58,6 +58,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'rsa-key-pair-generator': () => import('@/tools/RsaKeyPair/index'),
     'password-strength-analyser': () => import('@/tools/PasswordStrength/index'),
     'pdf-signature-checker': () => import('@/tools/PdfSignature/index'),
+    'date-time-converter': () => import('@/tools/DateTimeConverter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
