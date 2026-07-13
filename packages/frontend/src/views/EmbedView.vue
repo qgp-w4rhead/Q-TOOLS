@@ -84,6 +84,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'device-information': () => import('@/tools/DeviceInformation/index'),
     'basic-auth-generator': () => import('@/tools/BasicAuthGenerator/index'),
     'open-graph-meta-generator': () => import('@/tools/OpenGraphMeta/index'),
+    'otp-code-generator': () => import('@/tools/OtpCodeGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
