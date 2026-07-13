@@ -130,6 +130,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'eta-calculator': () => import('@/tools/EtaCalculator/index'),
     'percentage-calculator': () =>
       import('@/tools/PercentageCalculator/index'),
+    'chronometer': () => import('@/tools/Chronometer/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
