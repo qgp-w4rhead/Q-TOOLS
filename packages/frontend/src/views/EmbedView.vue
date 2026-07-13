@@ -90,6 +90,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'keycode-info': () => import('@/tools/KeycodeInfo/index'),
     'slugify-string': () => import('@/tools/SlugifyString/index'),
     'html-wysiwyg-editor': () => import('@/tools/HtmlWysiwygEditor/index'),
+    'user-agent-parser': () => import('@/tools/UserAgentParser/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
