@@ -144,6 +144,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'string-obfuscator': () =>
       import('@/tools/StringObfuscator/index'),
     'text-diff': () => import('@/tools/TextDiff/index'),
+    'numeronym-generator': () =>
+      import('@/tools/NumeronymGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];

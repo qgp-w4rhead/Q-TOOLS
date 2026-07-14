@@ -795,10 +795,14 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'numeronym-generator',
     name: 'Numeronym generator',
-    description: 'Generate numeronyms (e.g. i18n, l10n).',
+    description:
+      'Generate numeronyms from words or phrases (e.g. internationalization → i18n). Configurable minimum word length and case preservation.',
     category: 'text',
     icon: 'hash',
-    keywords: ['numeronym', 'i18n', 'abbreviation'],
+    keywords: [
+      'numeronym', 'i18n', 'l10n', 'a11y', 'abbreviation', 'acronym',
+      'shorten', 'compress', 'word', 'phrase',
+    ],
     dependencies: [],
   },
   {
