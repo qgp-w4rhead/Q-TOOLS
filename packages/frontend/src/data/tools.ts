@@ -758,19 +758,28 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'emoji-picker',
     name: 'Emoji picker',
-    description: 'Browse and copy emojis.',
+    description:
+      'Browse, search, and copy emojis across 9 categories with skin-tone selector and shortcode copy mode.',
     category: 'text',
     icon: 'smile',
-    keywords: ['emoji', 'picker', 'copy'],
+    keywords: [
+      'emoji', 'picker', 'copy', 'shortcode', 'skin-tone', 'smileys',
+      'people', 'animals', 'food', 'activities', 'travel', 'objects',
+      'symbols', 'flags', 'search',
+    ],
     dependencies: [],
   },
   {
     slug: 'string-obfuscator',
     name: 'String obfuscator',
-    description: 'Obfuscate strings to deter casual reading.',
+    description:
+      'Obfuscate text with Unicode homoglyph substitutions and zero-width character insertion. Reversible deobfuscate mode.',
     category: 'text',
     icon: 'eye-off',
-    keywords: ['string', 'obfuscate', 'encode'],
+    keywords: [
+      'string', 'obfuscate', 'deobfuscate', 'homoglyph', 'lookalike',
+      'zero-width', 'unicode', 'confusable', 'disguise', 'encode', 'decode',
+    ],
     dependencies: [],
   },
   {

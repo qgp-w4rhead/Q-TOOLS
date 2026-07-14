@@ -139,6 +139,10 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/LoremIpsum/index'),
     'text-statistics': () =>
       import('@/tools/TextStatistics/index'),
+    'emoji-picker': () =>
+      import('@/tools/EmojiPicker/index'),
+    'string-obfuscator': () =>
+      import('@/tools/StringObfuscator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
