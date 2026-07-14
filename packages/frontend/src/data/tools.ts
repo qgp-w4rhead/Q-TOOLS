@@ -785,10 +785,11 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'text-diff',
     name: 'Text diff',
-    description: 'Compare two text blocks and show differences.',
+    description:
+      'Compare two text blocks with char/word/line/sentence diff. Inline, side-by-side and unified-patch views.',
     category: 'text',
     icon: 'git-compare',
-    keywords: ['text', 'diff', 'compare'],
+    keywords: ['text', 'diff', 'compare', 'patch', 'unified', 'side-by-side'],
     dependencies: ['diff'],
   },
   {
