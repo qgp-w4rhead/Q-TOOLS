@@ -10,6 +10,7 @@ import { Moon, Sun, Wrench } from 'lucide-vue-next';
 import CategorySection from '@/components/CategorySection.vue';
 import FavoritesSection from '@/components/FavoritesSection.vue';
 import GlobalSearch from '@/components/GlobalSearch.vue';
+import InstallPrompt from '@/components/InstallPrompt.vue';
 import {
   CATEGORIES,
   TOOLS_BY_CATEGORY,
@@ -78,6 +79,7 @@ const showFavorites = computed(() => !query.value.trim() && favorites.count > 0)
       <p v-if="query.trim()" class="home__match-count">
         {{ matchCount }} tool{{ matchCount === 1 ? '' : 's' }} matched
       </p>
+      <InstallPrompt v-if="!query.trim()" />
     </section>
 
     <main class="qt-container home__main">
