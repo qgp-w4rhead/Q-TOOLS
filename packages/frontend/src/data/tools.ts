@@ -808,10 +808,14 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'ascii-art-text-generator',
     name: 'ASCII Art Text Generator',
-    description: 'Render text as ASCII art.',
+    description:
+      'Render text as ASCII art with figlet. 26 curated fonts, live preview gallery, configurable horizontal/vertical kerning modes. Fonts loaded on demand.',
     category: 'text',
     icon: 'type',
-    keywords: ['ascii', 'art', 'figlet', 'text'],
+    keywords: [
+      'ascii', 'art', 'figlet', 'text', 'banner', 'font', 'block',
+      'shadow', 'slant', 'big', 'small', 'script',
+    ],
     dependencies: ['figlet'],
   },
 

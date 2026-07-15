@@ -138,6 +138,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'text-diff': () => import('@/tools/TextDiff/index'),
     'numeronym-generator': () =>
       import('@/tools/NumeronymGenerator/index'),
+    'ascii-art-text-generator': () =>
+      import('@/tools/AsciiArtTextGenerator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
