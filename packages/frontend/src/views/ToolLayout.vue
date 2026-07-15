@@ -18,6 +18,7 @@ import {
   getToolBySlug,
 } from '@/data/tools';
 import { useSettingsStore } from '@/stores/settingsStore';
+import FavoriteButton from '@/components/FavoriteButton.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -68,6 +69,11 @@ function openEmbed() {
           </button>
           <h1 class="tool-layout__title">{{ tool?.name ?? 'Tool' }}</h1>
           <div class="tool-layout__actions">
+            <FavoriteButton
+              v-if="slug"
+              :slug="slug"
+              :label="tool?.name"
+            />
             <button
               class="tool-layout__icon-btn"
               type="button"

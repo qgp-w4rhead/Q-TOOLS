@@ -8,6 +8,7 @@
 import { computed, ref } from 'vue';
 import { Moon, Sun, Wrench } from 'lucide-vue-next';
 import CategorySection from '@/components/CategorySection.vue';
+import FavoritesSection from '@/components/FavoritesSection.vue';
 import GlobalSearch from '@/components/GlobalSearch.vue';
 import {
   CATEGORIES,
@@ -17,8 +18,10 @@ import {
   type CategoryDefinition,
 } from '@/data/tools';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { useFavoritesStore } from '@/stores/favoritesStore';
 
 const settings = useSettingsStore();
+const favorites = useFavoritesStore();
 
 const query = ref('');
 
@@ -40,6 +43,9 @@ const visibleCategories = computed<{ category: CategoryDefinition; tools: ToolMe
 });
 
 const matchCount = computed(() => filteredTools.value.length);
+
+/** Show the favorites section only when not filtering by search. */
+const showFavorites = computed(() => !query.value.trim() && favorites.count > 0);
 </script>
 
 <template>
@@ -75,6 +81,7 @@ const matchCount = computed(() => filteredTools.value.length);
     </section>
 
     <main class="qt-container home__main">
+      <FavoritesSection v-if="showFavorites" />
       <CategorySection
         v-for="entry in visibleCategories"
         :key="entry.category.id"

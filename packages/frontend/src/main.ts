@@ -23,6 +23,8 @@ import '@ionic/vue/css/display.css';
 import App from './App.vue';
 import router from './router';
 import { useSettingsStore } from './stores/settingsStore';
+import { useAuthStore } from './stores/authStore';
+import { useFavoritesStore } from './stores/favoritesStore';
 import './styles/global.css';
 
 const app = createApp(App)
@@ -32,7 +34,23 @@ const app = createApp(App)
 
 // Initialise persisted settings (theme + locale) before mount.
 useSettingsStore();
+// Rehydrate favorites from LocalStorage before mount so the home page
+// renders the favorites section on first paint.
+const favoritesStore = useFavoritesStore();
+favoritesStore.loadFromStorage();
 
-router.isReady().then(() => {
+router.isReady().then(async () => {
   app.mount('#app');
+  // After mount: validate any persisted auth session and, if still
+  // authenticated, sync favorites with the backend. Errors are
+  // non-fatal — the app works offline with LocalStorage-only favorites.
+  const auth = useAuthStore();
+  try {
+    const user = await auth.restore();
+    if (user) {
+      void favoritesStore.syncWithBackend();
+    }
+  } catch {
+    /* offline or backend unreachable — LocalStorage favorites still work */
+  }
 });
