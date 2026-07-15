@@ -142,6 +142,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/AsciiArtTextGenerator/index'),
     'phone-parser-and-formatter': () =>
       import('@/tools/PhoneParserFormatter/index'),
+    'iban-validator-and-parser': () =>
+      import('@/tools/IbanValidatorParser/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];

@@ -837,10 +837,25 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'iban-validator-and-parser',
     name: 'IBAN validator and parser',
-    description: 'Validate and parse IBAN account numbers.',
+    description:
+      'Validate IBAN account numbers with mod-97 checksum and parse into country, bank code, branch code, and account number.',
     category: 'data',
     icon: 'credit-card',
-    keywords: ['iban', 'validate', 'parse', 'bank'],
+    keywords: [
+      'iban',
+      'validate',
+      'parse',
+      'bank',
+      'account',
+      'mod-97',
+      'checksum',
+      'bic',
+      'swift',
+      'sepa',
+      'country',
+      'bank code',
+      'branch code',
+    ],
     dependencies: [],
   },
 ];
