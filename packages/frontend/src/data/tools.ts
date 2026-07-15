@@ -823,10 +823,15 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'phone-parser-and-formatter',
     name: 'Phone parser and formatter',
-    description: 'Parse and format international phone numbers.',
+    description:
+      'Parse and format international phone numbers into national, international, E.164 and RFC 3966 forms. Shows country, country code, type (mobile/fixed/voip) and validity via libphonenumber-js.',
     category: 'data',
     icon: 'phone',
-    keywords: ['phone', 'parse', 'format', 'libphonenumber'],
+    keywords: [
+      'phone', 'parse', 'format', 'libphonenumber', 'e.164', 'rfc3966',
+      'tel', 'international', 'national', 'mobile', 'fixed', 'voip',
+      'country', 'calling code',
+    ],
     dependencies: ['libphonenumber-js'],
   },
   {

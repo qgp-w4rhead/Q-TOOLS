@@ -140,6 +140,8 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/NumeronymGenerator/index'),
     'ascii-art-text-generator': () =>
       import('@/tools/AsciiArtTextGenerator/index'),
+    'phone-parser-and-formatter': () =>
+      import('@/tools/PhoneParserFormatter/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];

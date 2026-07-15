@@ -133,6 +133,9 @@ importers:
       hash-wasm:
         specifier: ^4.12.0
         version: 4.12.0
+      libphonenumber-js:
+        specifier: ^1.13.8
+        version: 1.13.8
       lucide-vue-next:
         specifier: ^0.577.0
         version: 0.577.0(vue@3.5.39(typescript@5.9.3))
@@ -2522,6 +2525,9 @@ packages:
   leven@3.1.0:
     resolution: {integrity: sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A==}
     engines: {node: '>=6'}
+
+  libphonenumber-js@1.13.8:
+    resolution: {integrity: sha512-80xal1m93rADejw2pMp2MSzFhHCPLEspjHxnH2UtqI+DgAmElsbmLMiqk9niwH9NWAfjsRtaJI+qBrOEmRx9nQ==}
 
   light-my-request@6.6.0:
     resolution: {integrity: sha512-CHYbu8RtboSIoVsHZ6Ye4cj4Aw/yg2oAFimlF7mNvfDV192LR7nDiKtSIfCuLT7KokPSTn/9kfVLm5OGN0A28A==}
@@ -6072,6 +6078,8 @@ snapshots:
   kareem@3.3.0: {}
 
   leven@3.1.0: {}
+
+  libphonenumber-js@1.13.8: {}
 
   light-my-request@6.6.0:
     dependencies:
