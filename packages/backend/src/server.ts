@@ -19,6 +19,7 @@ import { authRoutes } from './routes/auth.js';
 import { userRoutes } from './routes/users.js';
 import { toolRoutes } from './routes/tools.js';
 import { pdfVerifyRoutes } from './routes/pdf-verify.js';
+import { embedRoutes } from './routes/embed.js';
 
 /* ------------------------------------------------------------------ */
 /* Factory                                                             */
@@ -87,6 +88,7 @@ export async function buildServer(): Promise<FastifyInstance> {
   await app.register(userRoutes);
   await app.register(toolRoutes);
   await app.register(pdfVerifyRoutes);
+  await app.register(embedRoutes);
 
   /* ---- 404 fallback (JSON, not HTML) ---- */
 

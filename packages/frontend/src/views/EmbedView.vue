@@ -3,8 +3,10 @@
  * Chromeless embed view for `/embed/tools/:slug`.
  *
  * Renders only the tool component — no sidebar, header, or app chrome. The
- * PostMessage protocol (input/output/resize) is wired up in M0.4 via the
- * `useEmbed()` composable; for now the view simply hosts the tool.
+ * PostMessage protocol (input/output/resize) is handled by each tool via
+ * the `useEmbed()` composable; this view simply hosts the tool with zero
+ * padding so the iframe (and embed.js auto-resize) sizes tightly to the
+ * tool's own content.
  *
  * Tools are lazy-loaded by slug. Until a tool is implemented (M1+), a
  * placeholder is shown so the route never 404s.
@@ -168,9 +170,10 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
 </template>
 
 <style scoped>
+/* Chromeless: zero padding so the iframe (and embed.js auto-resize) sizes
+ * tightly to the tool's own content. Each tool component owns its padding. */
 .embed-view {
-  padding: 16px;
-  min-height: 100vh;
+  padding: 0;
   background: var(--qt-bg);
   color: var(--qt-text);
 }

@@ -413,6 +413,7 @@ export const TOOLS: ToolMetadata[] = [
     icon: 'edit',
     keywords: ['html', 'wysiwyg', 'rich', 'editor', 'tiptap'],
     dependencies: ['@tiptap/vue-3', '@tiptap/starter-kit'],
+    iframeRequirements: ['clipboard-write'],
   },
   {
     slug: 'user-agent-parser',
@@ -487,7 +488,7 @@ export const TOOLS: ToolMetadata[] = [
     icon: 'video',
     keywords: ['camera', 'record', 'video', 'media'],
     dependencies: [],
-    iframeRequirements: ['camera; microphones'],
+    iframeRequirements: ['camera; microphone'],
   },
 
   // ---- Development (M5) ----

@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath, URL } from 'node:url';
@@ -17,11 +17,37 @@ import { fileURLToPath, URL } from 'node:url';
  *     • Backend API calls use NetworkFirst with a 3s timeout so the app
  *       degrades gracefully to LocalStorage when offline.
  * - Dev proxy: `/api/*` → Fastify backend on :3001
+ * - Embed headers: dev middleware sets `X-Frame-Options: ALLOWALL` +
+ *   `Content-Security-Policy: frame-ancestors *` on `/embed/` paths so
+ *   iframe embedding works in dev (mirrors the backend `embedRoutes` in
+ *   production).
  * - Path alias `@` → src for ergonomic imports
  */
+
+/**
+ * Vite dev plugin that sets permissive framing headers on `/embed/` paths so
+ * the chromeless embed routes can be iframed during development. In
+ * production the backend `embedRoutes` applies the same headers.
+ */
+function embedHeadersPlugin(): Plugin {
+  return {
+    name: 'q-tools-embed-headers',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url ?? '';
+        if (url.startsWith('/embed/') || url === '/embed') {
+          res.setHeader('X-Frame-Options', 'ALLOWALL');
+          res.setHeader('Content-Security-Policy', 'frame-ancestors *');
+        }
+        next();
+      });
+    },
+  };
+}
 export default defineConfig({
   plugins: [
     vue(),
+    embedHeadersPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: [

@@ -1,7 +1,7 @@
 /*!
  * Q-Tools embed.js — iframe embed loader with PostMessage-based auto-resize.
  *
- * Provides three embed methods:
+ * Provides four embed methods:
  *
  *   1. **Declarative** (auto-discovered on script load):
  *        <script src="https://domain/embed.js" data-tool="hash-text" async>
@@ -24,13 +24,27 @@
  *        embed.setInput({ text: 'world' });
  *        embed.destroy();
  *
- *   3. **Direct iframe** (no embed.js needed):
+ *   3. **Headless computation** (promise-based JS API):
+ *        const output = await QTools.getOutput('hash-text', { text: 'abc' });
+ *        // → { md5: '... ', sha256: '...', ... }
+ *        Creates a hidden iframe, sends the input, resolves with the first
+ *        `output` message payload, then tears the iframe down. Useful for
+ *        server-side rendering pipelines or one-shot computations without
+ *        a visible UI.
+ *
+ *   4. **Direct iframe** (no embed.js needed):
  *        <iframe src="https://domain/embed/tools/hash-text" ...>
  *
  * The script listens for `resize` messages from the embedded tool and adjusts
  * the iframe height accordingly. It also relays `output` messages to the
  * `onOutput` callback (programmatic mode) or fires a `qtools:output` event on
  * the iframe element (declarative mode).
+ *
+ * When the consumer does not pass an explicit `allow` attribute, embed.js
+ * consults a built-in `TOOL_IFRAME_REQUIREMENTS` map (tools that declare
+ * iframeRequirements in their metadata) and applies the correct Permissions
+ * Policy automatically — e.g. `camera; microphone` for the camera recorder,
+ * `clipboard-write` for the WYSIWYG editor.
  *
  * Protocol messages (see @q-tools/shared types/embed.ts):
  *   Parent → Tool:  { source: 'Q-Tools-parent', type: 'input', payload: {...} }
@@ -45,9 +59,40 @@
   var PARENT_SOURCE = 'Q-Tools-parent';
   var EMBED_SOURCE = 'Q-Tools-embed';
 
+  /**
+   * Built-in map of tools that declare iframeRequirements in their tool
+   * metadata. When the consumer does not pass an explicit `allow` attribute,
+   * embed.js uses this map to set the correct Permissions Policy on the
+   * iframe so the tool works without manual configuration.
+   *
+   * Keys are tool slugs; values are the `allow` attribute string.
+   */
+  var TOOL_IFRAME_REQUIREMENTS = {
+    'camera-recorder': 'camera; microphone',
+    'html-wysiwyg-editor': 'clipboard-write',
+  };
+
+  /**
+   * Resolve the iframe `allow` attribute for a tool slug. An explicit
+   * consumer-provided value always wins; otherwise the built-in
+   * TOOL_IFRAME_REQUIREMENTS map is consulted.
+   *
+   * @param {string} slug  Tool slug.
+   * @param {string|undefined} explicit  Consumer-provided allow value.
+   * @returns {string|undefined} The resolved allow attribute, or undefined.
+   */
+  function resolveAllow(slug, explicit) {
+    if (explicit) return explicit;
+    if (Object.prototype.hasOwnProperty.call(TOOL_IFRAME_REQUIREMENTS, slug)) {
+      return TOOL_IFRAME_REQUIREMENTS[slug];
+    }
+    return undefined;
+  }
+
   /** Resolve the base URL for the iframe src (origin of this script). */
   function resolveBaseUrl() {
-    // Prefer the src of the currently executing script tag.
+    // Prefer a data-qtools-base attribute on any script tag, then the src
+    // of the currently executing script tag, then fall back to the page origin.
     var scripts = document.getElementsByTagName('script');
     for (var i = 0; i < scripts.length; i++) {
       var s = scripts[i];
@@ -97,7 +142,10 @@
     iframe.style.display = 'block';
     iframe.className = 'qtools-embed';
     iframe.title = 'Q-Tools: ' + slug;
-    if (options.allow) iframe.setAttribute('allow', options.allow);
+    // Auto-apply the Permissions Policy allow attribute when the consumer
+    // didn't pass one explicitly but the tool declares requirements.
+    var allow = resolveAllow(slug, options.allow);
+    if (allow) iframe.setAttribute('allow', allow);
     return iframe;
   }
 
@@ -182,6 +230,77 @@
     };
   }
 
+  /**
+   * Headless one-shot computation: create a hidden iframe, send the input
+   * payload, resolve with the first `output` message payload, then destroy
+   * the iframe. Useful for pipelines that need a tool's result without a
+   * visible UI.
+   *
+   * @param {string} slug  Tool slug (e.g. "hash-text").
+   * @param {object} input  Input payload sent to the tool.
+   * @param {object} [options]
+   * @param {number} [options.timeout=10000]  Reject after N ms with no output.
+   * @param {string} [options.allow]  iframe `allow` attribute.
+   * @returns {Promise<object>} Resolves with the output payload.
+   */
+  function getOutput(slug, input, options) {
+    options = options || {};
+    var timeoutMs = typeof options.timeout === 'number' ? options.timeout : 10000;
+    if (!slug) return Promise.reject(new Error('QTools.getOutput: slug is required'));
+
+    return new Promise(function (resolve, reject) {
+      // Hidden container appended to <body> but visually hidden.
+      var holder = document.createElement('div');
+      holder.style.position = 'absolute';
+      holder.style.left = '-9999px';
+      holder.style.top = '0';
+      holder.style.width = '1px';
+      holder.style.height = '1px';
+      holder.style.overflow = 'hidden';
+      holder.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(holder);
+
+      var settled = false;
+      var timerId = null;
+
+      var handle = embed(slug, holder, {
+        input: input || {},
+        allow: options.allow,
+        onOutput: function (payload) {
+          if (settled) return;
+          settled = true;
+          if (timerId) clearTimeout(timerId);
+          try {
+            resolve(payload);
+          } finally {
+            handle.destroy();
+            if (holder.parentNode) holder.parentNode.removeChild(holder);
+          }
+        },
+      });
+
+      // Reject if the iframe fails to load (e.g. bad slug / network error).
+      handle.iframe.addEventListener('error', function () {
+        if (settled) return;
+        settled = true;
+        if (timerId) clearTimeout(timerId);
+        handle.destroy();
+        if (holder.parentNode) holder.parentNode.removeChild(holder);
+        reject(new Error('QTools.getOutput: iframe failed to load for "' + slug + '"'));
+      });
+
+      if (timeoutMs > 0) {
+        timerId = setTimeout(function () {
+          if (settled) return;
+          settled = true;
+          handle.destroy();
+          if (holder.parentNode) holder.parentNode.removeChild(holder);
+          reject(new Error('QTools.getOutput: timed out after ' + timeoutMs + 'ms for "' + slug + '"'));
+        }, timeoutMs);
+      }
+    });
+  }
+
   /** Auto-discover declarative <script data-tool="..."> tags. */
   function autoDiscover() {
     var scripts = document.querySelectorAll('script[data-tool]');
@@ -224,7 +343,11 @@
   // Public API.
   window.QTools = window.QTools || {};
   window.QTools.embed = embed;
+  window.QTools.getOutput = getOutput;
   window.QTools.BASE_URL = BASE_URL;
+  // Exposed for programmatic introspection / testing.
+  window.QTools.resolveAllow = resolveAllow;
+  window.QTools.TOOL_IFRAME_REQUIREMENTS = TOOL_IFRAME_REQUIREMENTS;
 
   // Auto-discover declarative embeds on DOMContentLoaded (or immediately if
   // the document is already ready).
