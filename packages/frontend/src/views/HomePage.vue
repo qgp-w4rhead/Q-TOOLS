@@ -6,8 +6,9 @@
  * all categories in real time. The theme toggle lives in the header.
  */
 import { computed, ref } from 'vue';
-import { Moon, Sun, Search, Wrench } from 'lucide-vue-next';
+import { Moon, Sun, Wrench } from 'lucide-vue-next';
 import CategorySection from '@/components/CategorySection.vue';
+import GlobalSearch from '@/components/GlobalSearch.vue';
 import {
   CATEGORIES,
   TOOLS_BY_CATEGORY,
@@ -67,16 +68,7 @@ const matchCount = computed(() => filteredTools.value.length);
         tools across {{ CATEGORIES.length }} categories — runs in your browser, works offline, and
         embeds anywhere via iframe.
       </p>
-      <div class="home__search">
-        <Search :size="18" class="home__search-icon" />
-        <input
-          v-model="query"
-          type="search"
-          class="home__search-input"
-          placeholder="Search tools…"
-          aria-label="Search tools"
-        />
-      </div>
+      <GlobalSearch v-model:query="query" />
       <p v-if="query.trim()" class="home__match-count">
         {{ matchCount }} tool{{ matchCount === 1 ? '' : 's' }} matched
       </p>
@@ -161,33 +153,6 @@ const matchCount = computed(() => filteredTools.value.length);
   max-width: 640px;
   color: var(--qt-muted);
   font-size: 14px;
-}
-.home__search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  max-width: 520px;
-  margin: 0 auto;
-}
-.home__search-icon {
-  position: absolute;
-  left: 14px;
-  color: var(--qt-muted);
-  pointer-events: none;
-}
-.home__search-input {
-  width: 100%;
-  padding: 12px 14px 12px 42px;
-  border-radius: 999px;
-  border: 1px solid var(--qt-border);
-  background: var(--qt-surface);
-  color: var(--qt-text);
-  font: inherit;
-  transition: border-color 0.15s ease;
-}
-.home__search-input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
 }
 .home__match-count {
   margin: 12px 0 0;
