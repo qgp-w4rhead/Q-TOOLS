@@ -1,5 +1,5 @@
 /**
- * useTemperatureConverter — composable + pure logic for the temperature
+ * useTemperatureConverter - composable + pure logic for the temperature
  * converter tool.
  *
  * Converts between eight temperature scales via a Kelvin canonical
@@ -14,15 +14,15 @@
  *   - Réaumur (°Ré)
  *   - Rømer (°Rø)
  *
- * All computations are pure arithmetic — no external dependencies. The
+ * All computations are pure arithmetic - no external dependencies. The
  * composable wires up reactive state and the embed PostMessage protocol.
  */
 import { ref, watch, type Ref } from 'vue';
-import { useEmbed } from '@/composables/useEmbed';
+import { useToolEmbed } from '@/composables/useToolEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 export type TemperatureUnit =
@@ -78,7 +78,7 @@ export interface ConvertResult {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -180,7 +180,7 @@ export function convertTemperature(
     };
   }
   const k = toKelvin(value, from);
-  // Negative Kelvin is physically meaningless — surface as a warning but
+  // Negative Kelvin is physically meaningless - surface as a warning but
   // still compute (some scales like Delisle produce values below absolute
   // zero for very hot inputs, which is fine). We only flag when the
   // *Kelvin* intermediate is below 0.
@@ -188,7 +188,7 @@ export function convertTemperature(
   if (k < 0) {
     return {
       ok: true,
-      message: 'Below absolute zero (0 K) — physically impossible.',
+      message: 'Below absolute zero (0 K) - physically impossible.',
       result,
       from,
       to,
@@ -200,17 +200,17 @@ export function convertTemperature(
 
 /**
  * Format a number for display: trims trailing zeros, keeps up to 6 decimal
- * places, returns `—` for non-finite values.
+ * places, returns `-` for non-finite values.
  */
 export function formatNumber(n: number): string {
-  if (!Number.isFinite(n)) return '—';
+  if (!Number.isFinite(n)) return '-';
   if (Number.isInteger(n)) return n.toString();
   const fixed = n.toFixed(6);
   return fixed.replace(/\.?0+$/, '');
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface UseTemperatureConverterReturn {
@@ -270,7 +270,7 @@ export function useTemperatureConverter(): UseTemperatureConverterReturn {
 
   recompute();
 
-  const { isEmbed, input: embedInput, sendOutput } = useEmbed({
+  const { isEmbed, input: embedInput } = useToolEmbed({
     onInput: (payload) => {
       if (!payload || typeof payload !== 'object') return;
       const p = payload as Record<string, unknown>;
@@ -284,12 +284,8 @@ export function useTemperatureConverter(): UseTemperatureConverterReturn {
       const unit = parseUnit(p.unit) ?? parseUnit(p.fromUnit) ?? parseUnit(p.inputUnit);
       if (unit) inputUnit.value = unit;
     },
-  });
-
-  watch(
-    [outputs, belowAbsoluteZero],
-    () => {
-      if (!isEmbed.value) return;
+    output: outputs,
+    toOutput: () => {
       const v = parseNumber(inputValue.value);
       const map: Record<string, { value: number | null; symbol: string; name: string }> = {};
       for (const u of UNIT_ORDER) {
@@ -300,15 +296,14 @@ export function useTemperatureConverter(): UseTemperatureConverterReturn {
           name: UNIT_META[u].name,
         };
       }
-      sendOutput({
+      return {
         value: v,
         unit: inputUnit.value,
         belowAbsoluteZero: belowAbsoluteZero.value,
         outputs: map,
-      });
+      };
     },
-    { deep: true },
-  );
+  });
 
   return {
     inputValue,

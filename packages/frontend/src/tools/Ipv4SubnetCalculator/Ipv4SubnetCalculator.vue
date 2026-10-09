@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Ipv4SubnetCalculator — IPv4 subnet calculator.
+ * Ipv4SubnetCalculator - IPv4 subnet calculator.
  *
  * Takes an IPv4 address and a CIDR prefix (e.g. `24`) or a dotted subnet mask
  * (e.g. `255.255.255.0`), then computes the full subnet breakdown: network
@@ -8,7 +8,7 @@
  * subnet mask, CIDR notation, IP class, private/public scope, and binary
  * representations of the IP, mask, network, and wildcard.
  *
- * No external dependencies — all arithmetic uses 32-bit unsigned integers.
+ * No external dependencies - all arithmetic uses 32-bit unsigned integers.
  *
  * Works in embed mode: receives `ip`/`address`/`input`/`value` PostMessages
  * to pre-fill the IP field and `cidr`/`prefix`/`mask`/`subnetMask` to pre-fill
@@ -16,11 +16,15 @@
  * whenever the result changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, Globe, Lock, Network as NetworkIcon } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
 import CopyButton from '@/components/CopyButton.vue';
 import { useIpv4SubnetCalculator } from './useIpv4SubnetCalculator';
+
+const { t, locale } = useI18n();
+const U = 'tools.ipv4-subnet-calculator.ui.';
 
 const { ipInput, maskInput, result, error } = useIpv4SubnetCalculator();
 
@@ -56,22 +60,22 @@ const resultRows = computed(() => {
   const r = result.value;
   if (!r) return [];
   return [
-    { label: 'Network address', value: r.network, mono: true },
-    { label: 'Broadcast address', value: r.broadcast, mono: true },
-    { label: 'First usable host', value: r.firstHost, mono: true },
-    { label: 'Last usable host', value: r.lastHost, mono: true },
-    { label: 'Subnet mask', value: r.subnetMask, mono: true },
-    { label: 'Wildcard mask', value: r.wildcardMask, mono: true },
-    { label: 'CIDR notation', value: r.cidr, mono: true },
-    { label: 'IP class', value: `Class ${r.ipClass}`, mono: false },
+    { label: t(U + 'rowNetwork'), value: r.network, mono: true },
+    { label: t(U + 'rowBroadcast'), value: r.broadcast, mono: true },
+    { label: t(U + 'rowFirstHost'), value: r.firstHost, mono: true },
+    { label: t(U + 'rowLastHost'), value: r.lastHost, mono: true },
+    { label: t(U + 'rowSubnetMask'), value: r.subnetMask, mono: true },
+    { label: t(U + 'rowWildcard'), value: r.wildcardMask, mono: true },
+    { label: t(U + 'rowCidr'), value: r.cidr, mono: true },
+    { label: t(U + 'rowIpClass'), value: t(U + 'classBadge', { c: r.ipClass }), mono: false },
     {
-      label: 'Usable hosts',
-      value: r.hostCount.toLocaleString(),
+      label: t(U + 'rowUsableHosts'),
+      value: r.hostCount.toLocaleString(locale.value),
       mono: false,
     },
     {
-      label: 'Total addresses',
-      value: r.totalAddresses.toLocaleString(),
+      label: t(U + 'rowTotal'),
+      value: r.totalAddresses.toLocaleString(locale.value),
       mono: false,
     },
   ];
@@ -82,28 +86,29 @@ const binaryRows = computed(() => {
   const r = result.value;
   if (!r) return [];
   return [
-    { label: 'IP address', value: r.binaryIp },
-    { label: 'Subnet mask', value: r.binaryMask },
-    { label: 'Network', value: r.binaryNetwork },
-    { label: 'Wildcard', value: r.binaryWildcard },
+    { label: t(U + 'binIp'), value: r.binaryIp },
+    { label: t(U + 'binMask'), value: r.binaryMask },
+    { label: t(U + 'binNetwork'), value: r.binaryNetwork },
+    { label: t(U + 'binWildcard'), value: r.binaryWildcard },
   ];
 });
 </script>
 
 <template>
-  <div class="subnet">
+  <div class="qt-tool">
     <ToolInput
-      title="IPv4 address & subnet"
-      description="Enter an IPv4 address and a CIDR prefix (e.g. 24) or dotted subnet mask (e.g. 255.255.255.0). You can also type the full CIDR (192.168.1.10/24) in the IP field."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
-      <div class="subnet__inputs">
-        <div class="subnet__field">
-          <label class="subnet__field-label" for="subnet-ip">IP address</label>
+      <div class="qt-grid" style="--qt-grid-min:200px;--qt-grid-gap:10px">
+        <div class="qt-field" style="gap:4px">
+          <label class="qt-stat-head" for="subnet-ip">{{ t(U + 'ipLabel') }}</label>
           <input
             id="subnet-ip"
-            class="subnet__input"
+            class="qt-input qt-input--mono"
+            style="font-size:13.5px"
             type="text"
-            placeholder="192.168.1.10"
+            :placeholder="t(U + 'phIp')"
             :value="ipInput"
             spellcheck="false"
             autocomplete="off"
@@ -111,13 +116,14 @@ const binaryRows = computed(() => {
             @input="onIpInput"
           />
         </div>
-        <div class="subnet__field">
-          <label class="subnet__field-label" for="subnet-mask">CIDR / mask</label>
+        <div class="qt-field" style="gap:4px">
+          <label class="qt-stat-head" for="subnet-mask">{{ t(U + 'maskLabel') }}</label>
           <input
             id="subnet-mask"
-            class="subnet__input"
+            class="qt-input qt-input--mono"
+            style="font-size:13.5px"
             type="text"
-            placeholder="24 or 255.255.255.0"
+            :placeholder="t(U + 'phMask')"
             :value="maskInput"
             spellcheck="false"
             autocomplete="off"
@@ -128,14 +134,15 @@ const binaryRows = computed(() => {
       </div>
 
       <!-- Presets -->
-      <div class="subnet__presets">
-        <span class="subnet__presets-label">Common prefixes:</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:6px;margin-top:10px">
+        <span class="qt-label" style="margin-right:2px">{{ t(U + 'presets') }}</span>
         <button
           v-for="p in PRESETS"
           :key="p.prefix"
           type="button"
-          class="subnet__preset"
-          :class="{ 'subnet__preset--active': maskInput.trim() === p.prefix }"
+          class="qt-chip qt-chip--filled"
+          style="font-family:var(--qt-font-mono)"
+          :class="{ 'qt-chip--active': maskInput.trim() === p.prefix }"
           @click="applyPreset(p.prefix)"
         >
           {{ p.label }}
@@ -144,66 +151,68 @@ const binaryRows = computed(() => {
     </ToolInput>
 
     <ToolOutput
-      title="Subnet breakdown"
-      :description="result ? `Computed for ${result.cidr}` : 'Enter an IP address and prefix to compute the subnet.'"
+      :title="t(U + 'outTitle')"
+      :description="result ? t(U + 'descComputed', { cidr: result.cidr }) : t(U + 'descEmpty')"
       :copy-text="result ? `${result.network}/${result.prefix}` : ''"
-      copy-label="Copy network"
+      :copy-label="t(U + 'copyNetwork')"
     >
       <template v-if="!hasInput">
-        <p class="subnet__empty">Enter an IPv4 address above to compute the subnet.</p>
+        <p class="qt-alert qt-alert--empty">{{ t(U + 'alertEmpty') }}</p>
       </template>
       <template v-else-if="error">
-        <p class="subnet__error">
+        <p class="qt-banner qt-banner--error" style="margin:0">
           <AlertCircle :size="14" />
           <span>{{ error }}</span>
         </p>
       </template>
       <template v-else-if="result">
         <!-- Scope + class badges -->
-        <div class="subnet__badges">
+        <div class="qt-row" style="--qt-row-gap:8px;margin-bottom:12px">
           <span
-            class="subnet__badge"
-            :class="result.isPrivate ? 'subnet__badge--private' : 'subnet__badge--public'"
+            class="qt-badge"
+            style="text-transform:uppercase;font-weight:700"
+            :class="result.isPrivate ? 'qt-badge--warn' : 'qt-badge--success'"
           >
             <component :is="result.isPrivate ? Lock : Globe" :size="13" />
             <span>{{ result.scope }}</span>
           </span>
-          <span class="subnet__badge subnet__badge--class">
+          <span class="qt-badge qt-badge--info" style="text-transform:uppercase;font-weight:700">
             <NetworkIcon :size="13" />
-            <span>Class {{ result.ipClass }}</span>
+            <span>{{ t(U + 'classBadge', { c: result.ipClass }) }}</span>
           </span>
-          <span class="subnet__badge subnet__badge--hosts">
-            <span>{{ result.hostCount.toLocaleString() }} hosts</span>
+          <span class="qt-badge" style="color:var(--qt-text);text-transform:uppercase;font-weight:700">
+            <span>{{ t(U + 'hostsBadge', { n: result.hostCount.toLocaleString(locale) }) }}</span>
           </span>
         </div>
 
         <!-- Main breakdown grid -->
-        <div class="subnet__grid">
+        <div class="qt-stack" style="--qt-stack-gap:6px">
           <div
             v-for="row in resultRows"
             :key="row.label"
-            class="subnet__row"
+            class="qt-result-row subnet__row"
           >
-            <span class="subnet__row-label">{{ row.label }}</span>
+            <span class="qt-label subnet__row-label">{{ row.label }}</span>
             <code
-              class="subnet__row-value"
-              :class="{ 'subnet__row-value--mono': row.mono }"
+              style="flex:1;font-size:13.5px;color:var(--qt-text);word-break:break-all"
+              :style="row.mono ? 'font-family:var(--qt-font-mono);font-weight:700;font-variant-numeric:tabular-nums' : 'font-family:inherit'"
             >{{ row.value }}</code>
-            <CopyButton :text="row.value" icon-only label="Copy" />
+            <CopyButton :text="row.value" icon-only :label="t('common.copy')" />
           </div>
         </div>
 
         <!-- Binary representation -->
-        <details class="subnet__binary" open>
-          <summary class="subnet__binary-summary">Binary representation</summary>
-          <div class="subnet__binary-grid">
+        <details class="qt-panel" style="margin-top:12px;padding:8px 10px" open>
+          <summary class="qt-label" style="cursor:pointer">{{ t(U + 'binaryTitle') }}</summary>
+          <div class="qt-stack" style="--qt-stack-gap:6px;margin-top:8px">
             <div
               v-for="row in binaryRows"
               :key="row.label"
-              class="subnet__binary-row"
+              class="qt-result"
+              style="gap:3px;padding:6px 8px"
             >
-              <span class="subnet__binary-label">{{ row.label }}</span>
-              <code class="subnet__binary-value">{{ row.value }}</code>
+              <span class="qt-stat-head" style="font-size:11px;letter-spacing:0.06em">{{ row.label }}</span>
+              <code class="qt-mono" style="font-size:12.5px;color:var(--qt-text);letter-spacing:0.04em;word-break:break-all">{{ row.value }}</code>
             </div>
           </div>
         </details>
@@ -213,240 +222,13 @@ const binaryRows = computed(() => {
 </template>
 
 <style scoped>
-.subnet {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
 
-/* Inputs */
-.subnet__inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.subnet__field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.subnet__field-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--qt-muted);
-}
-.subnet__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 13.5px;
-  padding: 8px 10px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.subnet__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-
-/* Presets */
-.subnet__presets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-}
-.subnet__presets-label {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  font-weight: 600;
-  margin-right: 2px;
-}
-.subnet__preset {
-  padding: 4px 10px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-text);
-  font: inherit;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.subnet__preset:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.subnet__preset--active {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 90% c h / 0.12);
-}
-
-/* Empty / error */
-.subnet__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.subnet__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: oklch(from var(--qt-danger) 35% c h / 0.18);
-  border: 1px solid oklch(from var(--qt-danger) 60% c h / 0.5);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-size: 13.5px;
-  margin: 0;
-}
-.subnet__error svg {
-  color: var(--qt-danger);
-  flex-shrink: 0;
-}
-
-/* Badges */
-.subnet__badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.subnet__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border: 1px solid transparent;
-}
-.subnet__badge--private {
-  background: oklch(from var(--qt-warning) 35% c h / 0.2);
-  border-color: oklch(from var(--qt-warning) 60% c h / 0.55);
-  color: var(--qt-warning);
-}
-.subnet__badge--public {
-  background: oklch(from var(--qt-success) 35% c h / 0.2);
-  border-color: oklch(from var(--qt-success) 60% c h / 0.55);
-  color: var(--qt-success);
-}
-.subnet__badge--class {
-  background: oklch(from var(--qt-accent) 35% c h / 0.18);
-  border-color: oklch(from var(--qt-accent) 60% c h / 0.5);
-  color: var(--qt-accent);
-}
-.subnet__badge--hosts {
-  background: var(--qt-bg);
-  border-color: var(--qt-border);
-  color: var(--qt-text);
-}
-
-/* Main grid */
-.subnet__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-}
-.subnet__row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-}
+/* Result-row label — fixed column width; wraps full-width on narrow. */
 .subnet__row-label {
   flex: 0 0 140px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
 }
-.subnet__row-value {
-  flex: 1 1 auto;
-  font-size: 13.5px;
-  color: var(--qt-text);
-  word-break: break-all;
-}
-.subnet__row-value--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 13.5px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Binary */
-.subnet__binary {
-  margin-top: 12px;
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-}
-.subnet__binary-summary {
-  cursor: pointer;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.subnet__binary-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
-}
-.subnet__binary-row {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 6px 8px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-}
-.subnet__binary-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--qt-muted);
-}
-.subnet__binary-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 12.5px;
-  color: var(--qt-text);
-  letter-spacing: 0.04em;
-  word-break: break-all;
-}
-
 @media (max-width: 560px) {
-  .subnet__inputs {
-    grid-template-columns: 1fr;
-  }
   .subnet__row {
     flex-wrap: wrap;
   }

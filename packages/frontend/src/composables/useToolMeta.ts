@@ -1,5 +1,5 @@
 /**
- * useToolMeta — read the active tool's metadata from the current route.
+ * useToolMeta - read the active tool's metadata from the current route.
  *
  * Returns reactive computed refs for the slug (from `route.params.slug`) and
  * the resolved `ToolMetadata` (looked up in the registry). Useful inside tool

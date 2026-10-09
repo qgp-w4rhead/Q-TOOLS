@@ -1,10 +1,10 @@
 /**
- * useUuidGenerator — composable + pure logic for the UUIDs generator tool.
+ * useUuidGenerator - composable + pure logic for the UUIDs generator tool.
  *
  * Generates UUIDs of versions 1, 3, 4 and 5 (RFC 4122):
  *   - v1: timestamp + clock sequence + node (random node with the multicast
  *     bit set per RFC 4122 §4.5 for privacy).
- *   - v3: MD5(namespace + name) — MD5 implemented in pure JS (Web Crypto has
+ *   - v3: MD5(namespace + name) - MD5 implemented in pure JS (Web Crypto has
  *     no MD5) so the tool introduces no external dependency.
  *   - v4: `crypto.randomUUID()` (cryptographically secure random).
  *   - v5: SHA-1(namespace + name) via Web Crypto `crypto.subtle.digest`.
@@ -16,14 +16,14 @@
  * reactive state and wires up the embed PostMessage protocol.
  *
  * Randomness always uses the Web Crypto API (`crypto.getRandomValues` /
- * `crypto.subtle` / `crypto.randomUUID`) — never `Math.random()`.
+ * `crypto.subtle` / `crypto.randomUUID`) - never `Math.random()`.
  */
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Supported UUID versions. */
@@ -114,7 +114,7 @@ export function formatUuid(
 }
 
 /* -------------------------------------------------------------------------- */
-/* MD5 — compact pure-JS implementation (Web Crypto has no MD5)               */
+/* MD5 - compact pure-JS implementation (Web Crypto has no MD5)               */
 /* -------------------------------------------------------------------------- */
 
 const MD5_S = [
@@ -149,7 +149,7 @@ function rotl(x: number, c: number): number {
 
 /**
  * Compute the MD5 digest of `data` and return 16 raw bytes. Pure JS
- * implementation — no external dependency.
+ * implementation - no external dependency.
  */
 export function md5(data: Uint8Array): Uint8Array {
   // Pre-processing: padding the message.
@@ -160,7 +160,7 @@ export function md5(data: Uint8Array): Uint8Array {
   const msg = new Uint8Array(paddedLength);
   msg.set(data);
   msg[originalLength] = 0x80;
-  // 64-bit little-endian length (we only use the low 32 bits — data is small).
+  // 64-bit little-endian length (we only use the low 32 bits - data is small).
   const lenView = new DataView(msg.buffer);
   lenView.setUint32(paddedLength - 8, bitLen >>> 0, true);
   lenView.setUint32(paddedLength - 4, Math.floor(bitLen / 0x100000000), true);
@@ -248,7 +248,7 @@ function ensureV1State(): void {
   // 14-bit clock sequence (bits 6-7 of byte 0 are the variant).
   v1ClockSeq = (buf[0]! << 8) | buf[1]!;
   v1ClockSeq &= 0x3fff;
-  // 6-byte node with the multicast bit set (RFC 4122 §4.5 — random node).
+  // 6-byte node with the multicast bit set (RFC 4122 §4.5 - random node).
   v1Node = new Uint8Array(6);
   crypto.getRandomValues(v1Node);
   v1Node[0]! |= 0x01;
@@ -393,7 +393,7 @@ export async function generateUuids(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseUuidGeneratorReturn {

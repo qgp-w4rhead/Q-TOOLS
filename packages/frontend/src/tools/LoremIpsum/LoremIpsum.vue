@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * LoremIpsum — generate Lorem Ipsum placeholder text.
+ * LoremIpsum - generate Lorem Ipsum placeholder text.
  *
  * Configure the number of paragraphs, sentences per paragraph, and words per
  * sentence. Optionally start the first paragraph with the canonical
@@ -13,6 +13,7 @@
  * the generated text.
  */
 import { RotateCcw, Sparkles } from 'lucide-vue-next';
+import { useI18n } from 'vue-i18n';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
 import CopyButton from '@/components/CopyButton.vue';
@@ -41,6 +42,9 @@ function onClassic(e: Event): void {
   startWithClassic.value = (e.target as HTMLInputElement).checked;
 }
 
+const { t } = useI18n();
+const U = 'tools.lorem-ipsum-generator.ui.';
+
 const wordCount = () => {
   const trimmed = output.value.trim();
   if (trimmed.length === 0) return 0;
@@ -49,216 +53,97 @@ const wordCount = () => {
 </script>
 
 <template>
-  <div class="li">
+  <div class="qt-tool">
     <ToolInput
-      title="Options"
-      description="Configure how much placeholder text to generate. Output regenerates live."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="li__btn li__btn--ghost"
-          title="Reset to defaults"
+          class="qt-btn qt-btn--ghost"
+          :title="t(U + 'resetTitle')"
           @click="reset"
         >
           <RotateCcw :size="14" />
-          <span>Reset</span>
+          <span>{{ t('common.reset') }}</span>
         </button>
       </template>
 
-      <div class="li__grid">
-        <label class="li__field">
-          <span class="li__label">Paragraphs</span>
+      <div class="qt-grid" style="--qt-grid-min:180px;--qt-grid-gap:10px;margin-bottom:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'paragraphs') }}</span>
           <input
             type="number"
-            class="li__input"
+            class="qt-input"
             min="1"
             max="100"
             :value="paragraphs"
             @input="onParagraphs"
           />
         </label>
-        <label class="li__field">
-          <span class="li__label">Sentences / paragraph</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'sentencesPerParagraph') }}</span>
           <input
             type="number"
-            class="li__input"
+            class="qt-input"
             min="1"
             max="20"
             :value="sentencesPerParagraph"
             @input="onSentences"
           />
         </label>
-        <label class="li__field">
-          <span class="li__label">Words / sentence</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'wordsPerSentence') }}</span>
           <input
             type="number"
-            class="li__input"
+            class="qt-input"
             min="1"
             max="50"
             :value="wordsPerSentence"
             @input="onWords"
           />
         </label>
-        <label class="li__field li__field--check">
+        <label class="qt-check" style="align-self:end;padding-bottom:8px">
           <input
             type="checkbox"
-            class="li__checkbox"
+            style="width:16px;height:16px"
             :checked="startWithClassic"
             @change="onClassic"
           />
-          <span class="li__label">Start with classic opening</span>
+          <span class="qt-label">{{ t(U + 'startClassic') }}</span>
         </label>
       </div>
 
       <button
         type="button"
-        class="li__btn li__btn--primary"
+        class="qt-btn qt-btn--primary"
         @click="generate"
       >
         <Sparkles :size="14" />
-        <span>Regenerate</span>
+        <span>{{ t(U + 'regenerate') }}</span>
       </button>
     </ToolInput>
 
     <ToolOutput
-      title="Generated text"
-      :description="`~${wordCount()} words`"
+      :title="t(U + 'outputTitle')"
+      :description="t(U + 'descWords', { n: wordCount() })"
     >
-      <div class="li__output-wrap">
+      <div class="qt-output-wrap">
         <textarea
-          class="li__output"
+          class="qt-output"
+          style="min-height:240px"
           readonly
           spellcheck="false"
           :value="output"
-          aria-label="Generated Lorem Ipsum text"
+          :aria-label="t(U + 'ariaOutput')"
         ></textarea>
         <CopyButton
           :text="output"
-          label="Copy"
-          class="li__copy"
+          :label="t('common.copy')"
+          class="qt-copy-float"
         />
       </div>
     </ToolOutput>
   </div>
 </template>
-
-<style scoped>
-.li {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.li__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px;
-  margin-bottom: 12px;
-}
-.li__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.li__field--check {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
-.li__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.li__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 8px 10px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.li__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.li__checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
-.li__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: var(--qt-radius-sm);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.li__btn--ghost {
-  background: transparent;
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-}
-.li__btn--ghost:hover {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.li__btn--primary {
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  color: var(--qt-accent-contrast, #fff);
-}
-.li__btn--primary:hover {
-  opacity: 0.92;
-}
-.li__btn--primary:active {
-  transform: translateY(1px);
-}
-.li__output-wrap {
-  position: relative;
-}
-.li__output {
-  width: 100%;
-  min-height: 240px;
-  resize: vertical;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13.5px;
-  line-height: 1.6;
-  padding: 12px 14px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.li__output:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.li__copy {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-}
-</style>

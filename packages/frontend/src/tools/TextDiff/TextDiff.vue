@@ -1,15 +1,15 @@
 <script setup lang="ts">
 /**
- * TextDiff — compare two text blocks and visualise the differences.
+ * TextDiff - compare two text blocks and visualise the differences.
  *
  * Uses the lazy-loaded `diff` package (JsDiff) to compute a diff at the
  * chosen granularity (characters, words, lines or sentences). Three output
  * views are supported:
- *   - **Inline** — a single highlighted stream (green additions, red
+ *   - **Inline** - a single highlighted stream (green additions, red
  *     removals) wrapping each change run in a span.
- *   - **Side-by-side** — two aligned columns with line numbers; adjacent
+ *   - **Side-by-side** - two aligned columns with line numbers; adjacent
  *     removed+added runs are paired as "modified" rows.
- *   - **Unified patch** — a monospace unified-diff text block (copyable).
+ *   - **Unified patch** - a monospace unified-diff text block (copyable).
  *
  * Options: ignore case, ignore leading/trailing whitespace on lines.
  *
@@ -19,6 +19,7 @@
  * options, and sends `output` PostMessages whenever the computed diff changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   ArrowLeftRight,
   RefreshCw,
@@ -57,34 +58,37 @@ const {
   swapInputs,
 } = useTextDiff();
 
-const granularityOptions: Array<{
+const { t } = useI18n();
+const U = 'tools.text-diff.ui.';
+
+const granularityOptions = computed<Array<{
   value: DiffGranularity;
   label: string;
-}> = [
-  { value: 'lines', label: 'Lines' },
-  { value: 'words', label: 'Words' },
-  { value: 'chars', label: 'Chars' },
-  { value: 'sentences', label: 'Sentences' },
-];
+}>>(() => [
+  { value: 'lines', label: t(U + 'granLines') },
+  { value: 'words', label: t(U + 'granWords') },
+  { value: 'chars', label: t(U + 'granChars') },
+  { value: 'sentences', label: t(U + 'granSentences') },
+]);
 
-const viewModeOptions: Array<{
+const viewModeOptions = computed<Array<{
   value: DiffViewMode;
   label: string;
   icon: typeof List;
-}> = [
-  { value: 'side-by-side', label: 'Side-by-side', icon: Columns2 },
-  { value: 'inline', label: 'Inline', icon: List },
-  { value: 'unified', label: 'Unified', icon: FileDiff },
-];
+}>>(() => [
+  { value: 'side-by-side', label: t(U + 'viewSideBySide'), icon: Columns2 },
+  { value: 'inline', label: t(U + 'viewInline'), icon: List },
+  { value: 'unified', label: t(U + 'viewUnified'), icon: FileDiff },
+]);
 
 const summary = computed(() => {
   if (!outputs.value) return '';
   const c = outputs.value.counts;
   const parts: string[] = [];
-  if (c.added) parts.push(`${c.added} added`);
-  if (c.removed) parts.push(`${c.removed} removed`);
-  if (c.unchanged) parts.push(`${c.unchanged} unchanged`);
-  if (parts.length === 0) return 'Inputs are identical.';
+  if (c.added) parts.push(t(U + 'sumAdded', { n: c.added }));
+  if (c.removed) parts.push(t(U + 'sumRemoved', { n: c.removed }));
+  if (c.unchanged) parts.push(t(U + 'sumUnchanged', { n: c.unchanged }));
+  if (parts.length === 0) return t(U + 'sumIdentical');
   return parts.join(' · ');
 });
 
@@ -108,36 +112,36 @@ function onRightInput(e: Event): void {
 </script>
 
 <template>
-  <div class="td">
+  <div class="qt-tool">
     <ToolInput
-      title="Text inputs"
-      description="Paste two text blocks to compare them."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="td__btn td__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
           :disabled="!hasInput"
-          title="Swap left and right inputs"
+          :title="t(U + 'swapTitle')"
           @click="swapInputs"
         >
           <ArrowLeftRight :size="14" />
-          <span>Swap</span>
+          <span>{{ t(U + 'swap') }}</span>
         </button>
         <button
-          class="td__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="!hasInput || loading"
           @click="recompute"
         >
-          <Loader2 v-if="loading" :size="14" class="td__spin" />
+          <Loader2 v-if="loading" :size="14" class="qt-spin" />
           <RefreshCw v-else :size="14" />
-          <span>Compare</span>
+          <span>{{ t(U + 'compare') }}</span>
         </button>
       </template>
 
-      <div class="td__opts">
-        <div class="td__seg" role="group" aria-label="Granularity">
+      <div class="qt-row qt-row--center" style="--qt-row-gap:12px">
+        <div class="td__seg" role="group" :aria-label="t(U + 'ariaGranularity')">
           <button
             v-for="o in granularityOptions"
             :key="o.value"
@@ -150,7 +154,7 @@ function onRightInput(e: Event): void {
             <span>{{ o.label }}</span>
           </button>
         </div>
-        <div class="td__seg" role="group" aria-label="View mode">
+        <div class="td__seg" role="group" :aria-label="t(U + 'ariaViewMode')">
           <button
             v-for="o in viewModeOptions"
             :key="o.value"
@@ -164,38 +168,39 @@ function onRightInput(e: Event): void {
             <span>{{ o.label }}</span>
           </button>
         </div>
-        <div class="td__toggles">
+        <div class="qt-row" style="--qt-row-gap:8px">
           <button
             type="button"
             class="td__toggle"
             :class="{ 'td__toggle--active': ignoreCase }"
             :aria-pressed="ignoreCase"
-            title="Ignore character case when comparing"
+            :title="t(U + 'ignoreCaseTitle')"
             @click="ignoreCase = !ignoreCase"
           >
             <component :is="ignoreCase ? CaseUpper : CaseSensitive" :size="13" />
-            <span>Ignore case</span>
+            <span>{{ t(U + 'ignoreCase') }}</span>
           </button>
           <button
             type="button"
             class="td__toggle"
             :class="{ 'td__toggle--active': ignoreWhitespace }"
             :aria-pressed="ignoreWhitespace"
-            title="Ignore leading/trailing whitespace on lines"
+            :title="t(U + 'ignoreWhitespaceTitle')"
             @click="ignoreWhitespace = !ignoreWhitespace"
           >
             <Space :size="13" />
-            <span>Ignore whitespace</span>
+            <span>{{ t(U + 'ignoreWhitespace') }}</span>
           </button>
         </div>
       </div>
 
       <div class="td__inputs">
-        <label class="td__field">
-          <span class="td__label">Original text</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'originalText') }}</span>
           <textarea
-            class="td__textarea td__textarea--mono"
-            placeholder="Paste the original text here…"
+            class="qt-input qt-input--mono"
+            style="padding:10px 12px;min-height:180px"
+            :placeholder="t(U + 'originalPlaceholder')"
             :value="leftInput"
             rows="10"
             spellcheck="false"
@@ -203,11 +208,12 @@ function onRightInput(e: Event): void {
             @input="onLeftInput"
           />
         </label>
-        <label class="td__field">
-          <span class="td__label">Modified text</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'modifiedText') }}</span>
           <textarea
-            class="td__textarea td__textarea--mono"
-            placeholder="Paste the modified text here…"
+            class="qt-input qt-input--mono"
+            style="padding:10px 12px;min-height:180px"
+            :placeholder="t(U + 'modifiedPlaceholder')"
             :value="rightInput"
             rows="10"
             spellcheck="false"
@@ -219,28 +225,28 @@ function onRightInput(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="Diff output"
-      :description="outputs ? summary : 'Paste two text blocks above to compare.'"
+      :title="t(U + 'outputTitle')"
+      :description="outputs ? summary : t(U + 'descEmpty')"
     >
-      <p v-if="!outputs && !loading" class="td__empty">
-        Paste two text blocks above to compare.
+      <p v-if="!outputs && !loading" class="qt-alert qt-alert--empty">
+        {{ t(U + 'descEmpty') }}
       </p>
-      <p v-else-if="loading && !outputs" class="td__empty">
-        <Loader2 :size="14" class="td__spin" /> Computing diff…
+      <p v-else-if="loading && !outputs" class="qt-alert qt-alert--empty">
+        <Loader2 :size="14" class="qt-spin" /> {{ t(U + 'computing') }}
       </p>
       <template v-else-if="outputs">
         <!-- Inline view -->
-        <div v-if="viewMode === 'inline'" class="td__inline">
-          <p v-if="isIdentical" class="td__empty td__identical">
-            <Equal :size="14" /> The two texts are identical.
+        <div v-if="viewMode === 'inline'">
+          <p v-if="isIdentical" class="qt-alert qt-alert--success">
+            <Equal :size="14" /> {{ t(U + 'identical') }}
           </p>
           <div v-else class="td__inline-stream" v-html="outputs.inlineHtml" />
         </div>
 
         <!-- Side-by-side view -->
-        <div v-else-if="viewMode === 'side-by-side'" class="td__sbs">
-          <p v-if="isIdentical" class="td__empty td__identical">
-            <Equal :size="14" /> The two texts are identical.
+        <div v-else-if="viewMode === 'side-by-side'">
+          <p v-if="isIdentical" class="qt-alert qt-alert--success">
+            <Equal :size="14" /> {{ t(U + 'identical') }}
           </p>
           <div v-else class="td__sbs-scroll">
             <table class="td__sbs-table">
@@ -268,27 +274,27 @@ function onRightInput(e: Event): void {
         </div>
 
         <!-- Unified patch view -->
-        <div v-else class="td__unified">
-          <div class="td__unified-head">
-            <span class="td__unified-label">Unified diff</span>
-            <CopyButton :text="outputs.unifiedPatch" label="Copy patch" />
+        <div v-else>
+          <div class="qt-row qt-row--center" style="--qt-row-gap:8px;margin-bottom:6px;flex-wrap:nowrap">
+            <span style="font-size:12.5px;font-weight:600;color:var(--qt-text);flex:1">{{ t(U + 'unifiedDiff') }}</span>
+            <CopyButton :text="outputs.unifiedPatch" :label="t(U + 'copyPatch')" />
           </div>
           <pre v-if="outputs.unifiedPatch.trim().length > 0" class="td__unified-code">{{
             outputs.unifiedPatch
           }}</pre>
-          <p v-else class="td__empty">No patch — inputs are identical or empty.</p>
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'noPatch') }}</p>
         </div>
 
         <!-- Legend -->
-        <div class="td__legend">
-          <span class="td__chip td__chip--added">
-            <Plus :size="11" /> {{ outputs.counts.added }} added
+        <div class="qt-row qt-row--center" style="--qt-row-gap:6px;margin-top:8px">
+          <span class="qt-badge qt-badge--success">
+            <Plus :size="11" /> {{ t(U + 'badgeAdded', { n: outputs.counts.added }) }}
           </span>
-          <span class="td__chip td__chip--removed">
-            <Minus :size="11" /> {{ outputs.counts.removed }} removed
+          <span class="qt-badge qt-badge--error">
+            <Minus :size="11" /> {{ t(U + 'badgeRemoved', { n: outputs.counts.removed }) }}
           </span>
-          <span class="td__chip td__chip--unchanged">
-            <Equal :size="11" /> {{ outputs.counts.unchanged }} unchanged
+          <span class="qt-badge qt-badge--muted">
+            <Equal :size="11" /> {{ t(U + 'badgeUnchanged', { n: outputs.counts.unchanged }) }}
           </span>
         </div>
       </template>
@@ -297,21 +303,9 @@ function onRightInput(e: Event): void {
 </template>
 
 <style scoped>
-.td {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
 
-/* Options bar */
-.td__opts {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+/* Pill segmented control — rounded-999 joined group (vs .qt-seg rounded-sm). */
 .td__seg {
   display: inline-flex;
   border: 1px solid var(--qt-border);
@@ -338,11 +332,8 @@ function onRightInput(e: Event): void {
   color: var(--qt-bg);
   background: var(--qt-accent);
 }
-.td__toggles {
-  display: inline-flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+
+/* Toggle pill — rounded-999 toggle chip with solid-accent active. */
 .td__toggle {
   display: inline-flex;
   align-items: center;
@@ -365,7 +356,7 @@ function onRightInput(e: Event): void {
   border-color: var(--qt-accent);
 }
 
-/* Inputs */
+/* 2-col input grid — collapses to stacked on narrow. */
 .td__inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -376,101 +367,10 @@ function onRightInput(e: Event): void {
     grid-template-columns: 1fr;
   }
 }
-.td__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.td__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.td__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 180px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.td__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.td__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
 
-/* Buttons */
-.td__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition: transform 0.1s ease, opacity 0.15s ease;
-  will-change: transform;
-}
-.td__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.td__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.td__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.td__btn--ghost {
-  background: var(--qt-bg);
-  color: var(--qt-muted);
-  border-color: var(--qt-border);
-}
-.td__btn--ghost:hover:not(:disabled) {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.td__spin {
-  animation: td-spin 0.8s linear infinite;
-}
-@keyframes td-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Empty / identical states */
-.td__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.td__identical {
-  color: var(--qt-success, var(--qt-accent));
-  font-weight: 600;
-}
-
-/* Inline view */
+/* Inline diff stream — mono block + :deep() add/del/keep highlights. */
 .td__inline-stream {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13px;
   line-height: 1.55;
   white-space: pre-wrap;
@@ -499,7 +399,7 @@ function onRightInput(e: Event): void {
   color: var(--qt-text);
 }
 
-/* Side-by-side view */
+/* Side-by-side diff table — line numbers + added/removed/modified cells. */
 .td__sbs-scroll {
   border: 1px solid var(--qt-border);
   border-radius: var(--qt-radius-sm);
@@ -510,7 +410,7 @@ function onRightInput(e: Event): void {
 .td__sbs-table {
   width: 100%;
   border-collapse: collapse;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 12.5px;
   table-layout: fixed;
 }
@@ -556,21 +456,9 @@ function onRightInput(e: Event): void {
   background: oklch(from var(--qt-success, var(--qt-accent)) 92% c h / 0.25);
 }
 
-/* Unified patch view */
-.td__unified-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-.td__unified-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Unified patch code block — mono scrollable <pre>. */
 .td__unified-code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 12.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -582,40 +470,5 @@ function onRightInput(e: Event): void {
   padding: 10px 12px;
   max-height: 60vh;
   overflow: auto;
-}
-
-/* Legend */
-.td__legend {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-top: 8px;
-}
-.td__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-}
-.td__chip--added {
-  border-color: transparent;
-  background: oklch(from var(--qt-success, var(--qt-accent)) 60% c h);
-  color: var(--qt-bg);
-}
-.td__chip--removed {
-  border-color: transparent;
-  background: var(--qt-danger);
-  color: var(--qt-bg);
-}
-.td__chip--unchanged {
-  background: var(--qt-muted);
-  border-color: transparent;
-  color: var(--qt-bg);
 }
 </style>

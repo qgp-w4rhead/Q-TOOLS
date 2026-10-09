@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * OutlookSafelinkDecoder — recover the original destination URL from a
+ * OutlookSafelinkDecoder - recover the original destination URL from a
  * Microsoft Defender for Office 365 (Safe Links) wrapped URL.
  *
  * Safelinks rewrite every hyperlink through a regional scanning host:
@@ -9,10 +9,10 @@
  *
  * The original destination is stored percent-encoded (sometimes
  * double-encoded) in the `url` query parameter. This tool decodes it and
- * surfaces the safelink metadata — regional host, recipient email and
+ * surfaces the safelink metadata - regional host, recipient email and
  * timestamp embedded in the `data` field, plus the `sdata`/`reserved` params.
  *
- * No external dependencies — only the native `URL` / `decodeURIComponent`
+ * No external dependencies - only the native `URL` / `decodeURIComponent`
  * APIs.
  *
  * Works in embed mode: receives `input`/`url`/`safelink` PostMessages to
@@ -21,6 +21,7 @@
  * result changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   AlertTriangle,
   Clock,
@@ -36,6 +37,9 @@ import { useOutlookSafelinkDecoder } from './useOutlookSafelinkDecoder';
 
 const { input, result, error } = useOutlookSafelinkDecoder();
 
+const { t } = useI18n();
+const U = 'tools.outlook-safelink-decoder.ui.';
+
 const hasInput = computed(() => input.value.trim().length > 0);
 
 const timestampDisplay = computed(() => {
@@ -46,7 +50,7 @@ const timestampDisplay = computed(() => {
   const pad = (n: number): string => n.toString().padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(
     d.getHours(),
-  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())} local`;
+  )}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ${t(U + 'localSuffix')}`;
 });
 
 function onInput(e: Event): void {
@@ -55,13 +59,13 @@ function onInput(e: Event): void {
 </script>
 
 <template>
-  <div class="sl">
+  <div class="qt-tool">
     <ToolInput
-      title="Safelinks URL"
-      description="Paste a Microsoft Defender Safe Links wrapped URL. Decoding is client-side only — no data leaves your browser."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <textarea
-        class="sl__textarea"
+        class="qt-input qt-input--mono sl__textarea"
         placeholder="https://nam04.safelinks.protection.outlook.com/?url=https%3A%2F%2Fexample.com%2F&data=05%7C01%7Cuser%40example.com%7C…&sdata=…&reserved=0"
         :value="input"
         spellcheck="false"
@@ -73,14 +77,14 @@ function onInput(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="Decoded URL"
-      :description="result ? 'Original destination recovered from the safelink wrapper.' : 'Paste a Safelinks URL above to decode it.'"
+      :title="t(U + 'outputTitle')"
+      :description="result ? t(U + 'descResult') : t(U + 'descEmpty')"
     >
       <template v-if="!hasInput">
-        <p class="sl__empty">Paste a Safelinks URL above to decode it.</p>
+        <p class="qt-alert qt-alert--empty">{{ t(U + 'empty') }}</p>
       </template>
       <template v-else-if="error">
-        <div class="sl__error">
+        <div class="qt-banner qt-banner--error">
           <AlertTriangle :size="14" />
           <span>{{ error.message }}</span>
         </div>
@@ -88,90 +92,86 @@ function onInput(e: Event): void {
       <template v-else-if="result">
         <!-- Original URL -->
         <div class="sl__result">
-          <div class="sl__result-head">
-            <span class="sl__result-label">Original URL</span>
-            <div class="sl__result-actions">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px;margin-bottom:6px">
+            <span class="qt-stat-head sl__result-label">{{ t(U + 'originalUrl') }}</span>
+            <div class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:6px">
               <a
                 v-if="result.originalUrl"
-                class="sl__btn sl__btn--ghost"
+                class="qt-btn qt-btn--ghost qt-btn--sm"
                 :href="result.originalUrl"
                 target="_blank"
                 rel="noopener noreferrer"
-                title="Open the original URL in a new tab"
+                :title="t(U + 'openTitle')"
               >
                 <ExternalLink :size="13" />
-                <span>Open</span>
+                <span>{{ t(U + 'open') }}</span>
               </a>
-              <CopyButton :text="result.originalUrl" label="Copy" icon-only />
+              <CopyButton :text="result.originalUrl" icon-only />
             </div>
           </div>
-          <code class="sl__code sl__code--primary">{{ result.originalUrl || '—' }}</code>
+          <code class="qt-mono sl__code sl__code--primary">{{ result.originalUrl || '-' }}</code>
         </div>
 
         <!-- Meta row -->
-        <div class="sl__meta">
-          <div class="sl__meta-item">
+        <div class="qt-row sl__meta" style="--qt-row-gap:8px 16px">
+          <div class="qt-row qt-row--center qt-row--nowrap sl__meta-item" style="--qt-row-gap:6px">
             <Globe :size="12" />
-            <span class="sl__meta-label">host</span>
-            <code class="sl__meta-value">{{ result.host }}</code>
+            <span class="qt-stat-head">{{ t(U + 'host') }}</span>
+            <code class="qt-mono sl__meta-value">{{ result.host }}</code>
           </div>
-          <div v-if="result.region" class="sl__meta-item">
-            <span class="sl__meta-label">region</span>
-            <code class="sl__meta-value">{{ result.region }}</code>
+          <div v-if="result.region" class="qt-row qt-row--center qt-row--nowrap sl__meta-item" style="--qt-row-gap:6px">
+            <span class="qt-stat-head">{{ t(U + 'region') }}</span>
+            <code class="qt-mono sl__meta-value">{{ result.region }}</code>
           </div>
-          <div class="sl__meta-item">
+          <div class="qt-row qt-row--center qt-row--nowrap sl__meta-item" style="--qt-row-gap:6px">
             <ShieldCheck :size="12" />
-            <span class="sl__meta-label">decode passes</span>
-            <code class="sl__meta-value">{{ result.decodePasses }}</code>
+            <span class="qt-stat-head">{{ t(U + 'decodePasses') }}</span>
+            <code class="qt-mono sl__meta-value">{{ result.decodePasses }}</code>
           </div>
-          <div v-if="result.reserved !== null" class="sl__meta-item">
-            <span class="sl__meta-label">reserved</span>
-            <code class="sl__meta-value">{{ result.reserved }}</code>
+          <div v-if="result.reserved !== null" class="qt-row qt-row--center qt-row--nowrap sl__meta-item" style="--qt-row-gap:6px">
+            <span class="qt-stat-head">{{ t(U + 'reserved') }}</span>
+            <code class="qt-mono sl__meta-value">{{ result.reserved }}</code>
           </div>
         </div>
 
         <!-- Recipient + timestamp from data field -->
         <div
           v-if="result.data && (result.data.recipient || timestampDisplay)"
-          class="sl__data"
+          class="qt-result sl__data"
         >
-          <div v-if="result.data.recipient" class="sl__data-row">
+          <div v-if="result.data.recipient" class="qt-row qt-row--center sl__data-row" style="--qt-row-gap:8px">
             <Mail :size="12" />
-            <span class="sl__data-label">recipient</span>
-            <span class="sl__data-value">{{ result.data.recipient }}</span>
+            <span class="sl__data-label">{{ t(U + 'recipient') }}</span>
+            <span class="qt-mono sl__data-value">{{ result.data.recipient }}</span>
           </div>
-          <div v-if="timestampDisplay" class="sl__data-row">
+          <div v-if="timestampDisplay" class="qt-row qt-row--center sl__data-row" style="--qt-row-gap:8px">
             <Clock :size="12" />
-            <span class="sl__data-label">timestamp</span>
-            <span class="sl__data-value">{{ timestampDisplay }}</span>
+            <span class="sl__data-label">{{ t(U + 'timestamp') }}</span>
+            <span class="qt-mono sl__data-value">{{ timestampDisplay }}</span>
           </div>
         </div>
 
         <!-- sdata -->
         <section v-if="result.sdata" class="sl__section">
-          <header class="sl__section-head">
-            <h3 class="sl__section-title">sdata</h3>
-            <CopyButton :text="result.sdata" label="Copy" icon-only />
+          <header class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="margin-bottom:6px">
+            <h3 class="qt-stat-head" style="margin:0">{{ t(U + 'sdataTitle') }}</h3>
+            <CopyButton :text="result.sdata" icon-only />
           </header>
-          <code class="sl__code">{{ result.sdata }}</code>
+          <code class="qt-mono sl__code">{{ result.sdata }}</code>
         </section>
 
         <!-- raw data field -->
         <section v-if="result.data && result.data.raw" class="sl__section">
-          <header class="sl__section-head">
-            <h3 class="sl__section-title">data (raw)</h3>
-            <CopyButton :text="result.data.raw" label="Copy" icon-only />
+          <header class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="margin-bottom:6px">
+            <h3 class="qt-stat-head" style="margin:0">{{ t(U + 'dataRawTitle') }}</h3>
+            <CopyButton :text="result.data.raw" icon-only />
           </header>
-          <code class="sl__code sl__code--break">{{ result.data.raw }}</code>
+          <code class="qt-mono sl__code">{{ result.data.raw }}</code>
         </section>
 
-        <p class="sl__hint">
+        <p class="qt-alert qt-alert--note sl__hint">
           <AlertTriangle :size="12" />
-          <span>
-            Decoding only recovers the destination — it does not validate that
-            the original URL is safe. Follow your organisation's link-checking
-            policy before opening recovered links.
-          </span>
+          <span>{{ t(U + 'hint') }}</span>
         </p>
       </template>
     </ToolOutput>
@@ -179,55 +179,14 @@ function onInput(e: Event): void {
 </template>
 
 <style scoped>
-.sl {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .sl__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
   font-size: 13px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 96px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.sl__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.sl__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.sl__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: oklch(from var(--qt-danger) 35% c h / 0.18);
-  border: 1px solid oklch(from var(--qt-danger) 60% c h / 0.5);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-size: 13.5px;
-}
-.sl__error svg {
-  color: var(--qt-danger);
-  flex-shrink: 0;
-}
+/* Recovered-URL card — success-tinted callout. */
 .sl__result {
   background: oklch(from var(--qt-success) 35% c h / 0.12);
   border: 1px solid oklch(from var(--qt-success) 60% c h / 0.45);
@@ -235,44 +194,28 @@ function onInput(e: Event): void {
   padding: 10px 12px;
   margin-bottom: 12px;
 }
-.sl__result-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 6px;
-}
 .sl__result-label {
   font-size: 12.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   color: var(--qt-success);
 }
-.sl__result-actions {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
+/* Mono output block (font via .qt-mono) — bordered, break-all, pre-wrapped. */
 .sl__code {
   display: block;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--qt-text);
   word-break: break-all;
   white-space: pre-wrap;
+  padding: 10px 12px;
+  background: var(--qt-bg);
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius-sm);
 }
 .sl__code--primary {
   font-size: 14px;
   font-weight: 600;
 }
-.sl__code--break {
-  word-break: break-all;
-}
+/* Meta strip — bordered horizontal wrap of label/value items (row via .qt-row). */
 .sl__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
   padding: 10px 12px;
   background: var(--qt-bg);
   border: 1px solid var(--qt-border);
@@ -280,42 +223,22 @@ function onInput(e: Event): void {
   margin-bottom: 12px;
 }
 .sl__meta-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   font-size: 12.5px;
 }
 .sl__meta-item svg {
   color: var(--qt-muted);
 }
-.sl__meta-label {
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 11px;
-  color: var(--qt-muted);
-}
 .sl__meta-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 12.5px;
   color: var(--qt-text);
 }
+/* Data card (base via .qt-result) — recipient/timestamp rows. */
 .sl__data {
-  display: flex;
-  flex-direction: column;
   gap: 6px;
-  padding: 10px 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
   margin-bottom: 12px;
 }
 .sl__data-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-size: 12.5px;
-  flex-wrap: wrap;
 }
 .sl__data-row svg {
   color: var(--qt-muted);
@@ -327,74 +250,20 @@ function onInput(e: Event): void {
   min-width: 90px;
 }
 .sl__data-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   color: var(--qt-text);
   word-break: break-all;
 }
+/* Code sections — spaced blocks. */
 .sl__section {
   margin-bottom: 12px;
 }
 .sl__section:last-of-type {
   margin-bottom: 0;
 }
-.sl__section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-.sl__section-title {
-  margin: 0;
-  font-size: 12.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--qt-muted);
-}
-.sl__code {
-  padding: 10px 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-}
-.sl__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 5px 10px;
-  cursor: pointer;
-  text-decoration: none;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.sl__btn:hover {
-  transform: translateY(-1px);
-}
-.sl__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.sl__btn--ghost:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
+/* Safety hint (base via .qt-alert--note) — top margin + icon nudge. */
 .sl__hint {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 10px 0 0;
+  margin-top: 10px;
   font-size: 12px;
-  color: var(--qt-muted);
   line-height: 1.5;
 }
 .sl__hint svg {

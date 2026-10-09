@@ -1,5 +1,5 @@
 /**
- * useCameraRecorder — composable + pure logic for the camera recorder tool.
+ * useCameraRecorder - composable + pure logic for the camera recorder tool.
  *
  * Records video from the user's webcam using the native `getUserMedia` +
  * `MediaRecorder` APIs. No external dependencies.
@@ -11,13 +11,13 @@
  * the camera stream + MediaRecorder lifecycle, and wires up the embed
  * PostMessage protocol.
  *
- * The composable does NOT touch the DOM directly — it exposes the live
+ * The composable does NOT touch the DOM directly - it exposes the live
  * `stream` and the `recordedBlobUrl` so the component can bind them to
  * `<video>` elements via watchers. This keeps the composable testable and
  * lets the component own template-ref lifecycle.
  *
  * Browser-only: the composable guards every Web-API call so it degrades
- * gracefully (surfacing a descriptive error) when APIs are missing — e.g.
+ * gracefully (surfacing a descriptive error) when APIs are missing - e.g.
  * during SSR or when the page is served over HTTP (getUserMedia requires a
  * secure context).
  */
@@ -71,7 +71,7 @@ export function mimeExtension(mime: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -103,7 +103,7 @@ export function formatDuration(totalSeconds: number): string {
  * Return the subset of `MIME_CANDIDATES` that the current browser reports as
  * supported by `MediaRecorder.isTypeSupported`. Returns an empty array when
  * `MediaRecorder` is unavailable (e.g. SSR, insecure context, very old
- * browser). Pure with respect to the browser API surface — no Vue refs.
+ * browser). Pure with respect to the browser API surface - no Vue refs.
  */
 export function listSupportedMimeTypes(): string[] {
   if (typeof MediaRecorder === 'undefined') return [];
@@ -138,16 +138,16 @@ export function isSecureContextAvailable(): boolean {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + camera/MediaRecorder lifecycle               */
+/* Composable - reactive state + camera/MediaRecorder lifecycle               */
 /* -------------------------------------------------------------------------- */
 
 export interface UseCameraRecorderReturn {
   resolution: Ref<ResolutionPreset>;
   mimeType: Ref<string>;
   supportedMimeTypes: Ref<string[]>;
-  /** Live camera stream — bind to a `<video>` element's `srcObject`. */
+  /** Live camera stream - bind to a `<video>` element's `srcObject`. */
   stream: Ref<MediaStream | null>;
-  /** Object URL of the latest recording — bind to a `<video>` element's `src`. */
+  /** Object URL of the latest recording - bind to a `<video>` element's `src`. */
   recordedBlobUrl: Ref<string | null>;
   isRecording: Ref<boolean>;
   isCameraOn: Ref<boolean>;

@@ -1,5 +1,5 @@
 /**
- * useIpv4RangeExpander — composable + pure logic for the IPv4 range expander
+ * useIpv4RangeExpander - composable + pure logic for the IPv4 range expander
  * tool.
  *
  * Takes a start IP + end IP (or a single range expression such as
@@ -14,7 +14,7 @@
  *      whose last address does not overshoot `end`.
  *   3. Emit that block, advance `current` past it, repeat until `current > end`.
  *
- * All arithmetic uses 32-bit unsigned integers via `>>> 0` normalisation — no
+ * All arithmetic uses 32-bit unsigned integers via `>>> 0` normalisation - no
  * BigInt needed (32 bits fits comfortably in JavaScript's safe-integer range).
  *
  * Pure helpers (`parseIpv4`, `ipv4ToInt`, `intToIpv4`, `parseRangeExpression`,
@@ -30,7 +30,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** 32-bit unsigned integer representation of an IPv4 address (0 .. 2^32-1). */
@@ -147,7 +147,7 @@ export function intToIpv4(n: Ipv4Int): string {
 /**
  * Parse a CIDR prefix length (`0`-`32`).
  *
- * Accepts a bare number (`24`) or a full CIDR string (`192.168.1.0/24` — the IP
+ * Accepts a bare number (`24`) or a full CIDR string (`192.168.1.0/24` - the IP
  * portion is ignored here; use `parseIpv4` separately).
  */
 export function parseCidr(input: string): CidrParseResult {
@@ -371,7 +371,7 @@ export function expandRange(
     return { ok: false, result: null, error: 'Enter a start IP address.' };
   } else {
     // Both fields provided: parse each as a bare IP (a trailing `/n` on the
-    // start field is tolerated and the prefix ignored — the end field
+    // start field is tolerated and the prefix ignored - the end field
     // defines the range boundary).
     const sStart = s.includes('/') ? s.slice(0, s.indexOf('/')) : s;
     const sRes = parseIpv4(sStart);
@@ -409,7 +409,7 @@ export function expandRange(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseIpv4RangeExpanderReturn {

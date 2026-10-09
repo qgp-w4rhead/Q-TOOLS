@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * ColorConverter — convert between HEX, RGB, HSL, HSV, and CMYK.
+ * ColorConverter - convert between HEX, RGB, HSL, HSV, and CMYK.
  *
  * A single text input is auto-detected (or parsed against a chosen format)
  * into an internal RGB triple, then every supported format is rendered
@@ -15,6 +15,7 @@
  * computed formats change.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, Palette } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -34,6 +35,9 @@ const {
   setFromHex,
 } = useColorConverter();
 
+const { t } = useI18n();
+const U = 'tools.color-converter.ui.';
+
 const MODES: { value: ParseMode; label: string }[] = [
   { value: 'auto', label: 'Auto' },
   { value: 'hex', label: 'HEX' },
@@ -42,6 +46,11 @@ const MODES: { value: ParseMode; label: string }[] = [
   { value: 'hsv', label: 'HSV' },
   { value: 'cmyk', label: 'CMYK' },
 ];
+
+/** Localized mode label (only 'auto' is a translatable word; the rest are format names). */
+function modeLabel(m: { value: ParseMode; label: string }): string {
+  return m.value === 'auto' ? t('common.auto') : m.label;
+}
 
 /** The `#rrggbb` value for the native color picker (6-digit hex only). */
 const pickerHex = computed(() => {
@@ -84,22 +93,22 @@ function onPickerChange(e: Event): void {
 </script>
 
 <template>
-  <div class="cc">
-    <ToolInput title="Color" description="Enter a color in any format (HEX, RGB, HSL, HSV, CMYK) — auto-detected.">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'title')" :description="t(U + 'desc')">
       <template #actions>
         <button
-          class="cc__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="cc__mode-row">
-        <span class="cc__label">Format</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <span class="qt-label">{{ t('common.format') }}</span>
         <div class="cc__mode-toggle">
           <button
             v-for="m in MODES"
@@ -110,32 +119,32 @@ function onPickerChange(e: Event): void {
             :aria-pressed="mode === m.value"
             @click="onModeChange(m.value)"
           >
-            {{ m.label }}
+            {{ modeLabel(m) }}
           </button>
         </div>
       </div>
 
-      <div class="cc__input-row">
-        <label class="cc__field cc__field--grow">
-          <span class="cc__label">Color string</span>
+      <div class="qt-row qt-row--end" style="--qt-row-gap:10px">
+        <label class="qt-field cc__field--grow">
+          <span class="qt-label">{{ t(U + 'colorString') }}</span>
           <input
-            class="cc__text"
+            class="qt-input qt-input--mono"
             type="text"
-            placeholder="#58a6ff · rgb(88,166,255) · hsl(212, 100%, 67%) …"
+            :placeholder="t(U + 'placeholder')"
             :value="input"
             spellcheck="false"
             autocomplete="off"
             @input="onTextInput"
           />
         </label>
-        <label class="cc__field cc__field--picker" title="Pick a color visually">
-          <span class="cc__label">Picker</span>
+        <label class="qt-field cc__field--picker" :title="t(U + 'pickerTitle')">
+          <span class="qt-label">{{ t(U + 'picker') }}</span>
           <span class="cc__picker-wrap">
             <input
               class="cc__picker"
               type="color"
               :value="pickerHex"
-              aria-label="Color picker"
+              :aria-label="t(U + 'pickerAria')"
               @input="onPickerChange"
             />
             <Palette :size="14" class="cc__picker-icon" />
@@ -145,26 +154,26 @@ function onPickerChange(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="Converted formats"
-      :description="outputs ? 'All color spaces for the input above.' : 'Enter a color above to convert.'"
+      :title="t(U + 'outputTitle')"
+      :description="outputs ? t(U + 'outputDesc') : t(U + 'empty')"
     >
-      <p v-if="error" class="cc__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="cc__empty">
-          Enter a color above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'empty') }}
         </p>
-        <div v-if="outputs" class="cc__body">
+        <div v-if="outputs" class="qt-row" style="--qt-row-gap:var(--qt-gap)">
           <div class="cc__swatch" :style="swatchStyle">
             <span class="cc__swatch-hex">{{ outputs.hex }}</span>
           </div>
-          <ul class="cc__rows">
+          <ul class="qt-stack cc__rows" style="--qt-stack-gap:8px">
             <li v-for="row in outputRows" :key="row.label" class="cc__row">
               <span class="cc__row-label">{{ row.label }}</span>
-              <code class="cc__row-value">{{ row.value }}</code>
-              <CopyButton :text="row.value" :label="`Copy ${row.label}`" icon-only />
+              <code class="qt-mono cc__row-value">{{ row.value }}</code>
+              <CopyButton :text="row.value" :label="t(U + 'copyFormat', { format: row.label })" icon-only />
             </li>
           </ul>
         </div>
@@ -174,35 +183,9 @@ function onPickerChange(e: Event): void {
 </template>
 
 <style scoped>
-.cc {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.cc__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.cc__field--grow {
-  flex: 1;
-}
-.cc__field--picker {
-  flex-shrink: 0;
-}
-.cc__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.cc__mode-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Format pill segmented control (solid-accent active). */
 .cc__mode-toggle {
   display: inline-flex;
   background: var(--qt-bg);
@@ -224,38 +207,19 @@ function onPickerChange(e: Event): void {
   transition:
     color 0.15s ease,
     background 0.15s ease;
-  will-change: color, background;
 }
 .cc__mode-opt--active {
   color: var(--qt-bg);
   background: var(--qt-accent);
 }
-.cc__input-row {
-  display: flex;
-  gap: 10px;
-  align-items: flex-end;
-  flex-wrap: wrap;
+/* Field sizing modifiers (layout via .qt-field). */
+.cc__field--grow {
+  flex: 1;
 }
-.cc__text {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  padding: 9px 12px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
+.cc__field--picker {
+  flex-shrink: 0;
 }
-.cc__text:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
+/* Native color picker — bordered wrap + reset swatch. */
 .cc__picker-wrap {
   position: relative;
   display: inline-flex;
@@ -267,7 +231,6 @@ function onPickerChange(e: Event): void {
   gap: 6px;
   cursor: pointer;
   transition: border-color 0.15s ease;
-  will-change: border-color;
 }
 .cc__picker-wrap:hover {
   border-color: var(--qt-accent);
@@ -295,53 +258,7 @@ function onPickerChange(e: Event): void {
   color: var(--qt-muted);
   flex-shrink: 0;
 }
-.cc__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.cc__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.cc__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.cc__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.cc__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.cc__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.cc__body {
-  display: flex;
-  gap: var(--qt-gap);
-  flex-wrap: wrap;
-  align-items: stretch;
-}
+/* Live color swatch + hex chip. */
 .cc__swatch {
   flex: 1 1 220px;
   min-width: 200px;
@@ -355,7 +272,6 @@ function onPickerChange(e: Event): void {
   position: relative;
   overflow: hidden;
   transition: background 0.15s ease;
-  will-change: background;
 }
 .cc__swatch-hex {
   font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
@@ -367,15 +283,13 @@ function onPickerChange(e: Event): void {
   color: var(--qt-text);
   backdrop-filter: blur(4px);
 }
+/* Format rows — list reset + grow sizing (stack via .qt-stack). */
 .cc__rows {
   list-style: none;
   margin: 0;
   padding: 0;
   flex: 1 1 320px;
   min-width: 240px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 .cc__row {
   display: flex;
@@ -396,7 +310,6 @@ function onPickerChange(e: Event): void {
 }
 .cc__row-value {
   flex: 1;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13.5px;
   color: var(--qt-text);
   word-break: break-all;

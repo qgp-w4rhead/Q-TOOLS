@@ -1,5 +1,5 @@
 /**
- * useBip39Generator — composable + pure logic for the BIP39 mnemonic generator.
+ * useBip39Generator - composable + pure logic for the BIP39 mnemonic generator.
  *
  * Generates BIP39 mnemonic phrases (https://github.com/bitcoin/bips/blob/master/
  * bip-0039.mediawiki) using the audited `@scure/bip39` library. A mnemonic is a
@@ -17,7 +17,7 @@
  * The `@scure/bip39` package is dynamically imported inside the pure helpers so
  * Vite emits it as a separate chunk (lazy-loaded only when the tool is opened).
  * The English wordlist is imported together with the main module (so it shares
- * the same chunk and is available immediately on first generate — English is
+ * the same chunk and is available immediately on first generate - English is
  * the default and most common case). The other 7 wordlists (Japanese, French,
  * Italian, Korean, Spanish, Simplified Chinese, Traditional Chinese) are
  * dynamically imported on demand, each landing in its own Vite chunk, so users
@@ -26,7 +26,7 @@
  * Randomness: `@scure/bip39`'s `generateMnemonic` uses `@noble/hashes`'
  * `randomBytes`, which is backed by the platform CSPRNG
  * (`crypto.getRandomValues` in browsers / `crypto.randomBytes` in Node). We do
- * NOT pass our own entropy — the library handles secure generation.
+ * NOT pass our own entropy - the library handles secure generation.
  *
  * Optional BIP39 passphrase (the so-called "25th word") can be supplied to
  * derive a 64-byte seed via `mnemonicToSeed` (PBKDF2-HMAC-SHA512, 2048
@@ -43,7 +43,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Supported entropy strengths (bits). Must be a multiple of 32, 128-256. */
@@ -90,7 +90,7 @@ export const WORDLIST_LABELS: Record<WordlistId, string> = {
   'traditional-chinese': 'Chinese (Traditional)',
 };
 
-/** Cached wordlist modules — keyed by language id. */
+/** Cached wordlist modules - keyed by language id. */
 const wordlistCache = new Map<WordlistId, string[]>();
 
 /** Cached main `@scure/bip39` module (shared across all calls). */
@@ -172,7 +172,7 @@ export async function loadWordlist(id: WordlistId): Promise<string[]> {
       return m.wordlist;
     }
     default: {
-      // Exhaustive guard — TS ensures the switch covers every WordlistId.
+      // Exhaustive guard - TS ensures the switch covers every WordlistId.
       const _exhaustive: never = id;
       throw new Error(`Unsupported wordlist: ${String(_exhaustive)}`);
     }
@@ -191,7 +191,7 @@ export interface GenerateMnemonicOptions {
  * Generate a fresh BIP39 mnemonic phrase. Uses `@scure/bip39`'s
  * `generateMnemonic`, which draws entropy from the platform CSPRNG. The
  * returned string uses the wordlist's canonical separator (single space for
- * non-Japanese, U+3000 ideographic space for Japanese — handled by the
+ * non-Japanese, U+3000 ideographic space for Japanese - handled by the
  * library).
  */
 export async function generateMnemonicPhrase(
@@ -253,7 +253,7 @@ export async function validateMnemonicPhrase(
 /**
  * Derive a 64-byte BIP39 seed from a mnemonic + optional passphrase using
  * PBKDF2-HMAC-SHA512 (2048 iterations, per BIP39 spec). Returns the seed as a
- * hex string. The passphrase is the BIP39 "25th word" — any ASCII/UTF-8 string
+ * hex string. The passphrase is the BIP39 "25th word" - any ASCII/UTF-8 string
  * the user chooses; there is no "wrong" passphrase, but different passphrases
  * yield completely different seeds.
  */
@@ -291,7 +291,7 @@ export function fromHex(hex: string): Uint8Array {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseBip39GeneratorReturn {
@@ -332,11 +332,11 @@ export function useBip39Generator(): UseBip39GeneratorReturn {
       });
       mnemonic.value = phrase;
       // Split on any whitespace (BIP39 uses regular space for non-Japanese and
-      // U+3000 ideographic space for Japanese — `\s+` covers both).
+      // U+3000 ideographic space for Japanese - `\s+` covers both).
       mnemonicWords.value = phrase.split(/\s+/).filter((w) => w.length > 0);
       const ent = await mnemonicToEntropyHex(phrase, wordlist.value);
       entropyHex.value = ent;
-      // Only derive + show the seed when the user supplied a passphrase —
+      // Only derive + show the seed when the user supplied a passphrase -
       // otherwise the seed is just the well-known "no passphrase" derivation
       // and showing it would imply it is secret.
       if (passphrase.value.length > 0) {

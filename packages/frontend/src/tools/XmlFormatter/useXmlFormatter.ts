@@ -1,5 +1,5 @@
 /**
- * useXmlFormatter — composable + pure logic for the XML prettify & format tool.
+ * useXmlFormatter - composable + pure logic for the XML prettify & format tool.
  *
  * Parses XML text via `fast-xml-parser`'s `XMLParser` (with `preserveOrder:
  * true` so document order, comments, CDATA, and attributes are retained) and
@@ -9,7 +9,7 @@
  * and CDATA sections all survive the parse → build cycle.
  *
  * The `fast-xml-parser` package is part of the initial bundle per
- * `tech-stack.md`, so it is statically imported here — no dynamic import, no
+ * `tech-stack.md`, so it is statically imported here - no dynamic import, no
  * separate Vite chunk.
  *
  * Pure helpers (`formatXml`, `buildParser`, `buildBuilder`, `validateXml`,
@@ -25,7 +25,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation mode for the prettified XML output. */
@@ -83,7 +83,7 @@ export const DEFAULT_COLLAPSE_EMPTY = true;
 /**
  * Build a `fast-xml-parser` `XMLParser` instance from the given options.
  *
- * `preserveOrder: true` is always enabled — it is required for a faithful
+ * `preserveOrder: true` is always enabled - it is required for a faithful
  * round-trip (without it the parser collapses repeated tags into arrays keyed
  * by tag name, losing document order and interleaving with comments).
  */
@@ -99,7 +99,7 @@ export function buildParser(opts: XmlFormatterOptions): XMLParser {
     cdataPropName: opts.preserveCDATA ? CDATA_PROP : false,
     preserveOrder: true,
     trimValues: opts.trimValues,
-    // Keep tag/attribute values as strings — a formatter should not coerce
+    // Keep tag/attribute values as strings - a formatter should not coerce
     // `1` → number or `true` → boolean (the builder would re-emit them
     // unchanged anyway, but coercion can alter formatting like `1.0`).
     parseTagValue: false,
@@ -145,7 +145,7 @@ export function buildBuilder(opts: XmlFormatterOptions): XMLBuilder {
  * if valid, or a normalised `XmlFormatterError` if malformed. `XMLValidator`
  * is deprecated in v5 in favour of the separate `fast-xml-validator` package,
  * but it remains functional and is part of the same `fast-xml-parser`
- * dependency already listed in `tech-stack.md` — no new dependency.
+ * dependency already listed in `tech-stack.md` - no new dependency.
  */
 export function validateXml(input: string): XmlFormatterError | null {
   const result = XMLValidator.validate(input);
@@ -249,7 +249,7 @@ function countNodes(parsed: unknown): {
         if (key === COMMENT_PROP || key === CDATA_PROP) continue;
         if (key === TEXT_PROP) continue;
         if (key.startsWith('?')) {
-          // Processing instruction — not an element tag.
+          // Processing instruction - not an element tag.
           continue;
         }
         tagCount += 1;
@@ -263,7 +263,7 @@ function countNodes(parsed: unknown): {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Syntax highlighting — hand-rolled tokenizer, XSS-safe                       */
+/* Syntax highlighting - hand-rolled tokenizer, XSS-safe                       */
 /* -------------------------------------------------------------------------- */
 
 /** CSS class names emitted by `highlightXml`. Keep in sync with the .vue. */
@@ -357,7 +357,7 @@ export function highlightXml(xml: string): string {
     while (j < len) {
       const c = tag.charCodeAt(j);
 
-      // Whitespace — preserve verbatim.
+      // Whitespace - preserve verbatim.
       if (c === 0x20 || c === 0x09 || c === 0x0a || c === 0x0d) {
         out.push(tag[j]!);
         j += 1;
@@ -427,7 +427,7 @@ export function highlightXml(xml: string): string {
         continue;
       }
 
-      // Anything else — escape and emit as plain text.
+      // Anything else - escape and emit as plain text.
       out.push(escapeHtml(tag[j]!));
       j += 1;
     }
@@ -436,7 +436,7 @@ export function highlightXml(xml: string): string {
   while (i < n) {
     const ch = xml.charCodeAt(i);
 
-    // Whitespace and newlines — preserve verbatim (already HTML-safe).
+    // Whitespace and newlines - preserve verbatim (already HTML-safe).
     if (
       ch === 0x20 /* space */ ||
       ch === 0x09 /* tab */ ||
@@ -564,7 +564,7 @@ function extractLineColumn(raw: string): {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface XmlFormatterOutputs {

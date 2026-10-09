@@ -1,14 +1,14 @@
 <script setup lang="ts">
 /**
- * UrlEncodeDecode — percent-encode and decode URL strings.
+ * UrlEncodeDecode - percent-encode and decode URL strings.
  *
  * Bidirectional: text → percent-encoded (encode) and percent-encoded → text
  * (decode). Two scopes:
  *
- * - **Component** — `encodeURIComponent` / `decodeURIComponent`. Escapes
+ * - **Component** - `encodeURIComponent` / `decodeURIComponent`. Escapes
  *   everything except `A-Za-z0-9-_.!~*'()`. Use for query values, path
  *   segments, or any single URI component.
- * - **Full URI** — `encodeURI` / `decodeURI`. Preserves the reserved URI
+ * - **Full URI** - `encodeURI` / `decodeURI`. Preserves the reserved URI
  *   delimiters `;,/?:@&=+$#` so a complete URL keeps its structure.
  *
  * No external dependencies.
@@ -18,6 +18,7 @@
  * whenever the computed output changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, ArrowLeftRight, RefreshCw, Link, Globe } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -40,25 +41,26 @@ const {
   swap,
 } = useUrlEncodeDecode();
 
+const { t } = useI18n();
+const U = 'tools.url-encode-decode.ui.';
+
 const placeholder = computed(() =>
-  direction.value === 'encode'
-    ? 'Enter text to percent-encode…'
-    : 'Enter percent-encoded text to decode…',
+  direction.value === 'encode' ? t(U + 'placeholderEncode') : t(U + 'placeholderDecode'),
 );
 
-const inputLabel = computed(() => (direction.value === 'encode' ? 'Text' : 'Encoded'));
+const inputLabel = computed(() =>
+  direction.value === 'encode' ? t('common.text') : t(U + 'labelEncoded'),
+);
 const outputLabel = computed(() =>
-  direction.value === 'encode' ? 'Percent-encoded' : 'Text',
+  direction.value === 'encode' ? t(U + 'labelPercentEncoded') : t('common.text'),
 );
 
 const description = computed(() => {
   const scopeText =
-    scope.value === 'component'
-      ? 'Component scope (encodeURIComponent) — escapes all reserved chars.'
-      : 'Full URI scope (encodeURI) — preserves ;,/?:@&=+$# delimiters.';
+    scope.value === 'component' ? t(U + 'descScopeComponent') : t(U + 'descScopeUri');
   return direction.value === 'encode'
-    ? `Encode text to percent-encoding. ${scopeText}`
-    : `Decode percent-encoded text. ${scopeText}`;
+    ? t(U + 'descEncode', { scope: scopeText })
+    : t(U + 'descDecode', { scope: scopeText });
 });
 
 function onTextInput(e: Event): void {
@@ -75,31 +77,31 @@ function onScopeChange(s: UrlScope): void {
 </script>
 
 <template>
-  <div class="url">
-    <ToolInput title="Input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t('common.input')" :description="description">
       <template #actions>
         <button
-          class="url__btn url__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
-          title="Swap direction and feed the result back as input"
+          :title="t('common.swapTitle')"
           @click="swap"
         >
           <ArrowLeftRight :size="14" />
-          <span>Swap</span>
+          <span>{{ t('common.swap') }}</span>
         </button>
         <button
-          class="url__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="url__mode-row">
-        <span class="url__label">Direction</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <span class="qt-label">{{ t('common.direction') }}</span>
         <div class="url__mode-toggle">
           <button
             type="button"
@@ -108,7 +110,7 @@ function onScopeChange(s: UrlScope): void {
             :aria-pressed="direction === 'encode'"
             @click="onDirectionChange('encode')"
           >
-            Encode
+            {{ t('common.encode') }}
           </button>
           <button
             type="button"
@@ -117,43 +119,43 @@ function onScopeChange(s: UrlScope): void {
             :aria-pressed="direction === 'decode'"
             @click="onDirectionChange('decode')"
           >
-            Decode
+            {{ t('common.decode') }}
           </button>
         </div>
       </div>
 
-      <div class="url__scope-row">
-        <span class="url__label">Scope</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <span class="qt-label">{{ t(U + 'scope') }}</span>
         <div class="url__scope-toggle">
           <button
             type="button"
             class="url__scope-opt"
             :class="{ 'url__scope-opt--active': scope === 'component' }"
             :aria-pressed="scope === 'component'"
-            title="encodeURIComponent — escapes all reserved characters"
+            :title="t(U + 'scopeComponentTitle')"
             @click="onScopeChange('component')"
           >
             <Link :size="13" />
-            <span>Component</span>
+            <span>{{ t(U + 'scopeComponent') }}</span>
           </button>
           <button
             type="button"
             class="url__scope-opt"
             :class="{ 'url__scope-opt--active': scope === 'uri' }"
             :aria-pressed="scope === 'uri'"
-            title="encodeURI — preserves ;,/?:@&=+$# delimiters"
+            :title="t(U + 'scopeUriTitle')"
             @click="onScopeChange('uri')"
           >
             <Globe :size="13" />
-            <span>Full URI</span>
+            <span>{{ t(U + 'scopeUri') }}</span>
           </button>
         </div>
       </div>
 
-      <label class="url__field">
-        <span class="url__label">{{ inputLabel }}</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ inputLabel }}</span>
         <textarea
-          class="url__textarea url__textarea--mono"
+          class="qt-input qt-input--mono url__textarea"
           :placeholder="placeholder"
           :value="input"
           rows="6"
@@ -166,28 +168,28 @@ function onScopeChange(s: UrlScope): void {
 
     <ToolOutput
       :title="outputLabel"
-      :description="outputs ? `Result (${outputs.outputBytes} bytes out)` : 'Enter a value above to convert.'"
+      :description="outputs ? t(U + 'outputDesc', outputs.outputBytes) : t('common.enterToConvert')"
       :copy-text="outputs?.output ?? ''"
-      copy-label="Copy result"
+      :copy-label="t('common.copyResult')"
     >
-      <p v-if="error" class="url__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="url__empty">
-          Enter a value above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t('common.enterToConvert') }}
         </p>
-        <div v-if="outputs" class="url__result">
-          <div class="url__result-head">
-            <span class="url__result-label">{{ outputLabel }}</span>
-            <CopyButton :text="outputs.output" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">{{ outputLabel }}</span>
+            <CopyButton :text="outputs.output" icon-only />
           </div>
-          <code class="url__code">{{ outputs.output || '—' }}</code>
-          <div class="url__meta">
-            <span>{{ outputs.inputBytes }} bytes in</span>
+          <code class="qt-mono url__code">{{ outputs.output || '-' }}</code>
+          <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px">
+            <span>{{ t(U + 'bytesIn', outputs.inputBytes) }}</span>
             <span class="url__dot">·</span>
-            <span>{{ outputs.outputBytes }} bytes out</span>
+            <span>{{ t(U + 'bytesOut', outputs.outputBytes) }}</span>
           </div>
         </div>
       </template>
@@ -196,54 +198,9 @@ function onScopeChange(s: UrlScope): void {
 </template>
 
 <style scoped>
-.url {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.url__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.url__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.url__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 120px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.url__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.url__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.url__mode-row,
-.url__scope-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Direction + scope pill segmented controls (solid-accent active). */
 .url__mode-toggle,
 .url__scope-toggle {
   display: inline-flex;
@@ -269,97 +226,24 @@ function onScopeChange(s: UrlScope): void {
   transition:
     color 0.15s ease,
     background 0.15s ease;
-  will-change: color, background;
 }
 .url__mode-opt--active,
 .url__scope-opt--active {
   color: var(--qt-bg);
   background: var(--qt-accent);
 }
-.url__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
+/* Input textarea floor (control + mono via .qt-input--mono). */
+.url__textarea {
+  min-height: 120px;
 }
-.url__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.url__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.url__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.url__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.url__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.url__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.url__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.url__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.url__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.url__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Output code (font via .qt-mono) — break-anywhere, pre-wrapped. */
 .url__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 14px;
   color: var(--qt-text);
   word-break: break-all;
   white-space: pre-wrap;
 }
-.url__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-}
+/* Meta separator dot. */
 .url__dot {
   opacity: 0.6;
 }

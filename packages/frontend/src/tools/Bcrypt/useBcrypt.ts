@@ -1,5 +1,5 @@
 /**
- * useBcrypt — composable + pure logic for the Bcrypt tool.
+ * useBcrypt - composable + pure logic for the Bcrypt tool.
  *
  * Hash mode: input password + cost factor (4-31) → output `$2a$XX$…` encoded
  * bcrypt hash (60 chars). Salt is 16 random bytes from
@@ -21,7 +21,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Tool modes. */
@@ -30,7 +30,7 @@ export type BcryptMode = 'hash' | 'verify';
 /** Allowed bcrypt cost factor range (2^cost iterations). */
 export const MIN_COST = 4;
 export const MAX_COST = 31;
-/** Default cost factor — a sensible modern default. */
+/** Default cost factor - a sensible modern default. */
 export const DEFAULT_COST = 12;
 
 /** Bcrypt salt length in bytes (fixed by the algorithm). */
@@ -143,7 +143,7 @@ export function parseBcryptHash(hash: string): ParsedBcryptHash {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface BcryptHashOutput {
@@ -244,7 +244,7 @@ export function useBcrypt(): UseBcryptReturn {
     mode.value = m;
     result.value = null;
     error.value = '';
-    // Keep password + hash values across mode switches — they're useful in
+    // Keep password + hash values across mode switches - they're useful in
     // both modes (hash output feeds verify input).
   }
 

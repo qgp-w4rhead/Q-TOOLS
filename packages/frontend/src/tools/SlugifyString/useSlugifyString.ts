@@ -1,5 +1,5 @@
 /**
- * useSlugifyString — composable + pure logic for the Slugify string tool.
+ * useSlugifyString - composable + pure logic for the Slugify string tool.
  *
  * Converts arbitrary text into a URL-safe slug.
  *
@@ -30,7 +30,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Separator inserted between words. */
@@ -133,7 +133,7 @@ export function transliterate(input: string): string {
 /**
  * Convert a single line to a slug using the supplied options.
  *
- * Pure function — no side effects.
+ * Pure function - no side effects.
  */
 export function slugifyLine(line: string, options: SlugifyOptions): string {
   if (!line) return '';
@@ -163,7 +163,7 @@ export function slugifyLine(line: string, options: SlugifyOptions): string {
 /**
  * Convert `input` text to a slug (or one slug per line for multi-line input).
  *
- * Pure function — no side effects.
+ * Pure function - no side effects.
  */
 export function slugify(input: string, options: SlugifyOptions): string {
   if (!input) return '';
@@ -174,7 +174,7 @@ export function slugify(input: string, options: SlugifyOptions): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 /** Debounce window (ms) for recomputing on input changes. */

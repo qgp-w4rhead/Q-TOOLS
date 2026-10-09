@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * ChmodCalculator — interactive Unix file permission calculator.
+ * ChmodCalculator - interactive Unix file permission calculator.
  *
  * Three permission scopes (owner / group / other) × three bits (read / write /
  * execute) as checkboxes, plus the three special bits (setuid / setgid /
@@ -13,7 +13,8 @@
  * `output` PostMessages with `{ octal, numeric, symbolic, description,
  * permissions }` whenever the mode changes.
  */
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RotateCcw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -41,22 +42,25 @@ const {
   reset,
 } = useChmodCalculator();
 
+const { t } = useI18n();
+const U = 'tools.chmod-calculator.ui.';
+
 /** Special bits metadata for rendering. */
-const SPECIAL_BITS: { key: SpecialBit; label: string; hint: string }[] = [
-  { key: 'setuid', label: 'setuid', hint: 'Run executable as owner (4000)' },
-  { key: 'setgid', label: 'setgid', hint: 'Run executable as group (2000)' },
-  { key: 'sticky', label: 'sticky', hint: 'Only owner deletes files in dir (1000)' },
-];
+const SPECIAL_BITS = computed<{ key: SpecialBit; label: string; hint: string }[]>(() => [
+  { key: 'setuid', label: 'setuid', hint: t(U + 'hintSetuid') },
+  { key: 'setgid', label: 'setgid', hint: t(U + 'hintSetgid') },
+  { key: 'sticky', label: 'sticky', hint: t(U + 'hintSticky') },
+]);
 
 /** Raw input field state. */
 const rawInput = ref('');
 const rawError = ref('');
 
-/** Apply the raw input — auto-detect numeric vs symbolic. */
+/** Apply the raw input - auto-detect numeric vs symbolic. */
 function applyRaw(): void {
   const trimmed = rawInput.value.trim();
   if (!trimmed) {
-    rawError.value = 'Enter an octal (e.g. 755) or symbolic (e.g. rwxr-xr-x) mode.';
+    rawError.value = t(U + 'errEmpty');
     return;
   }
   // Try numeric first (only 0-7 digits).
@@ -70,7 +74,7 @@ function applyRaw(): void {
       rawError.value = '';
       return;
     }
-    rawError.value = 'Invalid octal mode.';
+    rawError.value = t(U + 'errOctal');
     return;
   }
   // Otherwise treat as symbolic.
@@ -83,7 +87,7 @@ function applyRaw(): void {
     rawError.value = '';
     return;
   }
-  rawError.value = 'Invalid symbolic mode.';
+  rawError.value = t(U + 'errSymbolic');
 }
 
 /** Per-scope digit for display (the octal digit under each column header). */
@@ -122,27 +126,28 @@ function applyPreset(o: string): void {
 </script>
 
 <template>
-  <div class="chmod">
+  <div class="qt-tool">
     <ToolInput
-      title="Permissions"
-      description="Toggle read / write / execute for each scope. Special bits are optional."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
-        <button class="chmod__reset" type="button" @click="reset">
+        <button class="qt-btn qt-btn--ghost qt-btn--sm" type="button" @click="reset">
           <RotateCcw :size="14" />
-          <span>Reset</span>
+          <span>{{ t('common.reset') }}</span>
         </button>
       </template>
 
       <!-- Quick presets -->
-      <div class="chmod__presets">
-        <span class="chmod__presets-label">Presets:</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:6px">
+        <span class="qt-label" style="margin-right:2px">{{ t(U + 'presets') }}</span>
         <button
           v-for="p in PRESETS"
           :key="p.octal"
           type="button"
-          class="chmod__preset"
-          :class="{ 'chmod__preset--active': octal === p.octal && !hasSpecial() }"
+          class="qt-chip qt-chip--filled"
+          style="font-family:var(--qt-font-mono)"
+          :class="{ 'qt-chip--active': octal === p.octal && !hasSpecial() }"
           @click="applyPreset(p.octal)"
         >
           {{ p.label }}
@@ -150,7 +155,7 @@ function applyPreset(o: string): void {
       </div>
 
       <!-- 3×3 checkbox grid -->
-      <div class="chmod__grid" role="group" aria-label="Permission matrix">
+      <div class="chmod__grid" role="group" :aria-label="t(U + 'matrixLabel')">
         <div class="chmod__grid-head"></div>
         <div
           v-for="bit in BIT_ORDER"
@@ -161,9 +166,9 @@ function applyPreset(o: string): void {
         </div>
 
         <template v-for="scope in SCOPE_ORDER" :key="scope">
-          <div class="chmod__row-head">
-            <span class="chmod__scope-name">{{ SCOPE_LABEL[scope] }}</span>
-            <code class="chmod__scope-digit">{{ scopeDigit(scope) }}</code>
+          <div class="qt-result-row" style="justify-content:space-between;padding:8px 10px">
+            <span style="font-size:13px;font-weight:700;color:var(--qt-text)">{{ SCOPE_LABEL[scope] }}</span>
+            <code class="qt-badge qt-badge--info" style="font-family:var(--qt-font-mono);font-variant-numeric:tabular-nums">{{ scopeDigit(scope) }}</code>
           </div>
           <label
             v-for="bit in BIT_ORDER"
@@ -182,42 +187,45 @@ function applyPreset(o: string): void {
       </div>
 
       <!-- Special bits -->
-      <details class="chmod__special">
-        <summary class="chmod__special-summary">Special bits (setuid / setgid / sticky)</summary>
-        <div class="chmod__special-grid">
+      <details class="qt-panel" style="padding:8px 10px">
+        <summary class="qt-label" style="cursor:pointer">{{ t(U + 'specialSummary') }}</summary>
+        <div class="qt-stack" style="--qt-stack-gap:6px;margin-top:8px">
           <label
             v-for="sb in SPECIAL_BITS"
             :key="sb.key"
-            class="chmod__special-row"
-            :class="{ 'chmod__special-row--on': permissions[sb.key] }"
+            class="qt-result-row chmod__special-row"
+            style="padding:6px 8px;cursor:pointer"
+            :class="{ 'qt-result-row--active': permissions[sb.key] }"
           >
             <input
               type="checkbox"
+              style="margin:0;accent-color:var(--qt-accent);cursor:pointer"
               :checked="permissions[sb.key]"
               @change="toggleSpecial(sb.key)"
             />
-            <span class="chmod__special-label">{{ sb.label }}</span>
-            <span class="chmod__special-hint">{{ sb.hint }}</span>
+            <span style="font-size:13px;font-weight:700;color:var(--qt-text);font-family:var(--qt-font-mono)">{{ sb.label }}</span>
+            <span style="font-size:12px;color:var(--qt-muted);margin-left:auto">{{ sb.hint }}</span>
           </label>
         </div>
       </details>
 
       <!-- Raw input -->
-      <details class="chmod__raw">
-        <summary class="chmod__raw-summary">Paste numeric or symbolic mode</summary>
-        <div class="chmod__raw-row">
+      <details class="qt-panel" style="margin-top:4px;padding:8px 10px">
+        <summary class="qt-label" style="cursor:pointer">{{ t(U + 'rawSummary') }}</summary>
+        <div class="qt-row" style="--qt-row-gap:8px;margin-top:8px">
           <input
             v-model="rawInput"
-            class="chmod__raw-input"
+            class="qt-input qt-input--mono"
+            style="flex:1;font-size:13.5px;padding:6px 8px"
             type="text"
-            placeholder="755 or rwxr-xr-x"
+            :placeholder="t(U + 'phRaw')"
             @keydown.enter.prevent="applyRaw"
           />
-          <button class="chmod__apply" type="button" @click="applyRaw">
-            Apply
+          <button class="qt-btn qt-btn--primary" style="font-size:12.5px;padding:6px 12px" type="button" @click="applyRaw">
+            {{ t(U + 'apply') }}
           </button>
         </div>
-        <p v-if="rawError" class="chmod__raw-error">
+        <p v-if="rawError" class="qt-alert qt-alert--error" style="align-items:center;gap:6px;margin:6px 0 0;font-size:12.5px">
           <AlertCircle :size="14" />
           <span>{{ rawError }}</span>
         </p>
@@ -225,21 +233,21 @@ function applyPreset(o: string): void {
     </ToolInput>
 
     <ToolOutput
-      title="Result"
+      :title="t(U + 'outTitle')"
       :copy-text="octal"
-      copy-label="Copy octal"
+      :copy-label="t(U + 'copyOctal')"
     >
       <div class="chmod__results">
-        <div class="chmod__result">
-          <span class="chmod__result-label">Numeric (octal)</span>
-          <code class="chmod__result-value chmod__result-value--big">{{ octal }}</code>
+        <div class="qt-result" style="padding:10px 12px">
+          <span class="qt-stat-head">{{ t(U + 'numericOctal') }}</span>
+          <code class="qt-value" style="font-size:28px;color:var(--qt-accent);letter-spacing:0.06em;font-variant-numeric:tabular-nums">{{ octal }}</code>
         </div>
-        <div class="chmod__result">
-          <span class="chmod__result-label">Symbolic</span>
-          <code class="chmod__result-value chmod__result-value--mono">{{ symbolic }}</code>
+        <div class="qt-result" style="padding:10px 12px">
+          <span class="qt-stat-head">{{ t(U + 'symbolic') }}</span>
+          <code class="qt-value" style="letter-spacing:0.12em;font-variant-numeric:tabular-nums">{{ symbolic }}</code>
         </div>
       </div>
-      <p class="chmod__description">{{ description }}</p>
+      <p style="margin:10px 0 0;font-size:14px;color:var(--qt-text);line-height:1.5">{{ description }}</p>
 
       <!-- Per-scope breakdown -->
       <div class="chmod__breakdown">
@@ -249,7 +257,7 @@ function applyPreset(o: string): void {
           <span class="chmod__breakdown-oct">{{ scopeDigit(scope) }}</span>
         </div>
         <div v-if="hasSpecial()" class="chmod__breakdown-row chmod__breakdown-row--special">
-          <span class="chmod__breakdown-scope">Special</span>
+          <span class="chmod__breakdown-scope">{{ t(U + 'special') }}</span>
           <code class="chmod__breakdown-sym">{{ octal.charAt(0) }}</code>
           <span class="chmod__breakdown-oct">{{ octal.charAt(0) }}</span>
         </div>
@@ -259,55 +267,9 @@ function applyPreset(o: string): void {
 </template>
 
 <style scoped>
-.chmod {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
 
-/* Presets */
-.chmod__presets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-.chmod__presets-label {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  font-weight: 600;
-  margin-right: 2px;
-}
-.chmod__preset {
-  padding: 4px 10px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-text);
-  font: inherit;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.chmod__preset:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.chmod__preset--active {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 90% c h / 0.12);
-}
-
-/* 3×3 grid */
+/* 3×3 permission matrix — custom grid + clickable cells. */
 .chmod__grid {
   display: grid;
   grid-template-columns: 1fr repeat(3, 56px);
@@ -321,33 +283,6 @@ function applyPreset(o: string): void {
   font-weight: 700;
   color: var(--qt-muted);
   padding: 4px 0;
-}
-.chmod__row-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 10px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-}
-.chmod__scope-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--qt-text);
-}
-.chmod__scope-digit {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 90% c h / 0.12);
-  border: 1px solid oklch(from var(--qt-accent) 60% c h / 0.4);
-  border-radius: 999px;
-  padding: 0 8px;
-  font-variant-numeric: tabular-nums;
 }
 .chmod__cell {
   position: relative;
@@ -387,193 +322,22 @@ function applyPreset(o: string): void {
   box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
 }
 
-/* Special bits */
-.chmod__special {
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-}
-.chmod__special-summary {
-  cursor: pointer;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.chmod__special-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
-}
-.chmod__special-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 6px 8px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
-}
+/* Special-bit row — accent hover + tinted on-state (over .qt-result-row). */
 .chmod__special-row:hover {
   border-color: var(--qt-accent);
 }
-.chmod__special-row--on {
-  border-color: var(--qt-accent);
+.chmod__special-row.qt-result-row--active {
   background: oklch(from var(--qt-accent) 90% c h / 0.12);
 }
-.chmod__special-row input[type='checkbox'] {
-  margin: 0;
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
-.chmod__special-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-}
-.chmod__special-hint {
-  font-size: 12px;
-  color: var(--qt-muted);
-  margin-left: auto;
-}
 
-/* Raw input */
-.chmod__raw {
-  margin-top: 4px;
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-}
-.chmod__raw-summary {
-  cursor: pointer;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.chmod__raw-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-.chmod__raw-input {
-  flex: 1 1 auto;
-  background: var(--qt-surface);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 13.5px;
-  padding: 6px 8px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.chmod__raw-input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.chmod__apply {
-  padding: 6px 12px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-.chmod__apply:hover {
-  opacity: 0.9;
-}
-.chmod__raw-error {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 6px 0 0 0;
-  color: var(--qt-danger);
-  font-size: 12.5px;
-}
-
-/* Reset button */
-.chmod__reset {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-.chmod__reset:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-
-/* Results */
+/* Results — fixed 2-col grid (collapses on narrow). */
 .chmod__results {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
-.chmod__result {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
-}
-.chmod__result-label {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.chmod__result-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--qt-text);
-  font-variant-numeric: tabular-nums;
-}
-.chmod__result-value--big {
-  font-size: 28px;
-  color: var(--qt-accent);
-  letter-spacing: 0.06em;
-}
-.chmod__result-value--mono {
-  letter-spacing: 0.12em;
-}
-.chmod__description {
-  margin: 10px 0 0 0;
-  font-size: 14px;
-  color: var(--qt-text);
-  line-height: 1.5;
-}
 
-/* Breakdown */
+/* Per-scope breakdown — 3-col grid with display:contents rows. */
 .chmod__breakdown {
   display: grid;
   grid-template-columns: 1fr auto auto;
@@ -591,16 +355,14 @@ function applyPreset(o: string): void {
   color: var(--qt-muted);
 }
 .chmod__breakdown-sym {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13px;
   font-weight: 700;
   color: var(--qt-text);
   letter-spacing: 0.08em;
 }
 .chmod__breakdown-oct {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13px;
   font-weight: 700;
   color: var(--qt-accent);

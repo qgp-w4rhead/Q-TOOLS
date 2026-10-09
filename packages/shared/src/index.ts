@@ -1,5 +1,5 @@
 /**
- * @q-tools/shared — Zod schemas, types, constants, and the tool registry.
+ * @q-tools/shared - Zod schemas, types, constants, and the tool registry.
  *
  * Imported by both `@q-tools/frontend` and `@q-tools/backend` so that request
  * and response shapes stay in sync. Sub-modules (schemas, types, constants)

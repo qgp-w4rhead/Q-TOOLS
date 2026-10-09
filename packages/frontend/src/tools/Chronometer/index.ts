@@ -1,5 +1,5 @@
 /**
- * Chronometer tool module — exports the lazy-loaded component plus its
+ * Chronometer tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry and
  * routed dynamically.
  *
@@ -7,18 +7,22 @@
  * sub-millisecond accuracy and `requestAnimationFrame` for smooth 60fps
  * display updates. No external dependencies.
  */
-import { defineAsyncComponent } from 'vue';
-import type { ToolMetadata } from '@q-tools/shared';
+import { defineTool } from '@/tools/defineTool';
 
-export const metadata: ToolMetadata = {
-  slug: 'chronometer',
-  name: 'Chronometer',
-  description: 'Precision stopwatch with lap timing.',
-  category: 'measurement',
-  icon: 'timer',
-  keywords: ['chronometer', 'stopwatch', 'timer', 'lap'],
-  dependencies: [],
-};
+const { metadata, component } = defineTool(
+  {
+    slug: 'chronometer',
+    name: 'Chronometer',
+    description: 'Precision stopwatch with lap timing.',
+    category: 'measurement',
+    icon: 'timer',
+    keywords: ['chronometer', 'stopwatch', 'timer', 'lap'],
+    dependencies: [],
+  },
+  () => import('./Chronometer.vue'),
+);
+
+export { metadata };
 
 export {
   useChronometer,
@@ -30,8 +34,4 @@ export type {
   UseChronometerReturn,
 } from './useChronometer';
 
-const Chronometer = defineAsyncComponent(
-  () => import('./Chronometer.vue'),
-);
-
-export default Chronometer;
+export default component;

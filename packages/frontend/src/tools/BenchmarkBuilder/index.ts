@@ -1,25 +1,29 @@
 /**
- * BenchmarkBuilder tool module — exports the lazy-loaded component plus its
+ * BenchmarkBuilder tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry and
  * routed dynamically.
  *
  * The tool measures the execution time of user-provided JavaScript code
  * snippets across a configurable number of iterations, reporting average, min,
  * max, median, p95, p99, standard deviation, and ops/sec. No external
- * dependencies — `performance.now()` + `new Function()` only.
+ * dependencies - `performance.now()` + `new Function()` only.
  */
-import { defineAsyncComponent } from 'vue';
-import type { ToolMetadata } from '@q-tools/shared';
+import { defineTool } from '@/tools/defineTool';
 
-export const metadata: ToolMetadata = {
-  slug: 'benchmark-builder',
-  name: 'Benchmark builder',
-  description: 'Benchmark JavaScript code snippets.',
-  category: 'measurement',
-  icon: 'gauge',
-  keywords: ['benchmark', 'performance', 'measure'],
-  dependencies: [],
-};
+const { metadata, component } = defineTool(
+  {
+    slug: 'benchmark-builder',
+    name: 'Benchmark builder',
+    description: 'Benchmark JavaScript code snippets.',
+    category: 'measurement',
+    icon: 'gauge',
+    keywords: ['benchmark', 'performance', 'measure'],
+    dependencies: [],
+  },
+  () => import('./BenchmarkBuilder.vue'),
+);
+
+export { metadata };
 
 export {
   useBenchmarkBuilder,
@@ -45,8 +49,4 @@ export type {
   UseBenchmarkBuilderReturn,
 } from './useBenchmarkBuilder';
 
-const BenchmarkBuilder = defineAsyncComponent(
-  () => import('./BenchmarkBuilder.vue'),
-);
-
-export default BenchmarkBuilder;
+export default component;

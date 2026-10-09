@@ -1,13 +1,16 @@
 <script setup lang="ts">
 /**
- * CopyButton — reusable copy-to-clipboard button with visual feedback.
+ * CopyButton - reusable copy-to-clipboard button with visual feedback.
  *
+ * Emits the global `.qt-btn qt-btn--outline` utility classes (see
+ * styles/utilities.css); only the copied/failed feedback colors stay scoped.
  * Copies the `text` prop to the clipboard on click and shows a brief
  * "Copied!" confirmation (checkmark icon + label swap) for `duration` ms.
- * Falls back gracefully when the clipboard API is unavailable — the button
+ * Falls back gracefully when the clipboard API is unavailable - the button
  * shows "Failed" briefly in that case.
  */
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Check, Copy, X } from 'lucide-vue-next';
 import { copyToClipboard } from '@/utils/clipboard';
 
@@ -15,7 +18,7 @@ const props = withDefaults(
   defineProps<{
     /** The text to copy to the clipboard. */
     text: string;
-    /** Accessible label for the button. Defaults to "Copy". */
+    /** Accessible label for the button (defaults to localized "Copy"). */
     label?: string;
     /** How long (ms) the "Copied!" feedback stays visible. Default 1500. */
     duration?: number;
@@ -25,12 +28,15 @@ const props = withDefaults(
     iconOnly?: boolean;
   }>(),
   {
-    label: 'Copy',
+    label: undefined,
     duration: 1500,
     disabled: false,
     iconOnly: false,
   },
 );
+
+const { t } = useI18n();
+const resolvedLabel = computed(() => props.label ?? t('common.copy'));
 
 type FeedbackState = 'idle' | 'copied' | 'failed';
 const feedback = ref<FeedbackState>('idle');
@@ -49,11 +55,11 @@ async function onClick(): Promise<void> {
 
 <template>
   <button
-    class="copy-btn"
-    :class="[`copy-btn--${feedback}`, { 'copy-btn--icon-only': iconOnly }]"
+    class="qt-btn qt-btn--outline"
+    :class="[`copy-btn--${feedback}`, { 'qt-btn--icon': iconOnly }]"
     type="button"
     :disabled="disabled || !text"
-    :aria-label="label"
+    :aria-label="resolvedLabel"
     @click="onClick"
   >
     <span class="copy-btn__icon" aria-hidden="true">
@@ -62,48 +68,20 @@ async function onClick(): Promise<void> {
       <Copy v-else :size="14" />
     </span>
     <span v-if="!iconOnly" class="copy-btn__label">
-      <template v-if="feedback === 'copied'">Copied!</template>
-      <template v-else-if="feedback === 'failed'">Failed</template>
-      <template v-else>{{ label }}</template>
+      <template v-if="feedback === 'copied'">{{ t('common.copiedFeedback') }}</template>
+      <template v-else-if="feedback === 'failed'">{{ t('common.failed') }}</template>
+      <template v-else>{{ resolvedLabel }}</template>
     </span>
   </button>
 </template>
 
 <style scoped>
-.copy-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-  will-change: border-color, color;
-}
-.copy-btn:hover:not(:disabled) {
-  border-color: var(--qt-accent-soft);
-  color: var(--qt-accent);
-}
-.copy-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.copy-btn--icon-only {
-  padding: 6px;
-}
 .copy-btn__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
+/* Feedback states override the .qt-btn--outline border/color. */
 .copy-btn--copied {
   border-color: var(--qt-success);
   color: var(--qt-success);

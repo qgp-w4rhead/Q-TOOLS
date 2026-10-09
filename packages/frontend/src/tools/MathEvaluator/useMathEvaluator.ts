@@ -1,11 +1,11 @@
 /**
- * useMathEvaluator — composable + pure logic for the math evaluator tool.
+ * useMathEvaluator - composable + pure logic for the math evaluator tool.
  *
  * Safely evaluates mathematical expression strings via the lazy-loaded
  * `expr-eval` parser. The parser supports `+ - * / ^ %`, parentheses, the
  * functions `sin cos tan log ln sqrt abs round floor ceil` (plus a few extras
  * exposed by the library), and the constants `pi` and `e`. Crucially, the
- * expression is **never** passed through `eval()` or `new Function()` —
+ * expression is **never** passed through `eval()` or `new Function()` -
  * `expr-eval` builds an AST and walks it, so arbitrary code execution is
  * impossible.
  *
@@ -18,11 +18,11 @@
  * Dependencies: `expr-eval` (lazy-loaded, listed in tech-stack.md).
  */
 import { ref, watch, type Ref } from 'vue';
-import { useEmbed } from '@/composables/useEmbed';
+import { useToolEmbed } from '@/composables/useToolEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 /** Result of a successful evaluation. */
@@ -83,7 +83,7 @@ export function _resetExprEvalCache(): void {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -256,7 +256,7 @@ export function addHistory(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseMathEvaluatorReturn {
@@ -336,7 +336,7 @@ export function useMathEvaluator(): UseMathEvaluatorReturn {
 
   watch(input, scheduleRun);
 
-  const { isEmbed, input: embedInput, sendOutput } = useEmbed({
+  const { isEmbed, input: embedInput } = useToolEmbed({
     onInput: (payload) => {
       if (!payload || typeof payload !== 'object') return;
       const p = payload as Record<string, unknown>;
@@ -352,12 +352,8 @@ export function useMathEvaluator(): UseMathEvaluatorReturn {
         input.value = p.evaluate;
       }
     },
-  });
-
-  watch(outcome, (o) => {
-    if (isEmbed.value) {
-      sendOutput(o ?? {});
-    }
+    output: outcome,
+    toOutput: () => ({ ...(outcome.value ?? {}) }),
   });
 
   return {

@@ -1,5 +1,5 @@
 /**
- * usePasswordStrength — composable + pure logic for the password strength
+ * usePasswordStrength - composable + pure logic for the password strength
  * analyser tool.
  *
  * Analyses password strength using `@zxcvbn-ts/core` (a modular, actively
@@ -27,17 +27,17 @@
  * up the embed PostMessage protocol.
  *
  * Dependencies: `@zxcvbn-ts/core`, `@zxcvbn-ts/language-common`,
- * `@zxcvbn-ts/language-en` (all lazy-loaded) — listed in tech-stack.md.
+ * `@zxcvbn-ts/language-en` (all lazy-loaded) - listed in tech-stack.md.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
-/** log2(10) — used to convert `guessesLog10` into entropy bits. */
+/** log2(10) - used to convert `guessesLog10` into entropy bits. */
 export const LOG2_10 = Math.log2(10);
 
 /**
@@ -69,31 +69,31 @@ export const SCORE_INFOS: ScoreInfo[] = [
     value: 0,
     label: 'Very weak',
     colorVar: '--qt-danger',
-    hint: 'Risky — guesses < 10³',
+    hint: 'Risky - guesses < 10³',
   },
   {
     value: 1,
     label: 'Weak',
     colorVar: '--qt-danger',
-    hint: 'Very guessable — guesses < 10⁶',
+    hint: 'Very guessable - guesses < 10⁶',
   },
   {
     value: 2,
     label: 'Fair',
     colorVar: '--qt-warning',
-    hint: 'Somewhat guessable — guesses < 10⁸',
+    hint: 'Somewhat guessable - guesses < 10⁸',
   },
   {
     value: 3,
     label: 'Strong',
     colorVar: '--qt-success',
-    hint: 'Safely unguessable — guesses < 10¹⁰',
+    hint: 'Safely unguessable - guesses < 10¹⁰',
   },
   {
     value: 4,
     label: 'Very strong',
     colorVar: '--qt-success',
-    hint: 'Very unguessable — guesses ≥ 10¹⁰',
+    hint: 'Very unguessable - guesses ≥ 10¹⁰',
   },
 ];
 
@@ -121,22 +121,22 @@ export const CRACK_SCENARIOS: CrackScenarioInfo[] = [
   {
     key: 'onlineThrottling100PerHour',
     label: 'Online (throttled)',
-    description: '100 guesses/hour — rate-limited login',
+    description: '100 guesses/hour - rate-limited login',
   },
   {
     key: 'onlineNoThrottling10PerSecond',
     label: 'Online (no throttle)',
-    description: '10 guesses/second — unthrottled login',
+    description: '10 guesses/second - unthrottled login',
   },
   {
     key: 'offlineSlowHashing1e4PerSecond',
     label: 'Offline (slow hash)',
-    description: '10⁴ guesses/second — bcrypt/scrypt/PBKDF2',
+    description: '10⁴ guesses/second - bcrypt/scrypt/PBKDF2',
   },
   {
     key: 'offlineFastHashing1e10PerSecond',
     label: 'Offline (fast hash)',
-    description: '10¹⁰ guesses/second — SHA-1/SHA-256/MD5',
+    description: '10¹⁰ guesses/second - SHA-1/SHA-256/MD5',
   },
 ];
 
@@ -244,7 +244,7 @@ export async function ensureZxcvbnModule(): Promise<ZxcvbnBundle> {
  * "centuries".
  */
 export function formatCrackTime(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return '—';
+  if (!Number.isFinite(seconds) || seconds < 0) return '-';
   if (seconds < 1) return 'instant';
   const units: [number, string][] = [
     [60, 'second'],
@@ -309,7 +309,7 @@ export async function analyzePassword(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UsePasswordStrengthReturn {
@@ -318,6 +318,7 @@ export interface UsePasswordStrengthReturn {
   analysis: Ref<PasswordAnalysis | null>;
   analyzing: Ref<boolean>;
   error: Ref<string>;
+  autoMode: Ref<boolean>;
   isEmbed: Ref<boolean>;
   input: Ref<EmbedInputPayload | null>;
   recompute: () => void;
@@ -334,11 +335,12 @@ export function usePasswordStrength(): UsePasswordStrengthReturn {
   const analysis = ref<PasswordAnalysis | null>(null);
   const analyzing = ref<boolean>(false);
   const error = ref<string>('');
+  const autoMode = ref<boolean>(true);
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   let runToken = 0;
 
-  async function run(): Promise<void> {
+  async function run(force = false): Promise<void> {
     const pw = password.value;
     if (pw.length === 0) {
       analysis.value = null;
@@ -346,8 +348,8 @@ export function usePasswordStrength(): UsePasswordStrengthReturn {
       analyzing.value = false;
       return;
     }
-    if (pw.length > LARGE_INPUT_THRESHOLD) {
-      error.value = 'Password is very long — click "Analyse" to evaluate manually.';
+    if (!force && pw.length > LARGE_INPUT_THRESHOLD) {
+      error.value = 'Password is very long - use manual mode to evaluate.';
       return;
     }
     const token = ++runToken;
@@ -379,12 +381,12 @@ export function usePasswordStrength(): UsePasswordStrengthReturn {
 
   function recompute(): void {
     error.value = '';
-    void run();
+    void run(true);
   }
 
-  // Recompute (debounced) whenever inputs change.
-  watch(password, scheduleRun);
-  watch(userInputs, scheduleRun);
+  // Recompute (debounced) whenever inputs change - only in auto mode.
+  watch(password, () => { if (autoMode.value) scheduleRun(); });
+  watch(userInputs, () => { if (autoMode.value) scheduleRun(); });
 
   const { isEmbed, input, sendOutput } = useEmbed({
     onInput: (payload) => {
@@ -419,6 +421,7 @@ export function usePasswordStrength(): UsePasswordStrengthReturn {
     analysis,
     analyzing,
     error,
+    autoMode,
     isEmbed,
     input,
     recompute,

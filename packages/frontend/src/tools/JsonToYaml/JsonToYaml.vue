@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * JsonToYaml — convert JSON to YAML documents.
+ * JsonToYaml - convert JSON to YAML documents.
  *
  * Parses JSON (a single value, or an array of values when multi-document
  * output is enabled) and serializes it to YAML via the `yaml` package. The
@@ -11,6 +11,7 @@
  * and sends `output` PostMessages whenever the computed YAML changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, FileJson, Braces } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -30,10 +31,11 @@ const {
   toggleMultiDoc,
 } = useJsonToYaml();
 
+const { t } = useI18n();
+const U = 'tools.json-to-yaml.ui.';
+
 const description = computed(() =>
-  multiDoc.value
-    ? 'Parse JSON and emit a multi-document YAML stream (one `---` doc per array element).'
-    : 'Parse JSON and emit YAML. Top-level arrays become a single YAML sequence.',
+  multiDoc.value ? t(U + 'descMulti') : t(U + 'descSingle'),
 );
 
 const indentOptions: Array<{ value: YamlIndent; label: string }> = [
@@ -41,14 +43,19 @@ const indentOptions: Array<{ value: YamlIndent; label: string }> = [
   { value: 4, label: '4 spaces' },
 ];
 
+/** Localized indent-option label. */
+function indentLabel(o: { value: YamlIndent }): string {
+  return t(U + 'indentN', { n: o.value });
+}
+
 const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
   const stageLabel = e.stage === 'json' ? 'JSON' : 'YAML';
   if (e.line != null && e.column != null) {
-    return `${stageLabel} · Line ${e.line}, column ${e.column}`;
+    return t(U + 'errStageLineCol', { stage: stageLabel, line: e.line, col: e.column });
   }
-  if (e.line != null) return `${stageLabel} · Line ${e.line}`;
+  if (e.line != null) return t(U + 'errStageLine', { stage: stageLabel, line: e.line });
   return stageLabel;
 });
 
@@ -63,62 +70,62 @@ function onIndentChange(e: Event): void {
 </script>
 
 <template>
-  <div class="j2y">
-    <ToolInput title="JSON input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'inputTitle')" :description="description">
       <template #actions>
         <button
-          class="j2y__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="j2y__opts">
-        <label class="j2y__opt">
-          <span class="j2y__label">Indent</span>
+      <div class="qt-row qt-row--end" style="--qt-row-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'indent') }}</span>
           <select
-            class="j2y__select"
+            class="qt-input"
             :value="indent"
             @change="onIndentChange"
           >
             <option v-for="o in indentOptions" :key="o.value" :value="o.value">
-              {{ o.label }}
+              {{ indentLabel(o) }}
             </option>
           </select>
         </label>
         <button
           type="button"
-          class="j2y__toggle"
-          :class="{ 'j2y__toggle--active': flow }"
+          class="qt-chip qt-chip--filled"
+          :class="{ 'qt-chip--solid': flow }"
           :aria-pressed="flow"
-          title="Use flow-style collections ([1, 2] and {a: 1}) instead of block style"
+          :title="t(U + 'flowTitle')"
           @click="toggleFlow"
         >
           <Braces :size="13" />
-          <span>Flow style</span>
+          <span>{{ t(U + 'flow') }}</span>
         </button>
         <button
           type="button"
-          class="j2y__toggle"
-          :class="{ 'j2y__toggle--active': multiDoc }"
+          class="qt-chip qt-chip--filled"
+          :class="{ 'qt-chip--solid': multiDoc }"
           :aria-pressed="multiDoc"
-          title="Emit a top-level JSON array as a multi-document YAML stream (--- separated)"
+          :title="t(U + 'multiDocTitle')"
           @click="toggleMultiDoc"
         >
           <FileJson :size="13" />
-          <span>Multi-doc stream</span>
+          <span>{{ t(U + 'multiDoc') }}</span>
         </button>
       </div>
 
-      <label class="j2y__field">
-        <span class="j2y__label">JSON</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'jsonLabel') }}</span>
         <textarea
-          class="j2y__textarea j2y__textarea--mono"
-          placeholder="Paste JSON here…"
+          class="qt-input qt-input--mono j2y__textarea"
+          :placeholder="t(U + 'placeholder')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -129,12 +136,12 @@ function onIndentChange(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="YAML output"
-      :description="outputs ? `${outputs.documentCount} document${outputs.documentCount === 1 ? '' : 's'} · ${outputs.outputBytes} bytes` : 'Paste JSON above to convert.'"
+      :title="t(U + 'outputTitle')"
+      :description="outputs ? t(U + 'outputDesc', { docs: t(U + 'docsFull', outputs.documentCount), bytes: outputs.outputBytes }) : t(U + 'empty')"
       :copy-text="outputs?.yaml ?? ''"
-      copy-label="Copy YAML"
+      :copy-label="t(U + 'copyYaml')"
     >
-      <p v-if="error" class="j2y__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
           <strong v-if="errorLocation">{{ errorLocation }}:</strong>
@@ -142,22 +149,22 @@ function onIndentChange(e: Event): void {
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="j2y__empty">
-          Paste JSON above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'empty') }}
         </p>
-        <div v-if="outputs" class="j2y__result">
-          <div class="j2y__result-head">
-            <span class="j2y__result-label">YAML</span>
-            <CopyButton :text="outputs.yaml" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">YAML</span>
+            <CopyButton :text="outputs.yaml" :label="t('common.copy')" icon-only />
           </div>
-          <pre v-if="outputs.yaml" class="j2y__code">{{ outputs.yaml }}</pre>
-          <p v-else class="j2y__empty">JSON parsed to an empty result.</p>
-          <div class="j2y__meta">
-            <span>{{ outputs.documentCount }} doc{{ outputs.documentCount === 1 ? '' : 's' }}</span>
+          <pre v-if="outputs.yaml" class="qt-mono j2y__code">{{ outputs.yaml }}</pre>
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px">
+            <span>{{ t(U + 'docs', outputs.documentCount) }}</span>
             <span class="j2y__dot">·</span>
-            <span>{{ outputs.inputBytes }} bytes in</span>
+            <span>{{ t(U + 'bytesIn', { n: outputs.inputBytes }) }}</span>
             <span class="j2y__dot">·</span>
-            <span>{{ outputs.outputBytes }} bytes out</span>
+            <span>{{ t(U + 'bytesOut', { n: outputs.outputBytes }) }}</span>
           </div>
         </div>
       </template>
@@ -166,166 +173,14 @@ function onIndentChange(e: Event): void {
 </template>
 
 <style scoped>
-.j2y {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.j2y__opts {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.j2y__opt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2y__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2y__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.j2y__select {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  will-change: border-color;
-}
-.j2y__select:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.j2y__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
-}
-.j2y__toggle--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .j2y__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.j2y__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.j2y__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.j2y__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.j2y__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.j2y__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.j2y__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.j2y__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.j2y__error strong {
-  margin-right: 4px;
-}
-.j2y__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.j2y__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2y__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.j2y__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* YAML output block (font via .qt-mono) — scrollable, pre-wrapped. */
 .j2y__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -334,14 +189,7 @@ function onIndentChange(e: Event): void {
   max-height: 60vh;
   overflow: auto;
 }
-.j2y__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
-}
+/* Meta separator dot. */
 .j2y__dot {
   opacity: 0.6;
 }

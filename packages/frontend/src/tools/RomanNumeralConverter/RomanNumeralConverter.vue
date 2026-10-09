@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * RomanNumeralConverter — convert between Roman numerals and integers.
+ * RomanNumeralConverter - convert between Roman numerals and integers.
  *
  * Bidirectional: Roman → integer and integer → Roman. Range 1-3999 (no
  * vinculum / overbar notation). Validates input and shows clear error
@@ -15,6 +15,7 @@
  * computed output changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, ArrowLeftRight, RefreshCw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -36,24 +37,27 @@ const {
   swap,
 } = useRomanNumeralConverter();
 
+const { t } = useI18n();
+const U = 'tools.roman-numeral-converter.ui.';
+
 const placeholder = computed(() =>
   mode.value === 'roman-to-int'
-    ? 'e.g. MMMCMXCIX'
-    : `e.g. 2024 (${MIN_VALUE}-${MAX_VALUE})`,
+    ? t(U + 'placeholderRoman')
+    : t(U + 'placeholderInt', { min: MIN_VALUE, max: MAX_VALUE }),
 );
 
 const inputLabel = computed(() =>
-  mode.value === 'roman-to-int' ? 'Roman numeral' : 'Integer',
+  mode.value === 'roman-to-int' ? t(U + 'roman') : t(U + 'integer'),
 );
 
 const outputLabel = computed(() =>
-  mode.value === 'roman-to-int' ? 'Integer' : 'Roman numeral',
+  mode.value === 'roman-to-int' ? t(U + 'integer') : t(U + 'roman'),
 );
 
 const description = computed(() =>
   mode.value === 'roman-to-int'
-    ? `Enter a Roman numeral (I, V, X, L, C, D, M). Range: ${MIN_VALUE}-${MAX_VALUE}.`
-    : `Enter an integer from ${MIN_VALUE} to ${MAX_VALUE}. Largest value: MMMCMXCIX (${MAX_VALUE}).`,
+    ? t(U + 'descRoman', { min: MIN_VALUE, max: MAX_VALUE })
+    : t(U + 'descInt', { min: MIN_VALUE, max: MAX_VALUE }),
 );
 
 function onTextInput(e: Event): void {
@@ -66,31 +70,31 @@ function onModeChange(m: RomanMode): void {
 </script>
 
 <template>
-  <div class="rn">
-    <ToolInput title="Input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t('common.input')" :description="description">
       <template #actions>
         <button
-          class="rn__btn rn__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
-          title="Swap direction and feed the result back as input"
+          :title="t('common.swapTitle')"
           @click="swap"
         >
           <ArrowLeftRight :size="14" />
-          <span>Swap</span>
+          <span>{{ t('common.swap') }}</span>
         </button>
         <button
-          class="rn__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="rn__mode-row">
-        <span class="rn__label">Direction</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <span class="qt-label">{{ t('common.direction') }}</span>
         <div class="rn__mode-toggle">
           <button
             type="button"
@@ -99,7 +103,7 @@ function onModeChange(m: RomanMode): void {
             :aria-pressed="mode === 'roman-to-int'"
             @click="onModeChange('roman-to-int')"
           >
-            Roman → Integer
+            {{ t(U + 'romanToInt') }}
           </button>
           <button
             type="button"
@@ -108,15 +112,15 @@ function onModeChange(m: RomanMode): void {
             :aria-pressed="mode === 'int-to-roman'"
             @click="onModeChange('int-to-roman')"
           >
-            Integer → Roman
+            {{ t(U + 'intToRoman') }}
           </button>
         </div>
       </div>
 
-      <label class="rn__field">
-        <span class="rn__label">{{ inputLabel }}</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ inputLabel }}</span>
         <input
-          class="rn__input rn__input--mono"
+          class="qt-input qt-input--mono"
           type="text"
           inputmode="text"
           :placeholder="placeholder"
@@ -130,24 +134,24 @@ function onModeChange(m: RomanMode): void {
 
     <ToolOutput
       :title="outputLabel"
-      :description="outputs ? `Result: ${outputs.output}` : 'Enter a value above to convert.'"
+      :description="outputs ? t(U + 'outputDesc', { output: outputs.output }) : t('common.enterToConvert')"
       :copy-text="outputs?.output ?? ''"
-      copy-label="Copy result"
+      :copy-label="t('common.copyResult')"
     >
-      <p v-if="error" class="rn__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="rn__empty">
-          Enter a value above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t('common.enterToConvert') }}
         </p>
-        <div v-if="outputs" class="rn__result">
-          <div class="rn__result-head">
-            <span class="rn__result-label">{{ outputLabel }}</span>
-            <CopyButton :text="outputs.output" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">{{ outputLabel }}</span>
+            <CopyButton :text="outputs.output" :label="t('common.copy')" icon-only />
           </div>
-          <code class="rn__code">{{ outputs.output || '—' }}</code>
+          <code class="qt-mono rn__code">{{ outputs.output || '-' }}</code>
         </div>
       </template>
     </ToolOutput>
@@ -155,51 +159,9 @@ function onModeChange(m: RomanMode): void {
 </template>
 
 <style scoped>
-.rn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.rn__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.rn__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.rn__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.rn__input--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.rn__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.rn__mode-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Direction pill segmented control (solid-accent active). */
 .rn__mode-toggle {
   display: inline-flex;
   background: var(--qt-bg);
@@ -220,84 +182,13 @@ function onModeChange(m: RomanMode): void {
   transition:
     color 0.15s ease,
     background 0.15s ease;
-  will-change: color, background;
 }
 .rn__mode-opt--active {
   color: var(--qt-bg);
   background: var(--qt-accent);
 }
-.rn__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.rn__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.rn__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.rn__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.rn__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.rn__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.rn__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.rn__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.rn__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.rn__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.rn__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Output code (font via .qt-mono) — break-anywhere, pre-wrapped. */
 .rn__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 14px;
   color: var(--qt-text);
   word-break: break-all;

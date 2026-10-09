@@ -1,5 +1,5 @@
 /**
- * useIpv4SubnetCalculator — composable + pure logic for the IPv4 subnet
+ * useIpv4SubnetCalculator - composable + pure logic for the IPv4 subnet
  * calculator tool.
  *
  * Parses an IPv4 address plus a CIDR prefix (e.g. `192.168.1.0/24`) or a dotted
@@ -15,7 +15,7 @@
  *   - private/public status (RFC 1918 + loopback + link-local)
  *   - binary representations of IP, mask, network, and wildcard
  *
- * All arithmetic uses 32-bit unsigned integers via `>>> 0` normalisation — no
+ * All arithmetic uses 32-bit unsigned integers via `>>> 0` normalisation - no
  * BigInt needed (32 bits fits comfortably in JavaScript's safe-integer range).
  *
  * Pure helpers (`parseIpv4`, `parseCidr`, `parseSubnetMask`, `maskToPrefix`,
@@ -32,7 +32,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** 32-bit unsigned integer representation of an IPv4 address (0 .. 2^32-1). */
@@ -177,7 +177,7 @@ export function intToBinary(n: Ipv4Int): string {
 /**
  * Parse a CIDR prefix length (`0`-`32`).
  *
- * Accepts a bare number (`24`) or a full CIDR string (`192.168.1.0/24` — the IP
+ * Accepts a bare number (`24`) or a full CIDR string (`192.168.1.0/24` - the IP
  * portion is ignored here; use `parseIpv4` separately).
  */
 export function parseCidr(input: string): CidrParseResult {
@@ -185,7 +185,7 @@ export function parseCidr(input: string): CidrParseResult {
   if (trimmed.length === 0) {
     return { ok: false, prefix: 0, error: 'CIDR prefix is empty.' };
   }
-  // Allow a full `a.b.c.d/n` form — extract the part after the last `/`.
+  // Allow a full `a.b.c.d/n` form - extract the part after the last `/`.
   const slashIdx = trimmed.lastIndexOf('/');
   let raw: string;
   if (slashIdx >= 0) {
@@ -212,7 +212,7 @@ export function parseCidr(input: string): CidrParseResult {
 export function prefixToMask(prefix: number): Ipv4Int {
   if (prefix <= 0) return 0;
   if (prefix >= 32) return 0xffffffff >>> 0;
-  // `((0xffffffff << (32 - prefix)) >>> 0)` — shift left then normalise to
+  // `((0xffffffff << (32 - prefix)) >>> 0)` - shift left then normalise to
   // unsigned. The left shift produces a signed 32-bit value; the `>>> 0`
   // converts it back to an unsigned integer in [0, 2^32-1].
   return ((0xffffffff << (32 - prefix)) >>> 0);
@@ -282,7 +282,7 @@ export function classifyIp(ip: Ipv4Int): 'A' | 'B' | 'C' | 'D' | 'E' {
  *   - `Loopback` (127.0.0.0/8)
  *   - `Private` (RFC 1918: 10/8, 172.16/12, 192.168/16)
  *   - `Link-local` (169.254/16)
- *   - `Reserved` (0/8, 240/4 — "this network" + class E future use)
+ *   - `Reserved` (0/8, 240/4 - "this network" + class E future use)
  *   - `Public` (everything else)
  */
 export function isPrivateIp(ip: Ipv4Int): { isPrivate: boolean; scope: string } {
@@ -368,7 +368,7 @@ export function calculateSubnet(ip: Ipv4Int, prefix: number): SubnetResult {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseIpv4SubnetCalculatorReturn {
@@ -386,7 +386,7 @@ export interface UseIpv4SubnetCalculatorReturn {
  *
  * Accepts:
  *   - A bare prefix (`24`)
- *   - A full CIDR form (`192.168.1.0/24`) — the IP portion is ignored
+ *   - A full CIDR form (`192.168.1.0/24`) - the IP portion is ignored
  *   - A dotted subnet mask (`255.255.255.0`)
  */
 function resolvePrefix(maskInput: string): { ok: boolean; prefix: number; error: string | null } {
@@ -431,7 +431,7 @@ export function useIpv4SubnetCalculator(): UseIpv4SubnetCalculatorReturn {
       error.value = ipRes.error;
       return;
     }
-    // Allow the IP field to contain a full `a.b.c.d/n` form — extract the
+    // Allow the IP field to contain a full `a.b.c.d/n` form - extract the
     // prefix from there if the mask field is empty.
     let prefixSource = mask;
     if (mask.length === 0 && ip.includes('/')) {

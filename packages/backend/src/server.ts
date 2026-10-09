@@ -50,17 +50,17 @@ export async function buildServer(): Promise<FastifyInstance> {
     timeWindow: config.rateLimitWindow,
   });
 
-  // Mongoose — connection failures are logged but do not crash the server
+  // Mongoose - connection failures are logged but do not crash the server
   // so the health endpoint stays reachable during DB outages.
   try {
     await app.register(mongoosePlugin);
   } catch (err) {
-    app.log.error({ err }, 'mongoose: failed to connect — starting without DB');
+    app.log.error({ err }, 'mongoose: failed to connect - starting without DB');
   }
 
   await app.register(jwtPlugin);
 
-  // Content-type parser for raw PDF uploads — returns the body as a Buffer so
+  // Content-type parser for raw PDF uploads - returns the body as a Buffer so
   // the /api/pdf/verify route can scan the raw bytes. Fastify only parses
   // application/json and text/plain by default; without this parser a
   // application/pdf request would be rejected with FST_ERR_CTP_INVALID_MEDIA.

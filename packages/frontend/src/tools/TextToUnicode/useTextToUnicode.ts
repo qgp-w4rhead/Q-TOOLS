@@ -1,5 +1,5 @@
 /**
- * useTextToUnicode — composable + pure logic for the Text-to-Unicode tool.
+ * useTextToUnicode - composable + pure logic for the Text-to-Unicode tool.
  *
  * Bidirectional conversion between text and Unicode escape sequences
  * (`\uXXXX`). Encode mode renders each UTF-16 code unit as a `\uXXXX` escape
@@ -21,14 +21,14 @@
  * `useTextToUnicode()` composable wraps them in reactive state and wires up
  * the embed PostMessage protocol.
  *
- * No external dependencies — only the JS `String` API and `TextEncoder`.
+ * No external dependencies - only the JS `String` API and `TextEncoder`.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Conversion mode. */
@@ -82,7 +82,7 @@ export function iterCodePoints(str: string): Array<{ codePoint: number; index: n
  * a surrogate pair (`\uD83D\uDE00` for 😀). The output is a contiguous string
  * of escapes with no separators.
  *
- * `prefix` defaults to `\u` but can be overridden (e.g. `\U`) — useful for
+ * `prefix` defaults to `\u` but can be overridden (e.g. `\U`) - useful for
  * testing or alternate conventions.
  */
 export function encodeUnicodeEscapes(text: string, prefix: string = DEFAULT_PREFIX): string {
@@ -197,7 +197,7 @@ export function analyzeChars(text: string): UnicodeAnalysis {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface TextToUnicodeOutputs {

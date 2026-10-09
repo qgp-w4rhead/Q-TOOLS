@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * JsonToCsv — convert a JSON array of objects to CSV.
+ * JsonToCsv - convert a JSON array of objects to CSV.
  *
  * Parses JSON (an array of objects, or a single object wrapped into a one-row
  * array) and serializes it to CSV per RFC 4180. Nested objects and arrays are
@@ -10,6 +10,7 @@
  * and sends `output` PostMessages whenever the computed CSV changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, FileSpreadsheet, Quote } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -29,19 +30,22 @@ const {
   toggleQuoteAll,
 } = useJsonToCsv();
 
-const delimiterOptions: Array<{ value: CsvDelimiter; label: string }> = [
-  { value: 'comma', label: 'Comma (,)' },
-  { value: 'semicolon', label: 'Semicolon (;)' },
-  { value: 'tab', label: 'Tab' },
-];
+const { t } = useI18n();
+const U = 'tools.json-to-csv.ui.';
+
+const delimiterOptions = computed<Array<{ value: CsvDelimiter; label: string }>>(() => [
+  { value: 'comma', label: t(U + 'delimComma') },
+  { value: 'semicolon', label: t(U + 'delimSemicolon') },
+  { value: 'tab', label: t(U + 'delimTab') },
+]);
 
 const metaLine = computed(() => {
   if (!outputs.value) return '';
   const o = outputs.value;
   const parts = [
-    `${o.rowCount} row${o.rowCount === 1 ? '' : 's'}`,
-    `${o.columnCount} column${o.columnCount === 1 ? '' : 's'}`,
-    `${o.outputBytes} bytes`,
+    t(o.rowCount === 1 ? U + 'metaRowsOne' : U + 'metaRows', { n: o.rowCount }),
+    t(o.columnCount === 1 ? U + 'metaColsOne' : U + 'metaCols', { n: o.columnCount }),
+    t(U + 'metaBytes', { n: o.outputBytes }),
   ];
   return parts.join(' · ');
 });
@@ -50,9 +54,9 @@ const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
   if (e.line != null && e.column != null) {
-    return `Line ${e.line}, column ${e.column}`;
+    return t(U + 'errLineCol', { line: e.line, col: e.column });
   }
-  if (e.line != null) return `Line ${e.line}`;
+  if (e.line != null) return t(U + 'errLine', { line: e.line });
   return '';
 });
 
@@ -67,28 +71,29 @@ function onDelimiterChange(e: Event): void {
 </script>
 
 <template>
-  <div class="j2c">
+  <div class="qt-tool">
     <ToolInput
-      title="JSON input"
-      description="Paste a JSON array of objects (or a single object). Nested values are flattened to JSON strings."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="j2c__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t(U + 'convert') }}</span>
         </button>
       </template>
 
-      <div class="j2c__opts">
-        <label class="j2c__opt">
-          <span class="j2c__label">Delimiter</span>
+      <div class="qt-row qt-row--bottom" style="--qt-row-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'delimiter') }}</span>
           <select
-            class="j2c__select"
+            class="qt-input"
+            style="font-size:13px;padding:6px 10px"
             :value="delimiter"
             @change="onDelimiterChange"
           >
@@ -99,33 +104,34 @@ function onDelimiterChange(e: Event): void {
         </label>
         <button
           type="button"
-          class="j2c__toggle"
-          :class="{ 'j2c__toggle--active': header }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': header }"
           :aria-pressed="header"
-          title="Include a header row of column names"
+          :title="t(U + 'headerTitle')"
           @click="toggleHeader"
         >
           <FileSpreadsheet :size="13" />
-          <span>Header row</span>
+          <span>{{ t(U + 'headerRow') }}</span>
         </button>
         <button
           type="button"
-          class="j2c__toggle"
-          :class="{ 'j2c__toggle--active': quoteAll }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': quoteAll }"
           :aria-pressed="quoteAll"
-          title="Wrap every field in double quotes (not just those that need it)"
+          :title="t(U + 'quoteTitle')"
           @click="toggleQuoteAll"
         >
           <Quote :size="13" />
-          <span>Quote all fields</span>
+          <span>{{ t(U + 'quoteAll') }}</span>
         </button>
       </div>
 
-      <label class="j2c__field">
-        <span class="j2c__label">JSON</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'jsonLabel') }}</span>
         <textarea
-          class="j2c__textarea j2c__textarea--mono"
-          placeholder='Paste JSON here…  e.g.  [\n  {"name": "Ada", "age": 36, "active": true},\n  {"name": "Linus", "age": 54}\n]'
+          class="qt-input qt-input--mono"
+          style="min-height:180px"
+          :placeholder="t(U + 'phJson')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -136,30 +142,30 @@ function onDelimiterChange(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="CSV output"
-      :description="outputs ? metaLine : 'Paste JSON above to convert.'"
+      :title="t(U + 'outTitle')"
+      :description="outputs ? metaLine : t(U + 'descEmpty')"
       :copy-text="outputs?.csv ?? ''"
-      copy-label="Copy CSV"
+      :copy-label="t(U + 'copyCsv')"
     >
-      <p v-if="error" class="j2c__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
-          <strong v-if="errorLocation">{{ errorLocation }}:</strong>
+          <strong v-if="errorLocation" style="margin-right:4px">{{ errorLocation }}:</strong>
           {{ error.message }}
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="j2c__empty">
-          Paste JSON above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'descEmpty') }}
         </p>
-        <div v-if="outputs" class="j2c__result">
-          <div class="j2c__result-head">
-            <span class="j2c__result-label">CSV</span>
-            <CopyButton :text="outputs.csv" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-panel qt-stack" style="--qt-stack-gap:6px;padding:8px 10px">
+          <div class="qt-row qt-row--center" style="--qt-row-gap:8px">
+            <span class="qt-label" style="color:var(--qt-text);flex:1">CSV</span>
+            <CopyButton :text="outputs.csv" :label="t('common.copy')" icon-only />
           </div>
           <pre v-if="outputs.csv" class="j2c__code">{{ outputs.csv }}</pre>
-          <p v-else class="j2c__empty">JSON parsed to an empty result.</p>
-          <div class="j2c__meta">
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center" style="--qt-row-gap:6px;font-size:12px;color:var(--qt-muted)">
             <span>{{ metaLine }}</span>
           </div>
         </div>
@@ -169,166 +175,11 @@ function onDelimiterChange(e: Event): void {
 </template>
 
 <style scoped>
-.j2c {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.j2c__opts {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.j2c__opt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2c__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2c__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.j2c__select {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  will-change: border-color;
-}
-.j2c__select:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.j2c__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
-}
-.j2c__toggle--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
-.j2c__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.j2c__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.j2c__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.j2c__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.j2c__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.j2c__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.j2c__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.j2c__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.j2c__error strong {
-  margin-right: 4px;
-}
-.j2c__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.j2c__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2c__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.j2c__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* CSV output — bare code inside the result panel (no border/padding). */
 .j2c__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -337,13 +188,5 @@ function onDelimiterChange(e: Event): void {
   max-height: 60vh;
   overflow: auto;
   tab-size: 4;
-}
-.j2c__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
 }
 </style>

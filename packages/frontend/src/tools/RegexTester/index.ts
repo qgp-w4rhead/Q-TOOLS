@@ -1,9 +1,9 @@
 /**
- * RegexTester tool module — exports the lazy-loaded component plus its
+ * RegexTester tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
- * No external npm dependencies — uses only the built-in `RegExp`.
+ * No external npm dependencies - uses only the built-in `RegExp`.
  */
 import { defineAsyncComponent } from 'vue';
 import type { ToolMetadata } from '@q-tools/shared';

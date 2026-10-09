@@ -1,5 +1,5 @@
 /**
- * useOutlookSafelinkDecoder — composable + pure logic for the Outlook Safelink
+ * useOutlookSafelinkDecoder - composable + pure logic for the Outlook Safelink
  * decoder tool.
  *
  * Microsoft Defender for Office 365 (Safe Links) rewrites every hyperlink in
@@ -19,7 +19,7 @@
  * unit testing or reuse. The `useOutlookSafelinkDecoder()` composable wraps
  * them in reactive state and wires up the embed PostMessage protocol.
  *
- * No external dependencies — only the native `URL` / `decodeURIComponent`
+ * No external dependencies - only the native `URL` / `decodeURIComponent`
  * APIs.
  */
 import { ref, watch, type Ref } from 'vue';
@@ -27,7 +27,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -40,12 +40,12 @@ const SAFELINK_HOST_SUFFIX = '.safelinks.protection.outlook.com';
 
 /**
  * .NET `DateTime.Ticks` value at the Unix epoch (1970-01-01 UTC). Used to
- * convert .NET ticks (100-ns intervals since 0001-01-01) — the timestamp
- * format used by modern Safelinks `data` fields — into Unix milliseconds.
+ * convert .NET ticks (100-ns intervals since 0001-01-01) - the timestamp
+ * format used by modern Safelinks `data` fields - into Unix milliseconds.
  */
 const DOTNET_EPOCH_TICKS = 621355968000000000;
 
-/** Stage tag for `SafelinkParseError` — where in the pipeline it failed. */
+/** Stage tag for `SafelinkParseError` - where in the pipeline it failed. */
 export type SafelinkParseStage = 'not-safelink' | 'no-url-param' | 'decode';
 
 /** Error thrown by the safelink decoder. Carries a stage tag for UI surfacing. */
@@ -58,7 +58,7 @@ export class SafelinkParseError extends Error {
   }
 }
 
-/** Parsed `data` field — pipe-delimited metadata embedded in the safelink. */
+/** Parsed `data` field - pipe-delimited metadata embedded in the safelink. */
 export interface SafelinkData {
   /** Raw `data` query parameter value (already percent-decoded). */
   raw: string;
@@ -123,13 +123,13 @@ export function isSafelinkUrl(input: string): boolean {
  *
  * Safelinks percent-encode the destination once, but some clients/forwards
  * double-encode it. We repeatedly `decodeURIComponent` until the result stops
- * changing (max 3 passes) — this recovers the original URL regardless of how
+ * changing (max 3 passes) - this recovers the original URL regardless of how
  * many times it was encoded, without over-decoding a legitimately-encoded
  * destination.
  *
  * If a *later* decode pass fails (e.g. the decoded URL legitimately contains
  * a literal `%` character that is not a valid percent-encoding), we stop and
- * return the last successfully-decoded value rather than throwing — that value
+ * return the last successfully-decoded value rather than throwing - that value
  * is the real destination URL. A failure on the *first* pass, however,
  * indicates the `url` parameter itself is malformed and is re-thrown as a
  * `SafelinkParseError`.
@@ -142,7 +142,7 @@ export function decodeSafelink(encodedUrl: string): {
 } {
   let current = encodedUrl;
   let passes = 0;
-  // Cap at 3 passes — anything beyond that is almost certainly a legitimately
+  // Cap at 3 passes - anything beyond that is almost certainly a legitimately
   // percent-encoded destination that should be left alone.
   for (let i = 0; i < 3; i++) {
     let next: string;
@@ -157,7 +157,7 @@ export function decodeSafelink(encodedUrl: string): {
           'decode',
         );
       }
-      // A later pass hit a literal `%` in the decoded URL — stop here; the
+      // A later pass hit a literal `%` in the decoded URL - stop here; the
       // current value is the real destination.
       break;
     }
@@ -177,7 +177,7 @@ export function decodeSafelink(encodedUrl: string): {
  *
  * The v1 format is shorter and lacks the timestamp/client fields. We extract
  * the recipient email (field index 2 in modern, 1 in v1) and the timestamp
- * (field index 7 in modern) defensively — any field may be missing or in a
+ * (field index 7 in modern) defensively - any field may be missing or in a
  * different position, so we fall back to `null` rather than throwing.
  *
  * `rawData` should already be percent-decoded (the raw query value).
@@ -303,7 +303,7 @@ function ensureScheme(input: string): string {
   return `https://${input}`;
 }
 
-/** `decodeURIComponent` that never throws — returns the input on failure. */
+/** `decodeURIComponent` that never throws - returns the input on failure. */
 function tryDecodeURIComponent(input: string): string {
   try {
     return decodeURIComponent(input);
@@ -318,7 +318,7 @@ function isEmailLike(value: string): boolean {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseOutlookSafelinkDecoderReturn {

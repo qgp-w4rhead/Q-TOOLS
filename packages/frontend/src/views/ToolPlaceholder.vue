@@ -7,9 +7,12 @@
  * component (lazy-loaded) in M1+.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Hammer } from 'lucide-vue-next';
 import { getToolBySlug, getCategoryById } from '@/data/tools';
+import { categoryLabel, localizedToolDescription, localizedToolName } from '@/i18n/localized';
 
+const { t } = useI18n();
 const props = defineProps<{ slug?: string }>();
 
 const tool = computed(() => (props.slug ? getToolBySlug(props.slug) : undefined));
@@ -23,14 +26,16 @@ const category = computed(() =>
     <div class="placeholder__icon">
       <Hammer :size="28" />
     </div>
-    <h2 class="placeholder__title">{{ tool?.name ?? 'Tool' }}</h2>
+    <h2 class="placeholder__title">
+      {{ tool ? localizedToolName(tool) : t('tool.fallbackTitle') }}
+    </h2>
     <p class="placeholder__desc">
-      {{ tool?.description ?? 'This tool has not been implemented yet.' }}
+      {{ tool ? localizedToolDescription(tool) : t('tool.notImplemented') }}
     </p>
     <p v-if="category" class="placeholder__category">
-      Category: <strong>{{ category.label }}</strong>
+      {{ t('tool.category') }} <strong>{{ categoryLabel(category) }}</strong>
     </p>
-    <p class="placeholder__status">Coming soon — scaffolded in M0, implemented in a later milestone.</p>
+    <p class="placeholder__status">{{ t('tool.comingSoon') }}</p>
   </section>
 </template>
 

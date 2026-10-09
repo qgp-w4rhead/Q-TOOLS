@@ -1,5 +1,5 @@
 /**
- * useListConverter — composable + pure logic for the List converter tool.
+ * useListConverter - composable + pure logic for the List converter tool.
  *
  * Converts a list of items between seven built-in formats plus an arbitrary
  * custom delimiter:
@@ -20,9 +20,9 @@
  * list of strings). Empty input produces an empty item list.
  *
  * Options:
- *   - `trim`        — trim whitespace from each parsed item (default true)
- *   - `removeDuplicates` — drop repeated items, preserving first-seen order
- *   - `customDelimiter`  — used when `from`/`to` is `'custom'`
+ *   - `trim`        - trim whitespace from each parsed item (default true)
+ *   - `removeDuplicates` - drop repeated items, preserving first-seen order
+ *   - `customDelimiter`  - used when `from`/`to` is `'custom'`
  *
  * Pure helpers (`parseList`, `formatList`, `convertList`, `dedupe`,
  * `splitJsonArray`, `formatJsonArray`) have no Vue dependency and can be
@@ -37,7 +37,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Built-in list formats. */
@@ -116,7 +116,7 @@ export interface ListConverterError {
  * Accepts any valid JSON array. Non-array roots are rejected. Each element
  * must be a string or a number (numbers are stringified). Booleans, null,
  * nested arrays, and objects are rejected to keep the output a flat list of
- * strings — the list converter is not a generic JSON transform.
+ * strings - the list converter is not a generic JSON transform.
  *
  * Throws a normalised `ListConverterError` (stage: 'parse') on failure.
  */
@@ -145,7 +145,7 @@ export function splitJsonArray(text: string): string[] {
       out.push(String(el));
     } else {
       throw {
-        message: `JSON array element at index ${i} is ${typeof el === 'object' ? 'an object' : typeof el === 'undefined' ? 'undefined' : String(el)} — only strings and numbers are supported.`,
+        message: `JSON array element at index ${i} is ${typeof el === 'object' ? 'an object' : typeof el === 'undefined' ? 'undefined' : String(el)} - only strings and numbers are supported.`,
         stage: 'parse',
       } as ListConverterError;
     }
@@ -340,14 +340,14 @@ export function convertList(
 /** Split `text` on `delimiter`, dropping trailing empty segments. */
 function splitOnDelimiter(text: string, delimiter: string): string[] {
   if (delimiter.length === 0) {
-    // An empty custom delimiter is meaningless — treat the whole input as
+    // An empty custom delimiter is meaningless - treat the whole input as
     // a single item so we don't infinite-loop on split('').
     return text.length === 0 ? [] : [text];
   }
   const parts = text.split(delimiter);
   // Drop a single trailing empty string produced by a trailing delimiter
   // (e.g. "a,b," → ["a","b",""]). Preserve internal empties only when the
-  // user did not request trimming — but the trim pass + filter pass below
+  // user did not request trimming - but the trim pass + filter pass below
   // will drop them anyway for non-JSON formats.
   if (parts.length > 0 && parts[parts.length - 1] === '') {
     parts.pop();
@@ -439,7 +439,7 @@ function posToLineCol(source: string, pos: number): { line: number; column: numb
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface ListConverterOutputs {

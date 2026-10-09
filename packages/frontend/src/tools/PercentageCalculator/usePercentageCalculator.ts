@@ -1,22 +1,22 @@
 /**
- * usePercentageCalculator — composable + pure logic for the percentage
+ * usePercentageCalculator - composable + pure logic for the percentage
  * calculator tool.
  *
  * Three calculation modes:
  *
- *   - **ofTotal** — "X is what % of Y" → `(X / Y) * 100`
- *   - **percentValue** — "X% of Y is" → `(X / 100) * Y`
- *   - **change** — "% increase/decrease from X to Y" → `((Y - X) / X) * 100`
+ *   - **ofTotal** - "X is what % of Y" → `(X / Y) * 100`
+ *   - **percentValue** - "X% of Y is" → `(X / 100) * Y`
+ *   - **change** - "% increase/decrease from X to Y" → `((Y - X) / X) * 100`
  *
- * All computations are pure arithmetic — no external dependencies. The
+ * All computations are pure arithmetic - no external dependencies. The
  * composable wires up reactive state and the embed PostMessage protocol.
  */
 import { ref, watch, type Ref } from 'vue';
-import { useEmbed } from '@/composables/useEmbed';
+import { useToolEmbed } from '@/composables/useToolEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 export type PercentMode = 'ofTotal' | 'percentValue' | 'change';
@@ -36,7 +36,7 @@ export interface PercentResult {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -61,7 +61,7 @@ export function parseNumber(input: unknown): number | null {
  * "X is what % of Y" → `(X / Y) * 100`.
  *
  * Edge cases:
- *   - `Y === 0` → error "Cannot divide by zero — Y must be non-zero."
+ *   - `Y === 0` → error "Cannot divide by zero - Y must be non-zero."
  */
 export function computePercentOfTotal(x: number, y: number): PercentResult {
   const inputs = { x, y };
@@ -71,7 +71,7 @@ export function computePercentOfTotal(x: number, y: number): PercentResult {
   if (y === 0) {
     return {
       ok: false,
-      message: 'Cannot divide by zero — Y must be non-zero.',
+      message: 'Cannot divide by zero - Y must be non-zero.',
       result: NaN,
       inputs,
     };
@@ -96,7 +96,7 @@ export function computePercentValue(pct: number, y: number): PercentResult {
  * "% increase/decrease from X to Y" → `((Y - X) / X) * 100`.
  *
  * Edge cases:
- *   - `X === 0` → error "Cannot compute change from zero — original must be non-zero."
+ *   - `X === 0` → error "Cannot compute change from zero - original must be non-zero."
  *   - `Y > X` → direction `increase`
  *   - `Y < X` → direction `decrease`
  *   - `Y === X` → direction `none`, result 0
@@ -109,7 +109,7 @@ export function computePercentChange(from: number, to: number): PercentResult {
   if (from === 0) {
     return {
       ok: false,
-      message: 'Cannot compute change from zero — original must be non-zero.',
+      message: 'Cannot compute change from zero - original must be non-zero.',
       result: NaN,
       inputs,
     };
@@ -124,17 +124,17 @@ export function computePercentChange(from: number, to: number): PercentResult {
 
 /**
  * Format a number for display: trims trailing zeros, keeps up to 6 decimal
- * places, returns `—` for non-finite values.
+ * places, returns `-` for non-finite values.
  */
 export function formatNumber(n: number): string {
-  if (!Number.isFinite(n)) return '—';
+  if (!Number.isFinite(n)) return '-';
   if (Number.isInteger(n)) return n.toString();
   const fixed = n.toFixed(6);
   return fixed.replace(/\.?0+$/, '');
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface UsePercentageCalculatorReturn {
@@ -211,7 +211,7 @@ export function usePercentageCalculator(): UsePercentageCalculatorReturn {
 
   recompute();
 
-  const { isEmbed, input: embedInput, sendOutput } = useEmbed({
+  const { isEmbed, input: embedInput } = useToolEmbed({
     onInput: (payload) => {
       if (!payload || typeof payload !== 'object') return;
       const p = payload as Record<string, unknown>;
@@ -259,12 +259,8 @@ export function usePercentageCalculator(): UsePercentageCalculatorReturn {
         else toChange.value = v;
       }
     },
-  });
-
-  watch(snapshot, (s) => {
-    if (isEmbed.value) {
-      sendOutput(s ?? {});
-    }
+    output: snapshot,
+    toOutput: () => ({ ...(snapshot.value ?? {}) }),
   });
 
   return {

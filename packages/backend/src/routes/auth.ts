@@ -1,10 +1,10 @@
 /**
- * Auth routes — register, login, refresh, me.
+ * Auth routes - register, login, refresh, me.
  *
- *   POST /api/auth/register  — create account, return access + refresh tokens
- *   POST /api/auth/login     — verify credentials, return access + refresh tokens
- *   POST /api/auth/refresh   — exchange a refresh token for a new token pair
- *   GET  /api/auth/me        — return the authenticated user's profile
+ *   POST /api/auth/register  - create account, return access + refresh tokens
+ *   POST /api/auth/login     - verify credentials, return access + refresh tokens
+ *   POST /api/auth/refresh   - exchange a refresh token for a new token pair
+ *   GET  /api/auth/me        - return the authenticated user's profile
  *
  * Passwords are hashed with bcrypt (12 rounds). Access tokens are
  * short-lived (15m default); refresh tokens are longer-lived (7d default)

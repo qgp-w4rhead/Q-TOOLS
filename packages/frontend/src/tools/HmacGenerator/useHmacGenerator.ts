@@ -1,5 +1,5 @@
 /**
- * useHmacGenerator — composable + pure logic for the HMAC generator tool.
+ * useHmacGenerator - composable + pure logic for the HMAC generator tool.
  *
  * Computes HMAC signatures of a message under a secret key using the Web
  * Crypto API (`crypto.subtle.importKey` + `crypto.subtle.sign` with the
@@ -11,14 +11,14 @@
  * The `useHmacGenerator()` composable wraps them in reactive state, debounces
  * recomputation for large inputs, and wires up the embed PostMessage protocol.
  *
- * No external dependencies — uses only the Web Crypto API and TextEncoder.
+ * No external dependencies - uses only the Web Crypto API and TextEncoder.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** HMAC hash algorithm identifiers supported by the tool. */
@@ -79,7 +79,7 @@ export function toHex(buf: ArrayBuffer | Uint8Array): string {
 export function toBase64(buf: ArrayBuffer | Uint8Array): string {
   const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
   let binary = '';
-  const CHUNK = 0x8000; // 32 KiB — safe across engines.
+  const CHUNK = 0x8000; // 32 KiB - safe across engines.
   for (let i = 0; i < bytes.length; i += CHUNK) {
     binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
   }
@@ -91,7 +91,7 @@ export function toBase64(buf: ArrayBuffer | Uint8Array): string {
  * Returns the raw signature bytes. Uses the Web Crypto API.
  *
  * Both `message` and `secret` are encoded as UTF-8. An empty secret is allowed
- * (Web Crypto accepts a zero-length key for HMAC) — but an empty message
+ * (Web Crypto accepts a zero-length key for HMAC) - but an empty message
  * returns an empty result upstream.
  */
 export async function computeHmacBytes(
@@ -152,7 +152,7 @@ export async function computeHmac(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface HmacGeneratorConfig {
@@ -207,7 +207,7 @@ export function useHmacGenerator(): UseHmacGeneratorReturn {
       return;
     }
     if (msg.length > LARGE_INPUT_THRESHOLD) {
-      error.value = 'Message is very large — click "Sign" to compute manually.';
+      error.value = 'Message is very large - click "Sign" to compute manually.';
       return;
     }
     const token = ++runToken;

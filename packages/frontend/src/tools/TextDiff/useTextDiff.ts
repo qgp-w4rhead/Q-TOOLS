@@ -1,5 +1,5 @@
 /**
- * useTextDiff — composable + pure logic for the text diff tool.
+ * useTextDiff - composable + pure logic for the text diff tool.
  *
  * Computes a visual line/word/character/sentence diff between two text blocks
  * using the lazy-loaded `diff` package (JsDiff). The library lands in its own
@@ -18,7 +18,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 /** Token granularity for the diff. */
@@ -39,7 +39,7 @@ export interface DiffChange {
   count: number;
 }
 
-/** A row in the side-by-side view — one side may be empty (a pure add/remove). */
+/** A row in the side-by-side view - one side may be empty (a pure add/remove). */
 export interface SideBySideRow {
   /** Left-side line content, or `null` when the row is a pure insertion. */
   left: string | null;
@@ -116,7 +116,7 @@ export function resetDiffCache(): void {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure helpers — no Vue dependency                                            */
+/* Pure helpers - no Vue dependency                                            */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -180,7 +180,7 @@ export function runDiff(
       } = {};
       if (ignoreWhitespace) lineOpts.ignoreWhitespace = true;
       // Use newlineIsToken so changes to blank lines are reported as their
-      // own changes rather than merged into adjacent content — gives a more
+      // own changes rather than merged into adjacent content - gives a more
       // intuitive side-by-side alignment.
       lineOpts.newlineIsToken = false;
       return mod.diffLines(left, right, lineOpts) as DiffChange[];
@@ -222,7 +222,7 @@ export function buildSideBySide(changes: DiffChange[]): SideBySideRow[] {
   const tokens: Array<{ text: string; added: boolean; removed: boolean }> = [];
   for (const c of changes) {
     const lines = c.value.split('\n');
-    // If the run ends with a newline, the split produces a trailing '' — drop it.
+    // If the run ends with a newline, the split produces a trailing '' - drop it.
     if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
     for (const line of lines) {
       tokens.push({ text: line, added: c.added, removed: c.removed });
@@ -370,7 +370,7 @@ export async function computeDiff(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface TextDiffOutputs {

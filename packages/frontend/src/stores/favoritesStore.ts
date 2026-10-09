@@ -1,5 +1,5 @@
 /**
- * Favorites store — star tools and sync with the backend.
+ * Favorites store - star tools and sync with the backend.
  *
  * Each favorite is keyed by `toolSlug` and carries a `createdAt` +
  * `updatedAt` timestamp (ms epoch). Deletions are recorded as
@@ -30,11 +30,11 @@ const STORAGE_KEY = 'q-tools-favorites';
 export interface FavoriteEntry {
   toolSlug: string;
   label?: string;
-  /** ms epoch — when the favorite was first created locally. */
+  /** ms epoch - when the favorite was first created locally. */
   createdAt: number;
-  /** ms epoch — last modification time (used for merge/conflict). */
+  /** ms epoch - last modification time (used for merge/conflict). */
   updatedAt: number;
-  /** Tombstone flag — when true the favorite was removed locally but
+  /** Tombstone flag - when true the favorite was removed locally but
    *  the deletion has not yet been synced to the backend. */
   deleted?: boolean;
 }
@@ -83,7 +83,7 @@ export function remoteToEntry(fav: Favorite): FavoriteEntry {
 
 /**
  * Merge two favorite lists by `toolSlug`. For each slug present on
- * either side, the entry with the newer `updatedAt` wins — including
+ * either side, the entry with the newer `updatedAt` wins - including
  * tombstones (a newer tombstone removes the favorite; an older
  * tombstone loses to a newer active entry).
  *
@@ -126,7 +126,7 @@ export function mergeFavorites(
   return Array.from(map.values());
 }
 
-/** Filter out tombstones — the active favorites list. */
+/** Filter out tombstones - the active favorites list. */
 export function activeFavorites(entries: FavoriteEntry[]): FavoriteEntry[] {
   return entries.filter((e) => !e.deleted);
 }
@@ -307,7 +307,7 @@ export const useFavoritesStore = defineStore('favorites', {
               if (!(err instanceof ApiError && err.status === 409)) throw err;
             }
           } else {
-            // Exists on both sides — check for label change.
+            // Exists on both sides - check for label change.
             // The backend has no PATCH endpoint, so we DELETE + POST
             // to update the label. Only do this when the local entry
             // won the merge (newer updatedAt), indicating a local edit.

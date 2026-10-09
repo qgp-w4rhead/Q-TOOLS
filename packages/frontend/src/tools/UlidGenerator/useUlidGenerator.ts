@@ -1,5 +1,5 @@
 /**
- * useUlidGenerator — composable + pure logic for the ULID generator tool.
+ * useUlidGenerator - composable + pure logic for the ULID generator tool.
  *
  * Generates ULIDs (Universally Unique Lexicographically Sortable Identifiers,
  * https://github.com/ulid/spec). A ULID is a 26-character Crockford Base32
@@ -12,7 +12,7 @@
  * Randomness: the `ulid` package defaults to `Math.random()`, which is NOT
  * cryptographically secure. We inject a PRNG backed by
  * `crypto.getRandomValues()` so every ULID is unpredictable. The PRNG contract
- * is `() => number` returning a fraction in `[0, 1)` — we build it from a
+ * is `() => number` returning a fraction in `[0, 1)` - we build it from a
  * 32-bit random unsigned integer divided by `2^32`.
  *
  * Two generation modes:
@@ -32,7 +32,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Quantity bounds (from milestone.md acceptance criteria). */
@@ -124,7 +124,7 @@ export async function generateUlid(options: GenerateUlidOptions): Promise<UlidRe
  * Generate `quantity` ULIDs. In monotonic mode a single `monotonicFactory` is
  * reused across the whole batch so successive ULIDs within the same
  * millisecond are guaranteed to be lexicographically increasing. Returns the
- * formatted ULID strings (no timestamp — callers that need it can call
+ * formatted ULID strings (no timestamp - callers that need it can call
  * `decodeUlidTime`).
  */
 export async function generateUlids(
@@ -178,7 +178,7 @@ export function decodeUlidTime(id: string): number {
  *
  * NOTE: `decodeTime` and `isValid` are pure functions (no PRNG), so reusing a
  * cached module instance is safe. If the module has not been imported yet,
- * this throws — callers should ensure `generateUlid`/`generateUlids` has run
+ * this throws - callers should ensure `generateUlid`/`generateUlids` has run
  * at least once, or use the async `ensureUlidModule` helper below.
  */
 let cachedUlidModule: typeof import('ulid') | null = null;
@@ -194,14 +194,14 @@ export async function ensureUlidModule(): Promise<typeof import('ulid')> {
 function getUlidModuleSync(): typeof import('ulid') {
   if (!cachedUlidModule) {
     throw new Error(
-      'ulid module not loaded yet — call ensureUlidModule() or generateUlid() first',
+      'ulid module not loaded yet - call ensureUlidModule() or generateUlid() first',
     );
   }
   return cachedUlidModule;
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseUlidGeneratorReturn {

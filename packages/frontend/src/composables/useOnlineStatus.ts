@@ -1,5 +1,5 @@
 /**
- * useOnlineStatus — singleton composable tracking the browser's connectivity.
+ * useOnlineStatus - singleton composable tracking the browser's connectivity.
  *
  * Reactive `isOnline` mirrors `navigator.onLine` and updates on the window
  * `online` / `offline` events. `wasOffline` records whether the session has
@@ -24,7 +24,7 @@ export interface OnlineStatusState {
 
 /**
  * Compute the initial online status from a (possibly absent) `navigator`.
- * Returns `true` when `navigator.onLine` is unavailable — browsers without
+ * Returns `true` when `navigator.onLine` is unavailable - browsers without
  * the API are assumed to be online to avoid false offline banners.
  */
 export function computeIsOnline(nav: { onLine?: boolean } | undefined): boolean {
@@ -64,7 +64,7 @@ function handleOffline(): void {
 
 /**
  * Bind the window `online` / `offline` listeners exactly once. Safe to call
- * from multiple components — subsequent calls are no-ops.
+ * from multiple components - subsequent calls are no-ops.
  */
 export function bindOnlineListeners(win: Window & typeof globalThis = window): void {
   if (listenersBound) return;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * PdfSignature — PDF signature checker.
+ * PdfSignature - PDF signature checker.
  *
  * Upload a PDF file (drag-and-drop or file picker) to inspect its digital
  * signatures. The tool displays signer name, signing time, certificate
@@ -14,6 +14,7 @@
  * and verification results.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   AlertCircle,
   CheckCircle2,
@@ -32,6 +33,8 @@ import {
   type SignatureInfo,
   type SignatureVerification,
 } from './usePdfSignature';
+
+const { t, locale } = useI18n();
 
 const {
   fileName,
@@ -74,9 +77,9 @@ function formatSize(bytes: number): string {
 }
 
 function formatDate(iso: string | null): string {
-  if (!iso) return '—';
+  if (!iso) return '-';
   try {
-    return new Date(iso).toLocaleString();
+    return new Date(iso).toLocaleString(locale.value);
   } catch {
     return iso;
   }
@@ -87,17 +90,17 @@ function verifyFor(sig: SignatureInfo): SignatureVerification | undefined {
   return verification.value?.signatures.find((v) => v.index === sig.index);
 }
 
-/** Overall status badge for a signature. */
+/** Overall status badge for a signature (label resolved via i18n). */
 function statusFor(sig: SignatureInfo): { label: string; cls: string; icon: typeof CheckCircle2 } {
   const v = verifyFor(sig);
   if (v) {
-    if (v.signatureValid && v.chainValid) return { label: 'Valid', cls: 'pdf-sig__badge--ok', icon: ShieldCheck };
-    if (v.signatureValid && !v.chainValid) return { label: 'Signed · chain issues', cls: 'pdf-sig__badge--warn', icon: ShieldAlert };
-    return { label: 'Invalid', cls: 'pdf-sig__badge--bad', icon: XCircle };
+    if (v.signatureValid && v.chainValid) return { label: t('tools.pdf-signature-checker.ui.statusValid'), cls: 'qt-badge--success', icon: ShieldCheck };
+    if (v.signatureValid && !v.chainValid) return { label: t('tools.pdf-signature-checker.ui.statusChainIssues'), cls: 'qt-badge--warn', icon: ShieldAlert };
+    return { label: t('tools.pdf-signature-checker.ui.statusInvalid'), cls: 'qt-badge--error', icon: XCircle };
   }
-  if (sig.certificate?.isValidAtSigningTime) return { label: 'Metadata only', cls: 'pdf-sig__badge--info', icon: FileCheck };
-  if (sig.certificate) return { label: 'Cert expired at signing', cls: 'pdf-sig__badge--warn', icon: ShieldAlert };
-  return { label: 'Unverified', cls: 'pdf-sig__badge--info', icon: FileCheck };
+  if (sig.certificate?.isValidAtSigningTime) return { label: t('tools.pdf-signature-checker.ui.statusMetadataOnly'), cls: 'qt-badge--info', icon: FileCheck };
+  if (sig.certificate) return { label: t('tools.pdf-signature-checker.ui.statusCertExpired'), cls: 'qt-badge--warn', icon: ShieldAlert };
+  return { label: t('tools.pdf-signature-checker.ui.statusUnverified'), cls: 'qt-badge--info', icon: FileCheck };
 }
 
 const hasResults = computed(
@@ -106,37 +109,37 @@ const hasResults = computed(
 </script>
 
 <template>
-  <div class="pdf-sig">
+  <div class="qt-tool">
     <ToolInput
-      title="PDF signature checker"
-      description="Upload a signed PDF to inspect its digital signatures. Client-side parsing via pdfjs-dist + node-forge; full PKCS#7 chain verification via the backend."
+      :title="t('tools.pdf-signature-checker.ui.title')"
+      :description="t('tools.pdf-signature-checker.ui.desc')"
     >
       <template #actions>
         <button
           v-if="hasResults"
-          class="pdf-sig__btn pdf-sig__btn--ghost"
+          class="qt-btn qt-btn--outline"
           type="button"
           @click="clear"
         >
           <Trash2 :size="14" />
-          <span>Clear</span>
+          <span>{{ t('tools.pdf-signature-checker.ui.clear') }}</span>
         </button>
         <button
           v-if="signatures.length > 0 && backendAvailable !== false"
-          class="pdf-sig__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="verifying"
           @click="verify"
         >
-          <Loader2 v-if="verifying" :size="14" class="pdf-sig__spin" />
+          <Loader2 v-if="verifying" :size="14" class="qt-spin" />
           <ShieldCheck v-else :size="14" />
-          <span>{{ verifying ? 'Verifying…' : 'Verify signatures' }}</span>
+          <span>{{ verifying ? t('tools.pdf-signature-checker.ui.verifying') : t('tools.pdf-signature-checker.ui.verifySignatures') }}</span>
         </button>
       </template>
 
       <div
-        class="pdf-sig__drop"
-        :class="{ 'pdf-sig__drop--over': dragOver }"
+        class="qt-drop"
+        :class="{ 'qt-drop--over': dragOver }"
         role="button"
         tabindex="0"
         @click="pickFile"
@@ -147,8 +150,8 @@ const hasResults = computed(
         @drop.prevent="onDrop"
       >
         <FileUp :size="28" class="pdf-sig__drop-icon" />
-        <p class="pdf-sig__drop-title">Drop a PDF here or click to browse</p>
-        <p class="pdf-sig__drop-hint">Max 32 MiB · signatures parsed locally</p>
+        <p class="pdf-sig__drop-title">{{ t('tools.pdf-signature-checker.ui.dropTitle') }}</p>
+        <p class="qt-hint">{{ t('tools.pdf-signature-checker.ui.dropHint') }}</p>
         <input
           ref="fileInput"
           type="file"
@@ -161,32 +164,36 @@ const hasResults = computed(
 
     <ToolOutput
       v-if="hasResults"
-      title="Signature results"
-      :description="fileName ? `${fileName} · ${formatSize(fileSize)}${pageCount ? ' · ' + pageCount + ' page' + (pageCount > 1 ? 's' : '') : ''}` : ''"
+      :title="t('tools.pdf-signature-checker.ui.outputTitle')"
+      :description="fileName ? t('tools.pdf-signature-checker.ui.outputDesc', {
+        name: fileName,
+        size: formatSize(fileSize),
+        pages: pageCount ? t('tools.pdf-signature-checker.ui.pageCount', { n: pageCount }, pageCount) : '',
+      }) : ''"
     >
-      <p v-if="error" class="pdf-sig__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
 
-      <p v-if="parsing" class="pdf-sig__loading">
-        <Loader2 :size="14" class="pdf-sig__spin" />
-        <span>Parsing PDF and extracting signatures…</span>
+      <p v-if="parsing" class="qt-alert qt-alert--empty">
+        <Loader2 :size="14" class="qt-spin" />
+        <span>{{ t('tools.pdf-signature-checker.ui.parsing') }}</span>
       </p>
 
-      <p v-else-if="warning && signatures.length === 0" class="pdf-sig__warning">
+      <p v-else-if="warning && signatures.length === 0" class="qt-alert qt-alert--warn">
         <ShieldAlert :size="14" />
         <span>{{ warning }}</span>
       </p>
 
-      <div v-if="signatures.length > 0" class="pdf-sig__list">
+      <div v-if="signatures.length > 0" class="qt-stack" style="--qt-stack-gap:12px">
         <div v-for="sig in signatures" :key="sig.index" class="pdf-sig__card">
-          <div class="pdf-sig__card-head">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
             <span class="pdf-sig__card-title">
               <FileCheck :size="15" />
-              <span>Signature {{ sig.index + 1 }}</span>
+              <span>{{ t('tools.pdf-signature-checker.ui.signatureN', { n: sig.index + 1 }) }}</span>
             </span>
-            <span class="pdf-sig__badge" :class="statusFor(sig).cls">
+            <span class="qt-badge" :class="statusFor(sig).cls">
               <component :is="statusFor(sig).icon" :size="12" />
               <span>{{ statusFor(sig).label }}</span>
             </span>
@@ -194,86 +201,86 @@ const hasResults = computed(
 
           <dl class="pdf-sig__grid">
             <div class="pdf-sig__field">
-              <dt>Signer name</dt>
-              <dd>{{ sig.signerName || '—' }}</dd>
+              <dt>{{ t('tools.pdf-signature-checker.ui.signerName') }}</dt>
+              <dd>{{ sig.signerName || '-' }}</dd>
             </div>
             <div class="pdf-sig__field">
-              <dt>Signing time</dt>
+              <dt>{{ t('tools.pdf-signature-checker.ui.signingTime') }}</dt>
               <dd>{{ formatDate(sig.signingTimeISO) }}</dd>
             </div>
             <div class="pdf-sig__field">
-              <dt>Sub-filter</dt>
-              <dd><code>{{ sig.subFilter || '—' }}</code></dd>
+              <dt>{{ t('tools.pdf-signature-checker.ui.subFilter') }}</dt>
+              <dd><code>{{ sig.subFilter || '-' }}</code></dd>
             </div>
             <div class="pdf-sig__field">
-              <dt>Byte range</dt>
-              <dd><code class="pdf-sig__mono">{{ sig.byteRange.join(' · ') }}</code></dd>
+              <dt>{{ t('tools.pdf-signature-checker.ui.byteRange') }}</dt>
+              <dd><code class="qt-mono pdf-sig__mono">{{ sig.byteRange.join(' · ') }}</code></dd>
             </div>
           </dl>
 
           <template v-if="sig.certificate">
-            <div class="pdf-sig__divider">Certificate</div>
+            <div class="pdf-sig__divider">{{ t('tools.pdf-signature-checker.ui.certificate') }}</div>
             <dl class="pdf-sig__grid">
               <div class="pdf-sig__field">
-                <dt>Subject</dt>
+                <dt>{{ t('tools.pdf-signature-checker.ui.subject') }}</dt>
                 <dd>{{ sig.certificate.subject }}</dd>
               </div>
               <div class="pdf-sig__field">
-                <dt>Issuer</dt>
+                <dt>{{ t('tools.pdf-signature-checker.ui.issuer') }}</dt>
                 <dd>{{ sig.certificate.issuer }}</dd>
               </div>
               <div class="pdf-sig__field">
-                <dt>Serial</dt>
-                <dd><code class="pdf-sig__mono">{{ sig.certificate.serialNumber }}</code></dd>
+                <dt>{{ t('tools.pdf-signature-checker.ui.serial') }}</dt>
+                <dd><code class="qt-mono pdf-sig__mono">{{ sig.certificate.serialNumber }}</code></dd>
               </div>
               <div class="pdf-sig__field">
-                <dt>Validity</dt>
+                <dt>{{ t('tools.pdf-signature-checker.ui.validity') }}</dt>
                 <dd>
                   {{ formatDate(sig.certificate.notBefore) }} → {{ formatDate(sig.certificate.notAfter) }}
                 </dd>
               </div>
               <div class="pdf-sig__field">
-                <dt>Valid at signing time</dt>
+                <dt>{{ t('tools.pdf-signature-checker.ui.validAtSigning') }}</dt>
                 <dd>
                   <CheckCircle2 v-if="sig.certificate.isValidAtSigningTime" :size="13" class="pdf-sig__ok" />
                   <XCircle v-else :size="13" class="pdf-sig__bad" />
-                  <span>{{ sig.certificate.isValidAtSigningTime ? 'Yes' : 'No' }}</span>
+                  <span>{{ sig.certificate.isValidAtSigningTime ? t('tools.pdf-signature-checker.ui.yes') : t('tools.pdf-signature-checker.ui.no') }}</span>
                 </dd>
               </div>
             </dl>
           </template>
 
-          <p v-else-if="sig.parseError" class="pdf-sig__warning pdf-sig__warning--inline">
+          <p v-else-if="sig.parseError" class="qt-alert qt-alert--warn pdf-sig__warning--inline">
             <ShieldAlert :size="13" />
-            <span>Could not parse PKCS#7: {{ sig.parseError }}</span>
+            <span>{{ t('tools.pdf-signature-checker.ui.parseError', { error: sig.parseError }) }}</span>
           </p>
 
           <template v-if="verifyFor(sig)">
-            <div class="pdf-sig__divider">Verification (backend)</div>
+            <div class="pdf-sig__divider">{{ t('tools.pdf-signature-checker.ui.verificationBackend') }}</div>
             <dl class="pdf-sig__grid">
               <div class="pdf-sig__field">
-                <dt>Signature valid</dt>
+                <dt>{{ t('tools.pdf-signature-checker.ui.signatureValid') }}</dt>
                 <dd>
                   <CheckCircle2 v-if="verifyFor(sig)!.signatureValid" :size="13" class="pdf-sig__ok" />
                   <XCircle v-else :size="13" class="pdf-sig__bad" />
-                  <span>{{ verifyFor(sig)!.signatureValid ? 'Yes' : 'No' }}</span>
+                  <span>{{ verifyFor(sig)!.signatureValid ? t('tools.pdf-signature-checker.ui.yes') : t('tools.pdf-signature-checker.ui.no') }}</span>
                 </dd>
               </div>
               <div class="pdf-sig__field">
-                <dt>Chain valid</dt>
+                <dt>{{ t('tools.pdf-signature-checker.ui.chainValid') }}</dt>
                 <dd>
                   <CheckCircle2 v-if="verifyFor(sig)!.chainValid" :size="13" class="pdf-sig__ok" />
                   <XCircle v-else :size="13" class="pdf-sig__bad" />
-                  <span>{{ verifyFor(sig)!.chainValid ? 'Yes' : 'No' }}</span>
+                  <span>{{ verifyFor(sig)!.chainValid ? t('tools.pdf-signature-checker.ui.yes') : t('tools.pdf-signature-checker.ui.no') }}</span>
                 </dd>
               </div>
               <div class="pdf-sig__field">
-                <dt>Trust status</dt>
+                <dt>{{ t('tools.pdf-signature-checker.ui.trustStatus') }}</dt>
                 <dd>{{ verifyFor(sig)!.trustStatus }}</dd>
               </div>
               <div class="pdf-sig__field">
-                <dt>Digest algorithm</dt>
-                <dd><code class="pdf-sig__mono">{{ verifyFor(sig)!.digestAlgorithm || '—' }}</code></dd>
+                <dt>{{ t('tools.pdf-signature-checker.ui.digestAlgorithm') }}</dt>
+                <dd><code class="qt-mono pdf-sig__mono">{{ verifyFor(sig)!.digestAlgorithm || '-' }}</code></dd>
               </div>
             </dl>
             <ul v-if="verifyFor(sig)!.errors.length" class="pdf-sig__errors">
@@ -283,51 +290,26 @@ const hasResults = computed(
         </div>
       </div>
 
-      <p v-if="backendAvailable === false && signatures.length > 0" class="pdf-sig__warning pdf-sig__warning--inline">
+      <p v-if="backendAvailable === false && signatures.length > 0" class="qt-alert qt-alert--warn pdf-sig__warning--inline">
         <ShieldAlert :size="13" />
-        <span>Backend verification unavailable — showing metadata only.</span>
+        <span>{{ t('tools.pdf-signature-checker.ui.backendUnavailable') }}</span>
       </p>
     </ToolOutput>
   </div>
 </template>
 
 <style scoped>
-.pdf-sig {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.pdf-sig__drop {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 28px 16px;
-  border: 2px dashed var(--qt-border);
-  border-radius: var(--qt-radius);
-  background: var(--qt-bg);
-  cursor: pointer;
-  text-align: center;
-  transition:
-    border-color 0.15s ease,
-    background-color 0.15s ease;
-  will-change: border-color;
-}
-.pdf-sig__drop:hover,
-.pdf-sig__drop--over {
-  border-color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 95% c h / 0.06);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Dropzone icon — lifts + accents on hover/drag-over. */
 .pdf-sig__drop-icon {
   color: var(--qt-muted);
-  transition: transform 0.15s ease, color 0.15s ease;
-  will-change: transform;
+  transition:
+    transform 0.15s ease,
+    color 0.15s ease;
 }
-.pdf-sig__drop:hover .pdf-sig__drop-icon,
-.pdf-sig__drop--over .pdf-sig__drop-icon {
+.qt-drop:hover .pdf-sig__drop-icon,
+.qt-drop--over .pdf-sig__drop-icon {
   color: var(--qt-accent);
   transform: translateY(-2px);
 }
@@ -337,88 +319,11 @@ const hasResults = computed(
   font-weight: 600;
   color: var(--qt-text);
 }
-.pdf-sig__drop-hint {
-  margin: 0;
-  font-size: 12px;
-  color: var(--qt-muted);
-}
-.pdf-sig__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.pdf-sig__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.pdf-sig__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.pdf-sig__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.pdf-sig__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.pdf-sig__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.pdf-sig__spin {
-  animation: pdf-sig-spin 0.8s linear infinite;
-}
-@keyframes pdf-sig-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.pdf-sig__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 8px;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.pdf-sig__loading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.pdf-sig__warning {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-warning);
-  font-size: 13.5px;
-}
+/* Inline warning — extra top margin inside a card. */
 .pdf-sig__warning--inline {
   margin-top: 8px;
 }
-.pdf-sig__list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+/* Signature content card. */
 .pdf-sig__card {
   background: var(--qt-bg);
   border: 1px solid var(--qt-border);
@@ -426,12 +331,6 @@ const hasResults = computed(
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-.pdf-sig__card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 8px;
 }
 .pdf-sig__card-title {
@@ -442,36 +341,7 @@ const hasResults = computed(
   font-weight: 600;
   color: var(--qt-text);
 }
-.pdf-sig__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 600;
-  border: 1px solid transparent;
-}
-.pdf-sig__badge--ok {
-  color: var(--qt-success);
-  background: oklch(from var(--qt-success) 95% c h / 0.12);
-  border-color: oklch(from var(--qt-success) 60% c h / 0.4);
-}
-.pdf-sig__badge--warn {
-  color: var(--qt-warning);
-  background: oklch(from var(--qt-warning) 95% c h / 0.12);
-  border-color: oklch(from var(--qt-warning) 60% c h / 0.4);
-}
-.pdf-sig__badge--bad {
-  color: var(--qt-danger);
-  background: oklch(from var(--qt-danger) 95% c h / 0.12);
-  border-color: oklch(from var(--qt-danger) 60% c h / 0.4);
-}
-.pdf-sig__badge--info {
-  color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 95% c h / 0.12);
-  border-color: oklch(from var(--qt-accent) 60% c h / 0.4);
-}
+/* Definition-list grid (2-col → 1-col). */
 .pdf-sig__grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -504,17 +374,19 @@ const hasResults = computed(
   gap: 4px;
   word-break: break-word;
 }
+/* Mono value (font via .qt-mono). */
 .pdf-sig__mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 11.5px;
   word-break: break-all;
 }
+/* Valid/invalid icon colors. */
 .pdf-sig__ok {
   color: var(--qt-success);
 }
 .pdf-sig__bad {
   color: var(--qt-danger);
 }
+/* Sub-section divider. */
 .pdf-sig__divider {
   margin-top: 4px;
   padding-top: 8px;
@@ -525,6 +397,7 @@ const hasResults = computed(
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+/* Verification error list. */
 .pdf-sig__errors {
   margin: 0;
   padding-left: 18px;

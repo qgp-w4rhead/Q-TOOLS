@@ -1,5 +1,5 @@
 /**
- * useCaseConverter — composable + pure logic for the Case converter tool.
+ * useCaseConverter - composable + pure logic for the Case converter tool.
  *
  * Converts text between nine casing conventions:
  *
@@ -38,7 +38,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Supported case-conversion modes. */
@@ -118,18 +118,18 @@ export function lowercaseWord(word: string): string {
 
 /* ------------------------------ whole-string ------------------------------ */
 
-/** UPPER — uppercase the entire input, preserving all separators. */
+/** UPPER - uppercase the entire input, preserving all separators. */
 export function toUpper(input: string): string {
   return input.toUpperCase();
 }
 
-/** lower — lowercase the entire input, preserving all separators. */
+/** lower - lowercase the entire input, preserving all separators. */
 export function toLower(input: string): string {
   return input.toLowerCase();
 }
 
 /**
- * Title Case — capitalise the first letter of every whitespace-delimited
+ * Title Case - capitalise the first letter of every whitespace-delimited
  * word, lowercasing the remaining letters. Newlines and existing spacing
  * are preserved.
  */
@@ -138,7 +138,7 @@ export function toTitleCase(input: string): string {
 }
 
 /**
- * Sentence case — lowercase the entire text, then capitalise the first
+ * Sentence case - lowercase the entire text, then capitalise the first
  * alphabetic character of the text and the first alphabetic character after
  * each sentence boundary (`.`, `!`, `?` followed by whitespace, or a
  * newline). Newlines are preserved.
@@ -195,27 +195,27 @@ function lineToConstant(line: string): string {
   return words.map((w) => uppercaseWord(w)).join('_');
 }
 
-/** camelCase — process each line independently, join with `\n`. */
+/** camelCase - process each line independently, join with `\n`. */
 export function toCamelCase(input: string): string {
   return input.split('\n').map(lineToCamel).join('\n');
 }
 
-/** PascalCase — process each line independently, join with `\n`. */
+/** PascalCase - process each line independently, join with `\n`. */
 export function toPascalCase(input: string): string {
   return input.split('\n').map(lineToPascal).join('\n');
 }
 
-/** snake_case — process each line independently, join with `\n`. */
+/** snake_case - process each line independently, join with `\n`. */
 export function toSnakeCase(input: string): string {
   return input.split('\n').map(lineToSnake).join('\n');
 }
 
-/** kebab-case — process each line independently, join with `\n`. */
+/** kebab-case - process each line independently, join with `\n`. */
 export function toKebabCase(input: string): string {
   return input.split('\n').map(lineToKebab).join('\n');
 }
 
-/** CONSTANT_CASE — process each line independently, join with `\n`. */
+/** CONSTANT_CASE - process each line independently, join with `\n`. */
 export function toConstantCase(input: string): string {
   return input.split('\n').map(lineToConstant).join('\n');
 }
@@ -223,7 +223,7 @@ export function toConstantCase(input: string): string {
 /* --------------------------------- dispatch ------------------------------- */
 
 /**
- * Convert `input` to the requested `mode`. Pure function — no side effects.
+ * Convert `input` to the requested `mode`. Pure function - no side effects.
  */
 export function convertCase(input: string, mode: CaseMode): string {
   switch (mode) {
@@ -249,7 +249,7 @@ export function convertCase(input: string, mode: CaseMode): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export const DEFAULT_MODE: CaseMode = 'camel';

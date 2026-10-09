@@ -1,20 +1,21 @@
 <script setup lang="ts">
 /**
- * EncryptDecrypt — symmetric AES-GCM text encryption/decryption.
+ * EncryptDecrypt - symmetric AES-GCM text encryption/decryption.
  *
  *   - Encrypt: plaintext + passphrase → base64 ciphertext.
  *   - Decrypt: base64 ciphertext + passphrase → plaintext.
  *
  * Key derivation: PBKDF2-HMAC-SHA256 (configurable iterations, default 250k).
- * Cipher: AES-256-GCM (authenticated — tampering is detected on decrypt).
+ * Cipher: AES-256-GCM (authenticated - tampering is detected on decrypt).
  * Wire format: `[1-byte saltLen][salt][12-byte IV][ciphertext+authTag]`,
- * base64-encoded. No external dependencies — Web Crypto API only.
+ * base64-encoded. No external dependencies - Web Crypto API only.
  *
  * Works in embed mode: receives `input` PostMessages to set mode/text/
  * passphrase/iterations/saltLength and sends `output` PostMessages with the
  * result.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   LockKeyhole,
   UnlockKeyhole,
@@ -36,6 +37,8 @@ import {
   type EncryptMode,
 } from './useEncryptDecrypt';
 
+const { t } = useI18n();
+
 const {
   mode,
   text,
@@ -52,34 +55,42 @@ const showPassphrase = ref<boolean>(false);
 
 const MODE_OPTIONS: {
   value: EncryptMode;
-  label: string;
-  hint: string;
+  labelKey: string;
+  hintKey: string;
   icon: typeof LockKeyhole;
 }[] = [
-  { value: 'encrypt', label: 'Encrypt', hint: 'plaintext → ciphertext', icon: LockKeyhole },
-  { value: 'decrypt', label: 'Decrypt', hint: 'ciphertext → plaintext', icon: UnlockKeyhole },
+  { value: 'encrypt', labelKey: 'encrypt', hintKey: 'encryptHint', icon: LockKeyhole },
+  { value: 'decrypt', labelKey: 'decrypt', hintKey: 'decryptHint', icon: UnlockKeyhole },
 ];
 
 const inputLabel = computed(() =>
-  mode.value === 'encrypt' ? 'Plaintext' : 'Ciphertext (base64)',
+  mode.value === 'encrypt'
+    ? t('tools.encrypt-decrypt-text.ui.plaintext')
+    : t('tools.encrypt-decrypt-text.ui.ciphertext'),
 );
 const outputLabel = computed(() =>
-  mode.value === 'encrypt' ? 'Ciphertext (base64)' : 'Plaintext',
+  mode.value === 'encrypt'
+    ? t('tools.encrypt-decrypt-text.ui.ciphertext')
+    : t('tools.encrypt-decrypt-text.ui.plaintext'),
 );
 const inputPlaceholder = computed(() =>
   mode.value === 'encrypt'
-    ? 'Enter text to encrypt…'
-    : 'Paste the base64 ciphertext to decrypt…',
+    ? t('tools.encrypt-decrypt-text.ui.inputPlaceholderEncrypt')
+    : t('tools.encrypt-decrypt-text.ui.inputPlaceholderDecrypt'),
 );
 const outputPlaceholder = computed(() =>
   mode.value === 'encrypt'
-    ? 'Base64 ciphertext will appear here…'
-    : 'Recovered plaintext will appear here…',
+    ? t('tools.encrypt-decrypt-text.ui.outputPlaceholderEncrypt')
+    : t('tools.encrypt-decrypt-text.ui.outputPlaceholderDecrypt'),
 );
 const canProcess = computed(
   () => !processing.value && text.value.trim().length > 0 && passphrase.value.length > 0,
 );
-const processLabel = computed(() => (mode.value === 'encrypt' ? 'Encrypt' : 'Decrypt'));
+const processLabel = computed(() =>
+  mode.value === 'encrypt'
+    ? t('tools.encrypt-decrypt-text.ui.encrypt')
+    : t('tools.encrypt-decrypt-text.ui.decrypt'),
+);
 
 function onIterationsInput(e: Event): void {
   const v = Number((e.target as HTMLInputElement).value);
@@ -102,27 +113,27 @@ function switchMode(): void {
 </script>
 
 <template>
-  <div class="enc">
+  <div class="qt-tool">
     <ToolInput
-      title="Configuration"
-      description="AES-256-GCM authenticated encryption. Key derived from your passphrase via PBKDF2-HMAC-SHA256. The salt + IV are generated fresh per encryption and embedded in the output."
+      :title="t('common.configuration')"
+      :description="t('tools.encrypt-decrypt-text.ui.desc')"
     >
       <template #actions>
         <button
-          class="enc__process"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="!canProcess"
           @click="process"
         >
-          <Loader2 v-if="processing" :size="14" class="enc__spin" />
+          <Loader2 v-if="processing" :size="14" class="qt-spin" />
           <Sparkles v-else :size="14" />
-          <span>{{ processing ? 'Working…' : processLabel }}</span>
+          <span>{{ processing ? t('common.working') : processLabel }}</span>
         </button>
       </template>
 
-      <div class="enc__field">
-        <span class="enc__label">Mode</span>
-        <div class="enc__modes" role="radiogroup" aria-label="Encryption mode">
+      <div class="qt-field">
+        <span class="qt-label">{{ t('common.mode') }}</span>
+        <div class="enc__modes" role="radiogroup" :aria-label="t('tools.encrypt-decrypt-text.ui.modeLabel')">
           <button
             v-for="opt in MODE_OPTIONS"
             :key="opt.value"
@@ -131,29 +142,29 @@ function switchMode(): void {
             :aria-checked="mode === opt.value"
             class="enc__mode"
             :class="{ 'enc__mode--active': mode === opt.value }"
-            :title="opt.hint"
+            :title="t(`tools.encrypt-decrypt-text.ui.${opt.hintKey}`)"
             @click="mode = opt.value"
           >
             <component :is="opt.icon" :size="14" />
-            <span class="enc__mode-label">{{ opt.label }}</span>
-            <span class="enc__mode-hint">{{ opt.hint }}</span>
+            <span class="enc__mode-label">{{ t(`tools.encrypt-decrypt-text.ui.${opt.labelKey}`) }}</span>
+            <span class="enc__mode-hint">{{ t(`tools.encrypt-decrypt-text.ui.${opt.hintKey}`) }}</span>
           </button>
         </div>
         <button
           class="enc__swap"
           type="button"
-          title="Swap mode and move output to input"
+          :title="t('tools.encrypt-decrypt-text.ui.swapTitle')"
           @click="switchMode"
         >
           <ArrowLeftRight :size="12" />
-          <span>Swap &amp; feed output back as input</span>
+          <span>{{ t('tools.encrypt-decrypt-text.ui.swap') }}</span>
         </button>
       </div>
 
-      <label class="enc__field">
-        <span class="enc__label">{{ inputLabel }}</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ inputLabel }}</span>
         <textarea
-          class="enc__textarea"
+          class="qt-input qt-input--mono enc__textarea"
           rows="4"
           spellcheck="false"
           autocomplete="off"
@@ -163,23 +174,23 @@ function switchMode(): void {
         ></textarea>
       </label>
 
-      <label class="enc__field">
-        <span class="enc__label">Passphrase</span>
-        <div class="enc__passphrase">
+      <label class="qt-field">
+        <span class="qt-label">{{ t('tools.encrypt-decrypt-text.ui.passphrase') }}</span>
+        <div class="qt-input-wrap">
           <input
-            class="enc__input"
+            class="qt-input"
             :type="showPassphrase ? 'text' : 'password'"
             spellcheck="false"
             autocomplete="off"
-            placeholder="Passphrase (never sent anywhere — all crypto is local)"
+            :placeholder="t('tools.encrypt-decrypt-text.ui.passphrasePlaceholder')"
             :value="passphrase"
             @input="passphrase = ($event.target as HTMLInputElement).value"
           />
           <button
-            class="enc__peek"
+            class="qt-input-btn"
             type="button"
-            :title="showPassphrase ? 'Hide passphrase' : 'Show passphrase'"
-            :aria-label="showPassphrase ? 'Hide passphrase' : 'Show passphrase'"
+            :title="showPassphrase ? t('tools.encrypt-decrypt-text.ui.hidePassphrase') : t('tools.encrypt-decrypt-text.ui.showPassphrase')"
+            :aria-label="showPassphrase ? t('tools.encrypt-decrypt-text.ui.hidePassphrase') : t('tools.encrypt-decrypt-text.ui.showPassphrase')"
             @click="showPassphrase = !showPassphrase"
           >
             <EyeOff v-if="showPassphrase" :size="14" />
@@ -188,11 +199,11 @@ function switchMode(): void {
         </div>
       </label>
 
-      <div class="enc__row">
-        <label class="enc__field enc__field--grow">
-          <span class="enc__label">PBKDF2 iterations</span>
+      <div class="qt-row">
+        <label class="qt-field qt-field--grow">
+          <span class="qt-label">{{ t('tools.encrypt-decrypt-text.ui.iterations') }}</span>
           <input
-            class="enc__input"
+            class="qt-input"
             type="number"
             :min="MIN_ITERATIONS"
             :max="MAX_ITERATIONS"
@@ -200,35 +211,35 @@ function switchMode(): void {
             :value="iterations"
             @input="onIterationsInput"
           />
-          <span class="enc__hint">Higher = slower but harder to brute-force. Default 250 000 (OWASP 2023).</span>
+          <span class="qt-hint">{{ t('tools.encrypt-decrypt-text.ui.iterationsHint') }}</span>
         </label>
 
-        <label class="enc__field">
-          <span class="enc__label">Salt length (bytes)</span>
-          <select class="enc__select" :value="saltLength" @change="saltLength = Number(($event.target as HTMLSelectElement).value)">
+        <label class="qt-field">
+          <span class="qt-label">{{ t('tools.encrypt-decrypt-text.ui.saltLength') }}</span>
+          <select class="qt-input" :value="saltLength" @change="saltLength = Number(($event.target as HTMLSelectElement).value)">
             <option v-for="opt in SALT_LENGTH_OPTIONS" :key="opt" :value="opt">{{ opt }}</option>
           </select>
-          <span class="enc__hint">Used only in encrypt mode.</span>
+          <span class="qt-hint">{{ t('tools.encrypt-decrypt-text.ui.saltHint') }}</span>
         </label>
       </div>
     </ToolInput>
 
     <ToolOutput
       :title="outputLabel"
-      :description="output ? `${output.length} chars` : ''"
+      :description="output ? t('common.chars', { n: output.length }) : ''"
       :copy-text="output"
-      copy-label="Copy"
+      :copy-label="t('common.copy')"
     >
-      <p v-if="error" class="enc__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
-      <p v-else-if="!output" class="enc__empty">
-        No output yet — enter text + a passphrase and click <strong>{{ processLabel }}</strong>.
+      <p v-else-if="!output" class="qt-alert qt-alert--empty">
+        {{ t('tools.encrypt-decrypt-text.ui.empty', { action: processLabel }) }}
       </p>
       <textarea
         v-else
-        class="enc__output"
+        class="qt-output enc__output"
         rows="6"
         readonly
         spellcheck="false"
@@ -241,95 +252,9 @@ function switchMode(): void {
 </template>
 
 <style scoped>
-.enc {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.enc__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.enc__field--grow {
-  flex: 1 1 auto;
-}
-.enc__row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.enc__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.enc__hint {
-  font-size: 10.5px;
-  color: var(--qt-muted);
-  opacity: 0.85;
-}
-.enc__input,
-.enc__textarea,
-.enc__select,
-.enc__output {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 9px 11px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.enc__textarea,
-.enc__output {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13px;
-  resize: vertical;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-.enc__input:focus,
-.enc__textarea:focus,
-.enc__select:focus,
-.enc__output:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.enc__passphrase {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.enc__passphrase .enc__input {
-  padding-right: 38px;
-}
-.enc__peek {
-  position: absolute;
-  right: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: transparent;
-  border: none;
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-muted);
-  cursor: pointer;
-  transition: color 0.15s ease;
-}
-.enc__peek:hover {
-  color: var(--qt-text);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Mode picker — fixed 2-col grid of selectable cards. */
 .enc__modes {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -351,7 +276,6 @@ function switchMode(): void {
     border-color 0.15s ease,
     background-color 0.15s ease,
     color 0.15s ease;
-  will-change: border-color;
 }
 .enc__mode:hover {
   border-color: var(--qt-accent);
@@ -373,6 +297,7 @@ function switchMode(): void {
   font-size: 10.5px;
   opacity: 0.85;
 }
+/* Subtle inline "swap & feed back" action. */
 .enc__swap {
   display: inline-flex;
   align-items: center;
@@ -389,53 +314,11 @@ function switchMode(): void {
 .enc__swap:hover {
   color: var(--qt-accent);
 }
-.enc__process {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
+/* Input/output textareas — mono + break (control via .qt-input/.qt-output). */
+.enc__textarea,
+.enc__output {
   font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.enc__process:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.enc__process:active:not(:disabled) {
-  transform: translateY(0);
-}
-.enc__process:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.enc__spin {
-  animation: enc-spin 0.8s linear infinite;
-}
-@keyframes enc-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.enc__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.enc__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 </style>

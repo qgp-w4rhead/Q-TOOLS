@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * MathEvaluator — safely evaluate mathematical expressions.
+ * MathEvaluator - safely evaluate mathematical expressions.
  *
  * Uses the lazy-loaded `expr-eval` parser to evaluate the input expression.
  * Supports `+ - * / ^ %`, parentheses, the functions `sin cos tan log ln sqrt
@@ -14,9 +14,9 @@
  * Works in embed mode: receives `input` PostMessages to pre-fill the
  * expression and sends `output` PostMessages whenever the result changes.
  */
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
-  AlertCircle,
   Calculator,
   History,
   Trash2,
@@ -24,9 +24,11 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-vue-next';
-import { ref } from 'vue';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
+import ToolField from '@/components/ToolField.vue';
+import ToolButton from '@/components/ToolButton.vue';
+import ToolAlert from '@/components/ToolAlert.vue';
 import CopyButton from '@/components/CopyButton.vue';
 import {
   useMathEvaluator,
@@ -44,6 +46,9 @@ const {
   reuseExpression,
 } = useMathEvaluator();
 
+const { t } = useI18n();
+const U = 'tools.math-evaluator.ui.';
+
 const showReference = ref<boolean>(false);
 
 const resultText = computed(() => {
@@ -52,52 +57,50 @@ const resultText = computed(() => {
   return formatResult(o.result);
 });
 
-const copyValue = computed(() => resultText.value);
 
-const referenceSections: Array<{
+const referenceSections = computed<Array<{
   title: string;
   items: Array<{ token: string; desc: string }>;
-}> = [
-  {
-    title: 'Operators',
-    items: [
-      { token: '+', desc: 'Addition' },
-      { token: '-', desc: 'Subtraction' },
-      { token: '*', desc: 'Multiplication' },
-      { token: '/', desc: 'Division' },
-      { token: '^', desc: 'Power' },
-      { token: '%', desc: 'Remainder' },
-      { token: '!', desc: 'Factorial' },
-      { token: '(...)', desc: 'Grouping' },
-    ],
-  },
-  {
-    title: 'Functions',
-    items: [
-      { token: 'sin(x)', desc: 'Sine' },
-      { token: 'cos(x)', desc: 'Cosine' },
-      { token: 'tan(x)', desc: 'Tangent' },
-      { token: 'log(x)', desc: 'Base-10 logarithm' },
-      { token: 'ln(x)', desc: 'Natural logarithm' },
-      { token: 'sqrt(x)', desc: 'Square root' },
-      { token: 'abs(x)', desc: 'Absolute value' },
-      { token: 'round(x)', desc: 'Round to nearest' },
-      { token: 'floor(x)', desc: 'Round down' },
-      { token: 'ceil(x)', desc: 'Round up' },
-    ],
-  },
-  {
-    title: 'Constants',
-    items: [
-      { token: 'pi', desc: 'π ≈ 3.14159' },
-      { token: 'e', desc: 'Euler ≈ 2.71828' },
-    ],
-  },
-];
-
-function onTextInput(e: Event): void {
-  input.value = (e.target as HTMLTextAreaElement).value;
-}
+}>>(() => {
+  const d = (k: string) => t(`${U}refd.${k}`);
+  return [
+    {
+      title: t(U + 'refOperators'),
+      items: [
+        { token: '+', desc: d('add') },
+        { token: '-', desc: d('sub') },
+        { token: '*', desc: d('mul') },
+        { token: '/', desc: d('div') },
+        { token: '^', desc: d('pow') },
+        { token: '%', desc: d('mod') },
+        { token: '!', desc: d('fact') },
+        { token: '(...)', desc: d('group') },
+      ],
+    },
+    {
+      title: t(U + 'refFunctions'),
+      items: [
+        { token: 'sin(x)', desc: d('sin') },
+        { token: 'cos(x)', desc: d('cos') },
+        { token: 'tan(x)', desc: d('tan') },
+        { token: 'log(x)', desc: d('log') },
+        { token: 'ln(x)', desc: d('ln') },
+        { token: 'sqrt(x)', desc: d('sqrt') },
+        { token: 'abs(x)', desc: d('abs') },
+        { token: 'round(x)', desc: d('round') },
+        { token: 'floor(x)', desc: d('floor') },
+        { token: 'ceil(x)', desc: d('ceil') },
+      ],
+    },
+    {
+      title: t(U + 'refConstants'),
+      items: [
+        { token: 'pi', desc: d('pi') },
+        { token: 'e', desc: d('e') },
+      ],
+    },
+  ];
+});
 
 function insertToken(token: string): void {
   // Insert the token at the cursor (or append) and focus the textarea.
@@ -126,38 +129,36 @@ function reuse(entry: MathHistoryEntry): void {
 </script>
 
 <template>
-  <div class="me">
+  <div class="qt-tool">
     <ToolInput
-      title="Expression"
-      description="Enter a mathematical expression. Uses expr-eval — never eval()."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
-        <button
-          class="me__btn"
-          type="button"
+        <ToolButton
+          variant="primary"
           :disabled="input.trim().length === 0 || loading"
           @click="recompute"
         >
           <Calculator :size="14" />
-          <span>Evaluate</span>
-        </button>
+          <span>{{ t(U + 'evaluate') }}</span>
+        </ToolButton>
       </template>
 
-      <label class="me__field">
-        <span class="me__label">Expression</span>
-        <textarea
-          id="me-input"
-          class="me__textarea me__textarea--mono"
-          placeholder="e.g.  2 * (3 + 4)^2 - sin(pi/2)"
-          :value="input"
-          rows="3"
-          spellcheck="false"
-          autocomplete="off"
-          @input="onTextInput"
-          @keydown.ctrl.enter="recompute"
-          @keydown.meta.enter="recompute"
-        />
-      </label>
+      <ToolField
+        v-model="input"
+        :label="t(U + 'fieldExpression')"
+        as="textarea"
+        mono
+        id="me-input"
+        :placeholder="t(U + 'placeholder')"
+        :rows="3"
+        spellcheck="false"
+        autocomplete="off"
+        style="min-height: 72px"
+        @keydown.ctrl.enter="recompute"
+        @keydown.meta.enter="recompute"
+      />
 
       <button
         type="button"
@@ -166,16 +167,15 @@ function reuse(entry: MathHistoryEntry): void {
         @click="showReference = !showReference"
       >
         <component :is="showReference ? ChevronDown : ChevronRight" :size="14" />
-        <span>Reference: operators, functions, constants</span>
+        <span>{{ t(U + 'refToggle') }}</span>
       </button>
-      <div v-if="showReference" class="me__ref">
+      <div v-if="showReference" class="qt-panel qt-stack" style="--qt-stack-gap:12px;padding:10px 12px">
         <section
           v-for="section in referenceSections"
           :key="section.title"
-          class="me__ref-section"
         >
-          <h4 class="me__ref-title">{{ section.title }}</h4>
-          <div class="me__ref-grid">
+          <h4 class="qt-stat-head" style="font-size:12px;margin:0 0 6px">{{ section.title }}</h4>
+          <div class="qt-grid" style="--qt-grid-min:180px;--qt-grid-gap:6px">
             <button
               v-for="item in section.items"
               :key="item.token"
@@ -184,8 +184,8 @@ function reuse(entry: MathHistoryEntry): void {
               :title="item.desc"
               @click="insertToken(item.token)"
             >
-              <code class="me__ref-token">{{ item.token }}</code>
-              <span class="me__ref-desc">{{ item.desc }}</span>
+              <code class="qt-mono" style="font-size:12.5px;color:var(--qt-accent);white-space:nowrap">{{ item.token }}</code>
+              <span style="font-size:12px;color:var(--qt-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ item.desc }}</span>
             </button>
           </div>
         </section>
@@ -193,67 +193,67 @@ function reuse(entry: MathHistoryEntry): void {
     </ToolInput>
 
     <ToolOutput
-      title="Result"
-      :description="outcome && outcome.ok ? 'Evaluated expression.' : 'Enter an expression above to evaluate.'"
-      :copy-text="copyValue"
-      copy-label="Copy result"
+      :title="t('common.result')"
+      :description="outcome && outcome.ok ? t(U + 'descDone') : t(U + 'descEmpty')"
+      :copy-text="resultText"
+      :copy-label="t('common.copyResult')"
     >
-      <p v-if="outcome && !outcome.ok" class="me__error">
-        <AlertCircle :size="14" />
-        <span>{{ outcome.message }}</span>
-      </p>
+      <ToolAlert v-if="outcome && !outcome.ok" kind="error">
+        {{ outcome.message }}
+      </ToolAlert>
       <template v-else>
-        <p v-if="!outcome && !loading" class="me__empty">
-          Enter an expression above to evaluate.
-        </p>
-        <div v-if="outcome && outcome.ok" class="me__result">
-          <div class="me__result-row">
-            <code class="me__result-expr">{{ outcome.expression }}</code>
-            <span class="me__result-eq">=</span>
-            <span class="me__result-value">{{ resultText }}</span>
-            <CopyButton :text="resultText" label="Copy" icon-only />
+        <ToolAlert v-if="!outcome && !loading" kind="empty">
+          {{ t(U + 'descEmpty') }}
+        </ToolAlert>
+        <div v-if="outcome && outcome.ok" class="qt-panel" style="padding:10px 12px">
+          <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+            <code class="qt-mono" style="font-size:13.5px;color:var(--qt-muted);word-break:break-word">{{ outcome.expression }}</code>
+            <span style="font-size:14px;color:var(--qt-muted)">=</span>
+            <span class="qt-mono" style="font-size:20px;font-weight:700;color:var(--qt-text);word-break:break-word">{{ resultText }}</span>
+            <CopyButton :text="resultText" :label="t('common.copy')" icon-only />
           </div>
         </div>
-        <div v-if="loading && !outcome" class="me__loading">
-          <Loader2 :size="14" />
-          <span>Loading parser…</span>
+        <div v-if="loading && !outcome" class="qt-row qt-row--center" style="--qt-row-gap:8px;color:var(--qt-muted);font-size:13px">
+          <Loader2 :size="14" class="qt-spin" />
+          <span>{{ t(U + 'loadingParser') }}</span>
         </div>
       </template>
     </ToolOutput>
 
-    <section v-if="history.length > 0" class="me__history">
-      <header class="me__history-head">
-        <span class="me__history-title">
+    <section v-if="history.length > 0" class="qt-panel qt-stack" style="--qt-stack-gap:8px;padding:10px 12px">
+      <header class="qt-row qt-row--center" style="--qt-row-gap:8px;justify-content:space-between;flex-wrap:nowrap">
+        <span class="qt-row qt-row--center" style="--qt-row-gap:6px;font-size:12.5px;font-weight:700;color:var(--qt-text);flex-wrap:nowrap">
           <History :size="14" />
-          <span>History ({{ history.length }})</span>
+          <span>{{ t(U + 'historyCount', { n: history.length }) }}</span>
         </span>
         <button
           type="button"
           class="me__history-clear"
           @click="clearHistory"
-          title="Clear history"
+          :title="t(U + 'clearHistoryTitle')"
         >
           <Trash2 :size="13" />
-          <span>Clear</span>
+          <span>{{ t('common.clear') }}</span>
         </button>
       </header>
-      <ul class="me__history-list">
+      <ul class="qt-list qt-stack" style="--qt-stack-gap:4px">
         <li
           v-for="(entry, i) in history"
           :key="`${entry.at}-${i}`"
-          class="me__history-item"
+          class="qt-row qt-row--center"
+          style="--qt-row-gap:6px;flex-wrap:nowrap"
         >
           <button
             type="button"
             class="me__history-btn"
-            :title="`Re-run: ${entry.expression}`"
+            :title="t(U + 'rerunTitle', { expr: entry.expression })"
             @click="reuse(entry)"
           >
-            <code class="me__history-expr">{{ entry.expression }}</code>
-            <span class="me__history-eq">=</span>
-            <span class="me__history-val">{{ formatResult(entry.result) }}</span>
+            <code class="qt-mono" style="font-size:12.5px;color:var(--qt-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ entry.expression }}</code>
+            <span style="font-size:12.5px;color:var(--qt-muted)">=</span>
+            <span class="qt-mono" style="font-size:12.5px;font-weight:600;color:var(--qt-text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ formatResult(entry.result) }}</span>
           </button>
-          <CopyButton :text="formatResult(entry.result)" label="Copy" icon-only />
+          <CopyButton :text="formatResult(entry.result)" :label="t('common.copy')" icon-only />
         </li>
       </ul>
     </section>
@@ -261,75 +261,9 @@ function reuse(entry: MathHistoryEntry): void {
 </template>
 
 <style scoped>
-.me {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.me__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.me__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.me__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 72px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.me__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.me__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.me__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.me__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.me__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.me__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* Kept scoped: interactive elements with hover states (no generic utility). */
+
+/* Reference toggle — ghost text button. */
 .me__ref-toggle {
   display: inline-flex;
   align-items: center;
@@ -346,28 +280,8 @@ function reuse(entry: MathHistoryEntry): void {
 .me__ref-toggle:hover {
   color: var(--qt-text);
 }
-.me__ref {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
-}
-.me__ref-title {
-  margin: 0 0 6px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--qt-muted);
-}
-.me__ref-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 6px;
-}
+
+/* Reference item — bordered token button with accent hover. */
 .me__ref-item {
   display: flex;
   align-items: center;
@@ -384,100 +298,8 @@ function reuse(entry: MathHistoryEntry): void {
 .me__ref-item:hover {
   border-color: var(--qt-accent);
 }
-.me__ref-token {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 12.5px;
-  color: var(--qt-accent);
-  white-space: nowrap;
-}
-.me__ref-desc {
-  font-size: 12px;
-  color: var(--qt-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.me__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.me__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.me__loading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--qt-muted);
-  font-size: 13px;
-}
-.me__loading :deep(svg) {
-  animation: me-spin 0.8s linear infinite;
-}
-@keyframes me-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.me__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
-}
-.me__result-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.me__result-expr {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13.5px;
-  color: var(--qt-muted);
-  word-break: break-word;
-}
-.me__result-eq {
-  font-size: 14px;
-  color: var(--qt-muted);
-}
-.me__result-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--qt-text);
-  word-break: break-word;
-}
-.me__history {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
-}
-.me__history-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.me__history-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--qt-text);
-}
+
+/* History clear — pill button that turns danger on hover. */
 .me__history-clear {
   display: inline-flex;
   align-items: center;
@@ -499,19 +321,8 @@ function reuse(entry: MathHistoryEntry): void {
   color: var(--qt-danger);
   border-color: var(--qt-danger);
 }
-.me__history-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.me__history-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+
+/* History entry — full-width ghost button with subtle hover. */
 .me__history-btn {
   flex: 1;
   display: flex;
@@ -529,26 +340,5 @@ function reuse(entry: MathHistoryEntry): void {
 .me__history-btn:hover {
   border-color: var(--qt-border);
   background: var(--qt-surface, var(--qt-bg));
-}
-.me__history-expr {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.me__history-eq {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-}
-.me__history-val {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 </style>

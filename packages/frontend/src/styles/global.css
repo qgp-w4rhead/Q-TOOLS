@@ -30,6 +30,7 @@
   --qt-radius-sm: 6px;
   --qt-gap: 16px;
   --qt-sidebar-width: 280px;
+  --qt-sidebar-collapsed-width: 56px;
   --qt-header-height: 56px;
   --qt-max-content: 1100px;
 
@@ -58,7 +59,7 @@
   --ion-color-step-950: #e6edf3;
 }
 
-/* Light theme overrides — applied when settingsStore sets data-theme="light". */
+/* Light theme overrides - applied when settingsStore sets data-theme="light". */
 :root[data-theme='light'] {
   --qt-bg: #ffffff;
   --qt-surface: #f6f8fa;
@@ -93,11 +94,30 @@
   box-sizing: border-box;
 }
 
+/* ---- Ionic scrolling override ---- */
+/* Ionic's structure.css sets body to position:fixed, overflow:hidden, height:100%,
+   transform:translateZ(0), touch-action:manipulation, overscroll-behavior-y:none.
+   Q-Tools uses plain divs (not ion-content), so we need native body scrolling.
+   These overrides must come AFTER the Ionic CSS imports in main.ts. */
+html {
+  height: auto;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
   min-height: 100%;
+  position: static;
+  overflow: auto;
+  height: auto;
+  max-height: none;
+  width: 100%;
+  max-width: 100%;
+  transform: none;
+  touch-action: auto;
+  overscroll-behavior: auto;
+  -ms-content-zooming: zoom;
   background: var(--qt-bg);
   color: var(--qt-text);
   font-family:

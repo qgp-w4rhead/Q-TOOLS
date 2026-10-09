@@ -1,9 +1,9 @@
 /**
- * MacAddressLookup tool module — exports the lazy-loaded component plus its
+ * MacAddressLookup tool module - exports the lazy-loaded component plus its
  * metadata, composable, and pure helpers so the tool can be registered in the
  * registry and routed dynamically.
  *
- * No external npm dependencies — the OUI database is a bundled static JSON
+ * No external npm dependencies - the OUI database is a bundled static JSON
  * asset (lazy-loaded via dynamic import → separate Vite chunk) and all lookup
  * logic is pure TypeScript.
  */

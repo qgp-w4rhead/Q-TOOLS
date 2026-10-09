@@ -1,5 +1,5 @@
 /**
- * useMacAddressGenerator — composable + pure logic for the MAC address generator.
+ * useMacAddressGenerator - composable + pure logic for the MAC address generator.
  *
  * Generates cryptographically secure random MAC-48 addresses using
  * `crypto.getRandomValues()`. Supports configurable quantity, case (upper/
@@ -12,14 +12,14 @@
  * composable wraps them in reactive state and wires up the embed PostMessage
  * protocol.
  *
- * No external dependencies — only the Web Crypto API (`crypto.getRandomValues`).
+ * No external dependencies - only the Web Crypto API (`crypto.getRandomValues`).
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** A MAC-48 address as an array of 6 octets (0-255). */
@@ -80,7 +80,7 @@ export function randomOctets(): MacOctets {
       buf[5] ?? 0,
     ];
   }
-  // Fallback — insecure context. Still produces 6 octets in [0, 255].
+  // Fallback - insecure context. Still produces 6 octets in [0, 255].
   const out: MacOctets = [0, 0, 0, 0, 0, 0];
   for (let i = 0; i < 6; i++) out[i] = Math.floor(Math.random() * 256);
   return out;
@@ -93,7 +93,7 @@ export function randomOctets(): MacOctets {
  * - Bit 0 (LSB) of octet 0 = multicast / I-G bit (1 = multicast/group).
  * - Bit 1 of octet 0 = U/L bit (1 = locally administered).
  *
- * Returns a *new* octets array — the input is not mutated.
+ * Returns a *new* octets array - the input is not mutated.
  */
 export function applyMacBits(
   octets: MacOctets,
@@ -149,7 +149,7 @@ export function generateMac(opts: MacGeneratorOptions): string {
 /**
  * Generate `quantity` random MAC addresses. When `unique` is true (default),
  * duplicates are avoided by regenerating until the set is full or a safety
- * cap is hit (10× the requested quantity) — after which duplicates are
+ * cap is hit (10× the requested quantity) - after which duplicates are
  * allowed to avoid an infinite loop for very small option spaces.
  */
 export function generateMacs(
@@ -189,7 +189,7 @@ export function clampQuantity(n: number): number {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseMacAddressGeneratorReturn {

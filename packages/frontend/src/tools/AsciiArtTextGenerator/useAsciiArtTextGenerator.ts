@@ -1,5 +1,5 @@
 /**
- * useAsciiArtTextGenerator — composable + pure logic for the ASCII Art Text
+ * useAsciiArtTextGenerator - composable + pure logic for the ASCII Art Text
  * Generator tool.
  *
  * Renders text as ASCII art using the `figlet` package. The figlet core module
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 /** figlet kerning / smushing layout modes. */
@@ -101,7 +101,7 @@ export const KERNING_METHODS: readonly KerningMethod[] = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/* Pure helpers — no Vue dependency below this point                           */
+/* Pure helpers - no Vue dependency below this point                           */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -147,7 +147,7 @@ export function coerceFont(
 }
 
 /* -------------------------------------------------------------------------- */
-/* figlet loader — lazy module + per-font dynamic imports                      */
+/* figlet loader - lazy module + per-font dynamic imports                      */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -267,7 +267,7 @@ export async function loadFont(name: string): Promise<void> {
  * Render `text` as ASCII art with the given options. Loads figlet + the
  * requested font on demand (cached). Returns the rendered string.
  *
- * Throws on unknown fonts or figlet render errors — callers should catch and
+ * Throws on unknown fonts or figlet render errors - callers should catch and
  * surface a user-friendly message.
  */
 export async function renderAsciiArt(
@@ -284,7 +284,7 @@ export async function renderAsciiArt(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface UseAsciiArtTextGeneratorReturn {

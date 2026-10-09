@@ -1,5 +1,5 @@
 /**
- * useTextStatistics — composable + pure logic for the Text statistics tool.
+ * useTextStatistics - composable + pure logic for the Text statistics tool.
  *
  * Computes a comprehensive set of statistics about a body of text:
  *   - character count (UTF-16 code units)
@@ -13,14 +13,14 @@
  *   - reading time (at 200 words per minute)
  *   - speaking time (at 130 words per minute)
  *
- * No external dependencies — pure string arithmetic + Intl helpers.
+ * No external dependencies - pure string arithmetic + Intl helpers.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 export interface TextStats {
@@ -73,7 +73,7 @@ const ABBREVIATIONS = new Set([
 ]);
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -143,7 +143,7 @@ export function countSentences(text: string): number {
   for (let i = 0; i < trimmed.length; i++) {
     const ch = trimmed[i];
     if (ch !== '.' && ch !== '!' && ch !== '?') continue;
-    // Skip consecutive terminal marks (e.g. "..." or "?!") — only the first
+    // Skip consecutive terminal marks (e.g. "..." or "?!") - only the first
     // of a run counts as a sentence terminator.
     if (i > 0) {
       const prev = trimmed[i - 1]!;
@@ -159,10 +159,10 @@ export function countSentences(text: string): number {
       // If the token (possibly multi-dotted like "e.g") is an abbreviation,
       // skip this as a sentence terminator.
       if (token.length > 0 && ABBREVIATIONS.has(token)) continue;
-      // Single-capital-letter tokens (initials like "J." in "J. Smith") — skip.
+      // Single-capital-letter tokens (initials like "J." in "J. Smith") - skip.
       if (token.length === 1 && /[a-z]/.test(token)) continue;
-      // Numeric token (e.g. "3.14" decimal point or "1." list marker) — skip
-      // when followed by a digit (decimal) — but a period after a digit
+      // Numeric token (e.g. "3.14" decimal point or "1." list marker) - skip
+      // when followed by a digit (decimal) - but a period after a digit
       // followed by whitespace may still be a sentence end. We only skip
       // decimals: period between two digits.
       if (
@@ -265,7 +265,7 @@ export function formatDuration(ms: number): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface UseTextStatisticsReturn {

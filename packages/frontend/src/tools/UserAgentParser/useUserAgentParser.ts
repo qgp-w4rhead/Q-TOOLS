@@ -1,5 +1,5 @@
 /**
- * useUserAgentParser — composable + pure logic for the user-agent parser tool.
+ * useUserAgentParser - composable + pure logic for the user-agent parser tool.
  *
  * Parses a User-Agent string into structured fields: browser (name + version),
  * engine (name + version), OS (name + version), device (type + vendor + model),
@@ -13,7 +13,7 @@
  * reactive state, auto-fills the input from `navigator.userAgent` on mount, and
  * wires up the embed PostMessage protocol.
  *
- * Auto-fill uses only the native `navigator.userAgent` API — no external
+ * Auto-fill uses only the native `navigator.userAgent` API - no external
  * dependency is required for that step.
  */
 import { ref, watch, type Ref } from 'vue';
@@ -21,7 +21,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Cached `ua-parser-js` module (resolved on first use). */
@@ -81,7 +81,7 @@ export interface UaParseResult {
   };
 }
 
-/** Sentinel for "not detected" — rendered as `—` in the UI. */
+/** Sentinel for "not detected" - rendered as `-` in the UI. */
 const UNAVAILABLE = '';
 
 /** Coerce a possibly-undefined parser value to a string (`''` when absent). */
@@ -190,7 +190,7 @@ export async function parseUserAgent(userAgent: string): Promise<UaParseResult |
 /**
  * Read the current browser's User-Agent string. Returns an empty string when
  * `navigator` is unavailable (e.g. SSR / non-browser env). No external
- * dependency — pure `navigator.userAgent` access.
+ * dependency - pure `navigator.userAgent` access.
  */
 export function getCurrentUserAgent(): string {
   try {
@@ -203,14 +203,14 @@ export function getCurrentUserAgent(): string {
 
 /**
  * Render a `UaParseResult` as a plain-text key/value block for clipboard copy.
- * Unavailable fields are rendered as `—`.
+ * Unavailable fields are rendered as `-`.
  */
 export function resultToText(result: UaParseResult): string {
   const lines: string[] = [`User-Agent: ${result.raw}`, ''];
   for (const group of result.groups) {
     lines.push(`# ${group.label}`);
     for (const f of group.fields) {
-      lines.push(`${f.label}: ${f.value || '—'}`);
+      lines.push(`${f.label}: ${f.value || '-'}`);
     }
     lines.push('');
   }
@@ -218,7 +218,7 @@ export function resultToText(result: UaParseResult): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseUserAgentParserReturn {

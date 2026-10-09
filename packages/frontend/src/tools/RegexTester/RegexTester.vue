@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
- * RegexTester — test a regular expression against a string in real time.
+ * RegexTester - test a regular expression against a string in real time.
  *
  * Inputs: pattern, flags (g/i/m/s/u/y chips), and a test string. The tool
  * compiles the pattern with the chosen flags, runs it against the test string,
  * and reports:
  *   - the test string with matches highlighted inline (rendered as text
- *     segments — no v-html of arbitrary user content)
+ *     segments - no v-html of arbitrary user content)
  *   - a per-match list with the matched text, position, and capture groups
  *     (named + numbered)
  *   - the total match count
@@ -15,7 +15,7 @@
  * A collapsible "Regex reference" sidebar lists the common tokens (character
  * classes, anchors, quantifiers, groups, lookaround, escapes) with examples.
  *
- * No external dependencies — only the built-in `RegExp`.
+ * No external dependencies - only the built-in `RegExp`.
  *
  * Works in embed mode: receives `pattern` / `flags` / `testString` (or
  * `input`/`value`/`text` as a fallback for the test string) PostMessages to
@@ -23,6 +23,7 @@
  * `{ pattern, flags, count, error, matches }` whenever the result changes.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   AlertTriangle,
   ChevronDown,
@@ -48,6 +49,9 @@ const {
   segments,
   toggleFlag,
 } = useRegexTester();
+
+const { t } = useI18n();
+const U = 'tools.regex-tester.ui.';
 
 const showReference = ref<boolean>(true);
 
@@ -102,26 +106,27 @@ function escapeForHtml(s: string): string {
 }
 
 function insertToken(token: string): void {
-  // Insert the token at the end of the pattern (simple UX — the user can edit
+  // Insert the token at the end of the pattern (simple UX - the user can edit
   // afterwards). Backslashes in the token are preserved verbatim.
   pattern.value = pattern.value + token;
 }
 </script>
 
 <template>
-  <div class="rt">
+  <div class="qt-tool">
     <div class="rt__main">
-      <div class="rt__col">
+      <div class="qt-stack" style="min-width:0">
         <ToolInput
-          title="Regular expression"
-          description="Enter a pattern (without delimiters) and toggle flags. Matching is live as you type."
+          :title="t(U + 'inputTitle')"
+          :description="t(U + 'desc')"
         >
-          <div class="rt__pattern-row">
+          <div class="qt-input-wrap">
             <Regex :size="16" class="rt__pattern-icon" />
             <input
-              class="rt__pattern-input"
+              class="qt-input"
+              style="font-family:var(--qt-font-mono);padding:10px 12px 10px 36px"
               type="text"
-              placeholder="\\b\\w+@\\w+\\.\\w+\\b"
+              :placeholder="t(U + 'phPattern')"
               :value="pattern"
               spellcheck="false"
               autocomplete="off"
@@ -130,44 +135,46 @@ function insertToken(token: string): void {
             />
           </div>
 
-          <div class="rt__flags">
-            <span class="rt__flags-label">Flags:</span>
+          <div class="qt-row qt-row--center" style="--qt-row-gap:6px;margin-top:10px">
+            <span class="qt-stat-head" style="font-size:11px;letter-spacing:0.06em;margin-right:2px">{{ t(U + 'flags') }}</span>
             <button
               v-for="f in REGEX_FLAGS"
               :key="f.char"
               type="button"
-              class="rt__flag"
-              :class="{ 'rt__flag--on': flags.includes(f.char) }"
-              :title="`${f.char} — ${f.label}: ${f.description}`"
+              class="qt-chip qt-chip--filled"
+              :class="{ 'qt-chip--active': flags.includes(f.char) }"
+              :title="`${f.char} - ${f.label}: ${f.description}`"
               @click="toggleFlag(f.char)"
             >
-              <span class="rt__flag-char">{{ f.char }}</span>
-              <span class="rt__flag-label">{{ f.label }}</span>
+              <span class="qt-mono" style="font-weight:700">{{ f.char }}</span>
+              <span>{{ f.label }}</span>
             </button>
             <input
-              class="rt__flags-raw"
+              class="qt-input"
+              style="width:70px;margin-left:auto;font-family:var(--qt-font-mono);font-size:12px;padding:4px 8px"
               type="text"
               :value="flags"
               spellcheck="false"
               autocomplete="off"
-              title="Type flags directly"
+              :title="t(U + 'flagsTitle')"
               @input="onFlags"
             />
           </div>
 
-          <div v-if="hasError" class="rt__error">
+          <div v-if="hasError" class="qt-banner qt-banner--error" style="margin-top:10px">
             <AlertTriangle :size="13" />
             <span>{{ compiled.error }}</span>
           </div>
         </ToolInput>
 
         <ToolInput
-          title="Test string"
-          description="The text to match against. Matches are highlighted in the output below."
+          :title="t(U + 'testTitle')"
+          :description="t(U + 'testDesc')"
         >
           <textarea
-            class="rt__test-input"
-            placeholder="Paste the text to test against…"
+            class="qt-input qt-input--mono"
+            style="min-height:120px"
+            :placeholder="t(U + 'phTest')"
             :value="testString"
             spellcheck="false"
             autocomplete="off"
@@ -178,43 +185,43 @@ function insertToken(token: string): void {
         </ToolInput>
 
         <ToolOutput
-          title="Highlighted matches"
+          :title="t(U + 'outTitle')"
           :description="
             hasPattern && hasTest
-              ? `${matches.length} match${matches.length === 1 ? '' : 'es'}`
-              : 'Enter a pattern and a test string to see matches.'
+              ? t(matches.length === 1 ? U + 'descMatchesOne' : U + 'descMatches', { n: matches.length })
+              : t(U + 'descEmpty')
           "
           :copy-text="hasMatches ? copyHighlightedHtml() : ''"
-          copy-label="Copy HTML"
+          :copy-label="t(U + 'copyHtml')"
         >
           <template v-if="!hasPattern || !hasTest">
-            <p class="rt__empty">
+            <p class="qt-alert qt-alert--empty">
               {{
                 !hasPattern
-                  ? 'Enter a regex pattern above.'
-                  : 'Enter a test string to match against.'
+                  ? t(U + 'needPattern')
+                  : t(U + 'needTest')
               }}
             </p>
           </template>
           <template v-else-if="hasError">
-            <p class="rt__empty">Fix the pattern error to see matches.</p>
+            <p class="qt-alert qt-alert--empty">{{ t(U + 'fixError') }}</p>
           </template>
           <template v-else>
-            <div class="rt__highlight">
+            <div class="qt-output" style="line-height:1.55;max-height:360px;white-space:pre-wrap;word-break:break-word">
               <template v-for="seg in segments" :key="`${seg.matchIndex}-${seg.text.length}`">
                 <mark v-if="seg.isMatch" class="rt__mark">{{ seg.text }}</mark>
-                <span v-else class="rt__plain">{{ seg.text }}</span>
+                <span v-else style="color:var(--qt-text)">{{ seg.text }}</span>
               </template>
-              <span v-if="segments.length === 0" class="rt__plain">{{ testString }}</span>
+              <span v-if="segments.length === 0" style="color:var(--qt-text)">{{ testString }}</span>
             </div>
 
-            <div class="rt__count-row">
-              <span class="rt__count-badge">
+            <div class="qt-row qt-row--center" style="--qt-row-gap:10px;margin-top:10px">
+              <span class="qt-badge qt-badge--info" style="text-transform:uppercase">
                 <Hash :size="12" />
-                <span>{{ matches.length }} match{{ matches.length === 1 ? '' : 'es' }}</span>
+                <span>{{ t(matches.length === 1 ? U + 'matchesBadgeOne' : U + 'matchesBadge', { n: matches.length }) }}</span>
               </span>
-              <span v-if="matches.length === 0 && !hasError" class="rt__no-match">
-                No matches found.
+              <span v-if="matches.length === 0 && !hasError" style="color:var(--qt-muted);font-size:13px;font-style:italic">
+                {{ t(U + 'noMatches') }}
               </span>
             </div>
           </template>
@@ -222,29 +229,30 @@ function insertToken(token: string): void {
 
         <ToolOutput
           v-if="hasMatches"
-          title="Match list"
-          :description="`${matches.length} match${matches.length === 1 ? '' : 'es'} with capture groups`"
+          :title="t(U + 'listTitle')"
+          :description="t(matches.length === 1 ? U + 'listDescOne' : U + 'listDesc', { n: matches.length })"
           :copy-text="copyMatchesJson()"
-          copy-label="Copy JSON"
+          :copy-label="t(U + 'copyJson')"
         >
-          <div class="rt__match-list">
-            <div v-for="m in matches" :key="m.matchIndex" class="rt__match">
-              <div class="rt__match-head">
-                <span class="rt__match-num">#{{ m.matchIndex + 1 }}</span>
-                <code class="rt__match-full">{{ m.full || '(empty)' }}</code>
-                <span class="rt__match-pos">[{{ m.start }}:{{ m.end }}]</span>
+          <div class="qt-stack" style="--qt-stack-gap:8px;max-height:480px;overflow:auto">
+            <div v-for="m in matches" :key="m.matchIndex" class="qt-result" style="padding:10px 12px">
+              <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+                <span class="qt-badge qt-badge--info" style="padding:2px 8px">#{{ m.matchIndex + 1 }}</span>
+                <code class="qt-value" style="background:oklch(from var(--qt-warning) 75% c h / 0.3);border-radius:3px;padding:1px 5px;word-break:break-all">{{ m.full || t(U + 'empty') }}</code>
+                <span class="qt-value qt-value--sm" style="color:var(--qt-muted);margin-left:auto">[{{ m.start }}:{{ m.end }}]</span>
               </div>
-              <div v-if="m.groups.length > 0" class="rt__groups">
+              <div v-if="m.groups.length > 0" class="qt-grid" style="--qt-grid-min:180px;--qt-grid-gap:6px;margin-top:8px">
                 <div
                   v-for="g in m.groups"
                   :key="g.index"
-                  class="rt__group"
+                  class="qt-result-row"
+                  style="padding:4px 8px;min-width:0"
                 >
-                  <span class="rt__group-key">
+                  <span class="qt-value qt-value--sm" style="font-weight:700;color:var(--qt-accent);flex-shrink:0">
                     <template v-if="g.name">{{ g.name }}</template>
                     <template v-else>${{ g.index }}</template>
                   </span>
-                  <code class="rt__group-val">{{ g.value === undefined ? '(not matched)' : (g.value || '(empty)') }}</code>
+                  <code class="qt-value qt-value--sm" style="word-break:break-all;min-width:0">{{ g.value === undefined ? t(U + 'notMatched') : (g.value || t(U + 'empty')) }}</code>
                 </div>
               </div>
             </div>
@@ -255,21 +263,22 @@ function insertToken(token: string): void {
       <aside class="rt__sidebar">
         <button
           type="button"
-          class="rt__sidebar-toggle"
+          class="qt-btn qt-btn--outline"
+          style="font-size:12.5px;font-weight:700;padding:8px 10px;text-align:left"
           @click="showReference = !showReference"
         >
           <component :is="showReference ? ChevronDown : ChevronRight" :size="14" />
           <Search :size="13" />
-          <span>Regex reference</span>
+          <span>{{ t(U + 'reference') }}</span>
         </button>
-        <div v-show="showReference" class="rt__ref">
+        <div v-show="showReference" class="qt-panel" style="padding:10px;overflow:auto;max-height:calc(100vh - 80px)">
           <section
             v-for="section in REGEX_REFERENCE"
             :key="section.title"
-            class="rt__ref-section"
+            style="margin-bottom:12px"
           >
-            <h4 class="rt__ref-title">{{ section.title }}</h4>
-            <ul class="rt__ref-list">
+            <h4 class="qt-stat-head" style="font-size:11px;letter-spacing:0.06em;margin:0 0 6px">{{ section.title }}</h4>
+            <ul class="qt-list qt-stack" style="--qt-stack-gap:4px">
               <li
                 v-for="entry in section.entries"
                 :key="entry.token"
@@ -277,17 +286,18 @@ function insertToken(token: string): void {
               >
                 <button
                   type="button"
-                  class="rt__ref-token"
-                  :title="`Insert ${entry.token} into the pattern`"
+                  class="qt-kbd rt__ref-token"
+                  style="padding:2px 6px;color:var(--qt-accent);cursor:pointer;align-self:start"
+                  :title="t(U + 'insertTitle', { token: entry.token })"
                   @click="insertToken(entry.token)"
                 >
                   <code>{{ entry.token }}</code>
                 </button>
-                <span class="rt__ref-desc">{{ entry.description }}</span>
-                <span class="rt__ref-example">
-                  <code>{{ entry.example }}</code>
-                  <span class="rt__ref-arrow">→</span>
-                  <span class="rt__ref-matches">{{ entry.matches }}</span>
+                <span style="font-size:11.5px;color:var(--qt-text);line-height:1.35">{{ entry.description }}</span>
+                <span class="qt-row qt-row--center" style="--qt-row-gap:4px;font-size:11px;color:var(--qt-muted)">
+                  <code class="qt-mono" style="color:var(--qt-text)">{{ entry.example }}</code>
+                  <span style="color:var(--qt-muted)">→</span>
+                  <span style="font-style:italic">{{ entry.matches }}</span>
                 </span>
               </li>
             </ul>
@@ -299,166 +309,25 @@ function insertToken(token: string): void {
 </template>
 
 <style scoped>
-.rt {
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Two-column layout — main column + sticky reference sidebar. */
 .rt__main {
   display: grid;
   grid-template-columns: 1fr 280px;
   gap: var(--qt-gap);
   align-items: start;
 }
-.rt__col {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  min-width: 0;
-}
-.rt__pattern-row {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
+
+/* Leading icon inside .qt-input-wrap (the wrap only pads for a right button). */
 .rt__pattern-icon {
   position: absolute;
   left: 12px;
   color: var(--qt-muted);
   pointer-events: none;
 }
-.rt__pattern-input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 14px;
-  padding: 10px 12px 10px 36px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.rt__pattern-input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.rt__flags {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-}
-.rt__flags-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--qt-muted);
-  margin-right: 2px;
-}
-.rt__flag {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 9px;
-  border-radius: 999px;
-  border: 1px solid var(--qt-border);
-  background: var(--qt-bg);
-  color: var(--qt-muted);
-  font-size: 11.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    color 0.15s ease;
-}
-.rt__flag:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-text);
-}
-.rt__flag--on {
-  background: oklch(from var(--qt-accent) 25% c h / 0.18);
-  border-color: oklch(from var(--qt-accent) 60% c h / 0.55);
-  color: var(--qt-accent);
-}
-.rt__flag-char {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-weight: 700;
-}
-.rt__flags-raw {
-  width: 70px;
-  margin-left: auto;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 12px;
-  padding: 4px 8px;
-}
-.rt__flags-raw:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-}
-.rt__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  margin-top: 10px;
-  background: oklch(from var(--qt-danger) 35% c h / 0.18);
-  border: 1px solid oklch(from var(--qt-danger) 60% c h / 0.5);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-size: 13.5px;
-}
-.rt__error svg {
-  color: var(--qt-danger);
-  flex-shrink: 0;
-}
-.rt__test-input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13.5px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 120px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.rt__test-input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.rt__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.rt__highlight {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13.5px;
-  line-height: 1.55;
-  white-space: pre-wrap;
-  word-break: break-word;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 12px;
-  color: var(--qt-text);
-  max-height: 360px;
-  overflow: auto;
-}
+
+/* Inline match highlight inside the output. */
 .rt__mark {
   background: oklch(from var(--qt-warning) 75% c h / 0.45);
   color: var(--qt-text);
@@ -466,107 +335,8 @@ function insertToken(token: string): void {
   padding: 1px 2px;
   font-weight: 600;
 }
-.rt__plain {
-  color: var(--qt-text);
-}
-.rt__count-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-.rt__count-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: oklch(from var(--qt-accent) 25% c h / 0.18);
-  border: 1px solid oklch(from var(--qt-accent) 60% c h / 0.5);
-  color: var(--qt-accent);
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.rt__no-match {
-  color: var(--qt-muted);
-  font-size: 13px;
-  font-style: italic;
-}
-.rt__match-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 480px;
-  overflow: auto;
-}
-.rt__match {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
-}
-.rt__match-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.rt__match-num {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 25% c h / 0.18);
-  border-radius: 999px;
-  padding: 2px 8px;
-}
-.rt__match-full {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13.5px;
-  color: var(--qt-text);
-  background: oklch(from var(--qt-warning) 75% c h / 0.3);
-  border-radius: 3px;
-  padding: 1px 5px;
-  word-break: break-all;
-}
-.rt__match-pos {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 11.5px;
-  color: var(--qt-muted);
-  margin-left: auto;
-}
-.rt__groups {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 6px;
-  margin-top: 8px;
-}
-.rt__group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  background: var(--qt-bg-elevated, var(--qt-bg));
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  min-width: 0;
-}
-.rt__group-key {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--qt-accent);
-  flex-shrink: 0;
-}
-.rt__group-val {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 12px;
-  color: var(--qt-text);
-  word-break: break-all;
-  min-width: 0;
-}
-/* Sidebar */
+
+/* Sticky reference sidebar. */
 .rt__sidebar {
   position: sticky;
   top: 0;
@@ -575,53 +345,8 @@ function insertToken(token: string): void {
   gap: 8px;
   max-height: calc(100vh - 24px);
 }
-.rt__sidebar-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 10px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  text-align: left;
-}
-.rt__sidebar-toggle:hover {
-  border-color: var(--qt-accent);
-}
-.rt__ref {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px;
-  overflow: auto;
-  max-height: calc(100vh - 80px);
-}
-.rt__ref-section {
-  margin-bottom: 12px;
-}
-.rt__ref-section:last-child {
-  margin-bottom: 0;
-}
-.rt__ref-title {
-  margin: 0 0 6px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--qt-muted);
-}
-.rt__ref-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+
+/* Reference entry — token column + desc/example rows. */
 .rt__ref-entry {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -637,16 +362,6 @@ function insertToken(token: string): void {
 }
 .rt__ref-token {
   grid-area: token;
-  background: transparent;
-  border: 1px solid var(--qt-border);
-  border-radius: 4px;
-  padding: 2px 6px;
-  cursor: pointer;
-  color: var(--qt-accent);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 11.5px;
-  align-self: start;
-  transition: border-color 0.15s ease;
 }
 .rt__ref-token:hover {
   border-color: var(--qt-accent);
@@ -654,31 +369,7 @@ function insertToken(token: string): void {
 .rt__ref-token code {
   font-family: inherit;
 }
-.rt__ref-desc {
-  grid-area: desc;
-  font-size: 11.5px;
-  color: var(--qt-text);
-  line-height: 1.35;
-}
-.rt__ref-example {
-  grid-area: example;
-  font-size: 11px;
-  color: var(--qt-muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-.rt__ref-example code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  color: var(--qt-text);
-}
-.rt__ref-arrow {
-  color: var(--qt-muted);
-}
-.rt__ref-matches {
-  font-style: italic;
-}
+
 @media (max-width: 880px) {
   .rt__main {
     grid-template-columns: 1fr;
@@ -686,9 +377,6 @@ function insertToken(token: string): void {
   .rt__sidebar {
     position: static;
     max-height: none;
-  }
-  .rt__ref {
-    max-height: 360px;
   }
 }
 </style>

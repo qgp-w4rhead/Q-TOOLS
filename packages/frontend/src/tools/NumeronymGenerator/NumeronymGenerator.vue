@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * NumeronymGenerator — convert words or phrases into numeronyms.
+ * NumeronymGenerator - convert words or phrases into numeronyms.
  *
  * A numeronym keeps the first and last letters of a word and replaces the
  * middle with the count of omitted letters (e.g. "internationalization" →
@@ -14,6 +14,7 @@
  * per-word breakdown.
  */
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RotateCcw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -60,102 +61,108 @@ function onSwap(): void {
   input.value = output.value;
 }
 
+const { t } = useI18n();
+const U = 'tools.numeronym-generator.ui.';
+
 const abbreviatedCount = () => tokens.value.filter((t) => t.abbreviated).length;
 const summary = () =>
-  `${abbreviatedCount()} of ${tokens.value.length} words abbreviated`;
+  t(U + 'summary', { abbr: abbreviatedCount(), total: tokens.value.length });
 </script>
 
 <template>
-  <div class="ng">
+  <div class="qt-tool">
     <ToolInput
-      title="Input"
-      description="Type a word or phrase. Numeronyms generate live."
+      :title="t('common.input')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="ng__btn ng__btn--ghost"
-          title="Clear input"
+          class="qt-btn qt-btn--ghost"
+          :title="t(U + 'clearTitle')"
           @click="onReset"
         >
           <RotateCcw :size="14" />
-          <span>Clear</span>
+          <span>{{ t('common.clear') }}</span>
         </button>
       </template>
 
       <textarea
-        class="ng__input"
+        class="qt-input"
+        style="min-height:120px;line-height:1.6;padding:12px 14px"
         spellcheck="false"
-        placeholder="e.g. internationalization accessibility localization…"
+        :placeholder="t(U + 'placeholder')"
         :value="draft"
         @input="onInput"
-        aria-label="Word or phrase to abbreviate"
+        :aria-label="t(U + 'ariaInput')"
       ></textarea>
 
-      <div class="ng__options">
-        <label class="ng__field">
-          <span class="ng__label">Min. word length</span>
+      <div class="qt-row qt-row--bottom" style="--qt-row-gap:16px;margin-top:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'minWordLength') }}</span>
           <input
             type="number"
-            class="ng__input-num"
+            class="qt-input"
+            style="width:90px"
             :min="MIN_LENGTH_FLOOR"
             :max="MIN_LENGTH_CEIL"
             :value="minLength"
             @input="onMinLength"
           />
         </label>
-        <label class="ng__field ng__field--check">
+        <label class="qt-check">
           <input
             type="checkbox"
-            class="ng__checkbox"
+            style="width:16px;height:16px"
             :checked="preserveCase"
             @change="onPreserveCase"
           />
-          <span class="ng__label">Preserve case</span>
+          <span class="qt-label">{{ t(U + 'preserveCase') }}</span>
         </label>
       </div>
     </ToolInput>
 
     <ToolOutput
-      title="Numeronym"
+      :title="t(U + 'outputTitle')"
       :description="summary()"
     >
       <template #actions>
         <button
           type="button"
-          class="ng__btn ng__btn--ghost"
-          title="Feed output back into input"
+          class="qt-btn qt-btn--ghost"
+          :title="t(U + 'useAsInputTitle')"
           :disabled="output.length === 0"
           @click="onSwap"
         >
-          <span>Use as input</span>
+          <span>{{ t(U + 'useAsInput') }}</span>
         </button>
       </template>
 
-      <div class="ng__output-wrap">
+      <div class="qt-output-wrap">
         <textarea
-          class="ng__output"
+          class="qt-output"
+          style="min-height:120px"
           readonly
           spellcheck="false"
           :value="output"
-          aria-label="Generated numeronym"
+          :aria-label="t(U + 'ariaOutput')"
         ></textarea>
         <CopyButton
           :text="output"
-          label="Copy"
-          class="ng__copy"
+          :label="t('common.copy')"
+          class="qt-copy-float"
         />
       </div>
 
-      <div v-if="tokens.length > 0" class="ng__breakdown">
-        <div class="ng__breakdown-title">Per-word breakdown</div>
+      <div v-if="tokens.length > 0" style="margin-top:16px">
+        <div class="qt-stat-head" style="margin-bottom:8px">{{ t(U + 'breakdown') }}</div>
         <table class="ng__table">
           <thead>
             <tr>
-              <th scope="col">Original</th>
-              <th scope="col">Numeronym</th>
-              <th scope="col" class="ng__num">Length</th>
-              <th scope="col" class="ng__num">Omitted</th>
+              <th scope="col">{{ t(U + 'colOriginal') }}</th>
+              <th scope="col">{{ t(U + 'colNumeronym') }}</th>
+              <th scope="col" class="ng__num">{{ t(U + 'colLength') }}</th>
+              <th scope="col" class="ng__num">{{ t(U + 'colOmitted') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -164,11 +171,11 @@ const summary = () =>
               :key="token.original"
               :class="{ 'ng__row--skip': !token.abbreviated }"
             >
-              <td class="ng__mono">{{ token.original }}</td>
-              <td class="ng__mono ng__mono--out">{{ token.numeronym }}</td>
+              <td class="qt-mono">{{ token.original }}</td>
+              <td class="qt-mono" style="color:var(--qt-accent);font-weight:600">{{ token.numeronym }}</td>
               <td class="ng__num">{{ token.length }}</td>
               <td class="ng__num">
-                {{ token.abbreviated ? token.omitted : '—' }}
+                {{ token.abbreviated ? token.omitted : '-' }}
               </td>
             </tr>
           </tbody>
@@ -179,154 +186,9 @@ const summary = () =>
 </template>
 
 <style scoped>
-.ng {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.ng__input {
-  width: 100%;
-  min-height: 120px;
-  resize: vertical;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  line-height: 1.6;
-  padding: 12px 14px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.ng__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.ng__options {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 16px;
-  margin-top: 12px;
-}
-.ng__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.ng__field--check {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
-.ng__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.ng__input-num {
-  width: 90px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 8px 10px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.ng__input-num:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.ng__checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
-.ng__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: var(--qt-radius-sm);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.ng__btn--ghost {
-  background: transparent;
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-}
-.ng__btn--ghost:hover:not(:disabled) {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.ng__btn--ghost:active:not(:disabled) {
-  transform: translateY(1px);
-}
-.ng__btn--ghost:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.ng__output-wrap {
-  position: relative;
-}
-.ng__output {
-  width: 100%;
-  min-height: 120px;
-  resize: vertical;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13.5px;
-  line-height: 1.6;
-  padding: 12px 14px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.ng__output:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.ng__copy {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-}
-.ng__breakdown {
-  margin-top: 16px;
-}
-.ng__breakdown-title {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 8px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Per-word breakdown table — bordered rows, dimmed non-abbreviated rows. */
 .ng__table {
   width: 100%;
   border-collapse: collapse;
@@ -354,12 +216,5 @@ const summary = () =>
 .ng__num {
   text-align: right;
   font-variant-numeric: tabular-nums;
-}
-.ng__mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.ng__mono--out {
-  color: var(--qt-accent);
-  font-weight: 600;
 }
 </style>

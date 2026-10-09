@@ -1,9 +1,9 @@
 /**
- * ListConverter tool module — exports the lazy-loaded component plus its
+ * ListConverter tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
- * No external dependencies — pure JS string/array manipulation only.
+ * No external dependencies - pure JS string/array manipulation only.
  * The component itself is lazy-loaded so the ListConverter UI lands in its
  * own Vite chunk.
  */

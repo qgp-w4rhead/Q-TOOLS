@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * WifiQrCodeGenerator — generate a QR code that auto-configures WiFi on
+ * WifiQrCodeGenerator - generate a QR code that auto-configures WiFi on
  * mobile devices when scanned.
  *
  * Inputs: SSID, password, encryption (WPA/WEP/None), hidden-network toggle,
@@ -17,6 +17,7 @@
  * rendered QR changes.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   Wifi,
   Image as ImageIcon,
@@ -63,6 +64,31 @@ const {
   error,
   computing,
 } = useWifiQrCodeGenerator();
+
+const { t } = useI18n();
+const U = 'tools.wifi-qr-code-generator.ui.';
+
+const ECL_LABEL_KEYS: Record<ErrorCorrectionLevel, string> = {
+  L: 'eclL',
+  M: 'eclM',
+  Q: 'eclQ',
+  H: 'eclH',
+};
+const ENC_LABEL_KEYS: Record<WifiEncryption, string> = {
+  WPA: 'encWpa',
+  WEP: 'encWep',
+  None: 'encNone',
+};
+function eclOptionLabel(lvl: (typeof ERROR_CORRECTION_LEVELS)[number]): string {
+  return t(U + 'eclOption', {
+    label: t(U + ECL_LABEL_KEYS[lvl.value]),
+    value: lvl.value,
+    recovery: lvl.recovery,
+  });
+}
+function encLabel(enc: WifiEncryption): string {
+  return t(U + ENC_LABEL_KEYS[enc]);
+}
 
 const hasSsid = computed(() => ssid.value.trim().length > 0);
 const hasOutput = computed(() => pngDataUrl.value.length > 0);
@@ -155,29 +181,29 @@ function resetOptions(): void {
 </script>
 
 <template>
-  <div class="wifi-qr">
+  <div class="qt-tool">
     <ToolInput
-      title="WiFi network"
-      description="Generate a QR code that auto-configures WiFi when scanned."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="wifi-qr__reset-btn"
-          title="Reset QR options to defaults"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
+          :title="t(U + 'resetTitle')"
           @click="resetOptions"
         >
-          <RotateCcw :size="14" /> Reset
+          <RotateCcw :size="14" /> {{ t('common.reset') }}
         </button>
       </template>
 
-      <div class="wifi-qr__form">
-        <label class="wifi-qr__field">
-          <span class="wifi-qr__label">SSID (network name)</span>
+      <div class="qt-stack" style="--qt-stack-gap:14px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'ssid') }}</span>
           <input
             type="text"
-            class="wifi-qr__input"
-            placeholder="MyNetwork"
+            class="qt-input qt-input--mono"
+            :placeholder="t(U + 'ssidPlaceholder')"
             :value="ssid"
             spellcheck="false"
             autocomplete="off"
@@ -185,12 +211,13 @@ function resetOptions(): void {
           />
         </label>
 
-        <label class="wifi-qr__field">
-          <span class="wifi-qr__label">Password</span>
-          <span class="wifi-qr__password-row">
+        <label class="qt-field">
+          <span class="qt-label">{{ t('common.password') }}</span>
+          <span class="qt-row qt-row--nowrap" style="--qt-row-gap:8px">
             <input
               :type="showPassword ? 'text' : 'password'"
-              class="wifi-qr__input"
+              class="qt-input qt-input--mono"
+              style="flex:1;min-width:0"
               placeholder="••••••••"
               :value="password"
               spellcheck="false"
@@ -200,8 +227,8 @@ function resetOptions(): void {
             />
             <button
               type="button"
-              class="wifi-qr__toggle-btn"
-              :title="showPassword ? 'Hide password' : 'Show password'"
+              class="qt-btn qt-btn--ghost qt-btn--icon"
+              :title="showPassword ? t(U + 'hidePassword') : t(U + 'showPassword')"
               :disabled="encryption === 'None'"
               @click="showPassword = !showPassword"
             >
@@ -211,11 +238,11 @@ function resetOptions(): void {
           </span>
         </label>
 
-        <div class="wifi-qr__row">
-          <label class="wifi-qr__field">
-            <span class="wifi-qr__label">Encryption</span>
+        <div class="qt-grid" style="--qt-grid-min:200px;--qt-grid-gap:12px">
+          <label class="qt-field">
+            <span class="qt-label">{{ t(U + 'encryption') }}</span>
             <select
-              class="wifi-qr__select"
+              class="qt-input"
               :value="encryption"
               @change="onEncryption"
             >
@@ -224,64 +251,64 @@ function resetOptions(): void {
                 :key="enc.value"
                 :value="enc.value"
               >
-                {{ enc.label }}
+                {{ encLabel(enc.value) }}
               </option>
             </select>
           </label>
 
-          <label class="wifi-qr__field wifi-qr__checkbox-field">
-            <span class="wifi-qr__label">Hidden network</span>
-            <label class="wifi-qr__checkbox">
+          <label class="qt-field" style="justify-content:center">
+            <span class="qt-label">{{ t(U + 'hiddenNetwork') }}</span>
+            <label class="qt-check wifi-qr__checkbox">
               <input
                 type="checkbox"
                 :checked="hidden"
                 @change="onHidden"
               />
-              <span>Hidden SSID</span>
+              <span>{{ t(U + 'hiddenSsid') }}</span>
             </label>
           </label>
         </div>
       </div>
 
       <details class="wifi-qr__advanced">
-        <summary class="wifi-qr__summary">QR options</summary>
-        <div class="wifi-qr__options">
-          <label class="wifi-qr__field">
-            <span class="wifi-qr__label">Size</span>
-            <span class="wifi-qr__range-row">
+        <summary class="wifi-qr__summary">{{ t(U + 'qrOptions') }}</summary>
+        <div class="qt-stack" style="--qt-stack-gap:14px;margin-top:12px">
+          <label class="qt-field">
+            <span class="qt-label">{{ t('common.size') }}</span>
+            <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:10px">
               <input
                 type="range"
                 :min="MIN_SIZE"
                 :max="MAX_SIZE"
                 step="16"
                 :value="size"
-                class="wifi-qr__range"
+                class="qt-range"
                 @input="onSize"
               />
               <span class="wifi-qr__range-value">{{ size }}px</span>
             </span>
           </label>
 
-          <label class="wifi-qr__field">
-            <span class="wifi-qr__label">Margin (quiet zone)</span>
-            <span class="wifi-qr__range-row">
+          <label class="qt-field">
+            <span class="qt-label">{{ t(U + 'margin') }}</span>
+            <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:10px">
               <input
                 type="range"
                 :min="MIN_MARGIN"
                 :max="MAX_MARGIN"
                 step="1"
                 :value="margin"
-                class="wifi-qr__range"
+                class="qt-range"
                 @input="onMargin"
               />
-              <span class="wifi-qr__range-value">{{ margin }} modules</span>
+              <span class="wifi-qr__range-value">{{ margin }} {{ t(U + 'modules') }}</span>
             </span>
           </label>
 
-          <label class="wifi-qr__field">
-            <span class="wifi-qr__label">Error correction</span>
+          <label class="qt-field">
+            <span class="qt-label">{{ t(U + 'errorCorrection') }}</span>
             <select
-              class="wifi-qr__select"
+              class="qt-input"
               :value="errorCorrectionLevel"
               @change="onEcl"
             >
@@ -290,15 +317,15 @@ function resetOptions(): void {
                 :key="lvl.value"
                 :value="lvl.value"
               >
-                {{ lvl.label }} ({{ lvl.value }}) — recovers {{ lvl.recovery }}
+                {{ eclOptionLabel(lvl) }}
               </option>
             </select>
           </label>
 
-          <div class="wifi-qr__colors">
-            <label class="wifi-qr__field wifi-qr__color-field">
-              <span class="wifi-qr__label"><Palette :size="12" /> Foreground</span>
-              <span class="wifi-qr__color-row">
+          <div class="qt-grid" style="--qt-grid-min:200px;--qt-grid-gap:12px">
+            <label class="qt-field">
+              <span class="qt-label"><Palette :size="12" /> {{ t('common.foreground') }}</span>
+              <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
                 <input
                   type="color"
                   :value="foreground"
@@ -308,16 +335,16 @@ function resetOptions(): void {
                 <input
                   type="text"
                   :value="foreground"
-                  class="wifi-qr__color-text"
+                  class="qt-input qt-input--mono wifi-qr__color-text"
                   spellcheck="false"
                   @input="onForeground"
                 />
               </span>
             </label>
 
-            <label class="wifi-qr__field wifi-qr__color-field">
-              <span class="wifi-qr__label">Background</span>
-              <span class="wifi-qr__color-row">
+            <label class="qt-field">
+              <span class="qt-label">{{ t('common.background') }}</span>
+              <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
                 <input
                   type="color"
                   :value="background"
@@ -327,7 +354,7 @@ function resetOptions(): void {
                 <input
                   type="text"
                   :value="background"
-                  class="wifi-qr__color-text"
+                  class="qt-input qt-input--mono wifi-qr__color-text"
                   spellcheck="false"
                   @input="onBackground"
                 />
@@ -339,60 +366,60 @@ function resetOptions(): void {
     </ToolInput>
 
     <ToolOutput
-      title="WiFi QR code"
-      :description="hasSsid ? `${size}×${size}px · ${errorCorrectionLevel} · ${encryption}` : 'Enter an SSID to generate a WiFi QR code.'"
+      :title="t(U + 'outputTitle')"
+      :description="hasSsid ? t(U + 'descResult', { size, ecl: errorCorrectionLevel, enc: encLabel(encryption) }) : t(U + 'descEmpty')"
     >
       <template #actions>
         <button
           type="button"
-          class="wifi-qr__download-btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :disabled="!hasOutput"
-          title="Download PNG"
+          :title="t(U + 'downloadPng')"
           @click="downloadPng"
         >
           <ImageIcon :size="14" /> PNG
         </button>
         <button
           type="button"
-          class="wifi-qr__download-btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :disabled="!hasOutput"
-          title="Download SVG"
+          :title="t(U + 'downloadSvg')"
           @click="downloadSvg"
         >
           <FileCode :size="14" /> SVG
         </button>
       </template>
 
-      <div v-if="error" class="wifi-qr__error">
+      <div v-if="error" class="qt-banner qt-banner--warn">
         <AlertTriangle :size="16" />
         <span>{{ error }}</span>
       </div>
 
       <div v-else-if="computing && !hasOutput" class="wifi-qr__placeholder">
         <Wifi :size="48" class="wifi-qr__placeholder-icon" />
-        <span>Generating…</span>
+        <span>{{ t('common.generating') }}</span>
       </div>
 
       <div v-else-if="!hasSsid" class="wifi-qr__placeholder">
         <Wifi :size="48" class="wifi-qr__placeholder-icon" />
-        <span>Enter an SSID to generate a WiFi QR code.</span>
+        <span>{{ t(U + 'empty') }}</span>
       </div>
 
-      <div v-else-if="hasOutput" class="wifi-qr__preview">
+      <div v-else-if="hasOutput" class="qt-stack" style="--qt-stack-gap:16px;align-items:center;padding:16px">
         <img
           :src="pngDataUrl"
-          :alt="`WiFi QR code for ${ssid}`"
+          :alt="t(U + 'imgAlt', { ssid })"
           class="wifi-qr__img"
           :style="{ maxWidth: `${size}px`, width: '100%' }"
         />
-        <div class="wifi-qr__meta">
-          <span class="wifi-qr__meta-pill">{{ encryption }}</span>
-          <span class="wifi-qr__meta-pill" v-if="hidden">hidden</span>
-          <span class="wifi-qr__meta-pill">{{ size }}×{{ size }}</span>
-          <span class="wifi-qr__meta-pill">ECL {{ errorCorrectionLevel }}</span>
+        <div class="qt-row" style="--qt-row-gap:6px;justify-content:center">
+          <span class="qt-badge">{{ encLabel(encryption) }}</span>
+          <span class="qt-badge" v-if="hidden">{{ t(U + 'badgeHidden') }}</span>
+          <span class="qt-badge">{{ size }}×{{ size }}</span>
+          <span class="qt-badge">{{ t(U + 'badgeEcl', { ecl: errorCorrectionLevel }) }}</span>
         </div>
-        <div class="wifi-qr__string-row">
-          <code class="wifi-qr__string">{{ wifiString }}</code>
+        <div class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px;width:100%;max-width:560px">
+          <code class="qt-mono wifi-qr__string">{{ wifiString }}</code>
           <CopyButton :text="wifiString" />
         </div>
       </div>
@@ -401,111 +428,17 @@ function resetOptions(): void {
 </template>
 
 <style scoped>
-.wifi-qr {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-}
-.wifi-qr__form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.wifi-qr__row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.wifi-qr__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.wifi-qr__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.wifi-qr__input {
-  width: 100%;
-  padding: 10px 12px;
-  font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 13px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
-}
-.wifi-qr__input:focus {
-  border-color: var(--qt-accent);
-}
-.wifi-qr__input:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.wifi-qr__password-row {
-  display: flex;
-  align-items: stretch;
-  gap: 8px;
-}
-.wifi-qr__password-row .wifi-qr__input {
-  flex: 1;
-  min-width: 0;
-}
-.wifi-qr__toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  flex-shrink: 0;
-  color: var(--qt-muted);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-.wifi-qr__toggle-btn:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.wifi-qr__toggle-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.wifi-qr__select {
-  padding: 8px 10px;
-  font-size: 13px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
-}
-.wifi-qr__select:focus {
-  border-color: var(--qt-accent);
-}
-.wifi-qr__checkbox-field {
-  justify-content: center;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Hidden-network checkbox (base via .qt-check) — padded, larger box. */
 .wifi-qr__checkbox {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--qt-text);
-  cursor: pointer;
   padding: 8px 0;
 }
 .wifi-qr__checkbox input {
-  accent-color: var(--qt-accent);
   width: 16px;
   height: 16px;
 }
+/* Collapsible advanced section — top rule + summary toggle. */
 .wifi-qr__advanced {
   margin-top: 14px;
   border-top: 1px solid var(--qt-border);
@@ -522,21 +455,7 @@ function resetOptions(): void {
 .wifi-qr__summary:hover {
   color: var(--qt-accent);
 }
-.wifi-qr__options {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin-top: 12px;
-}
-.wifi-qr__range-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.wifi-qr__range {
-  flex: 1;
-  accent-color: var(--qt-accent);
-}
+/* Range readout — fixed-width tabular value. */
 .wifi-qr__range-value {
   font-size: 12px;
   color: var(--qt-text);
@@ -544,16 +463,7 @@ function resetOptions(): void {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.wifi-qr__colors {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.wifi-qr__color-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* Native colour-picker swatch — fixed 36px square. */
 .wifi-qr__color-picker {
   width: 36px;
   height: 36px;
@@ -564,46 +474,14 @@ function resetOptions(): void {
   cursor: pointer;
   flex-shrink: 0;
 }
+/* Hex text input (control + mono via .qt-input--mono) — grows, lowercase. */
 .wifi-qr__color-text {
   flex: 1;
   min-width: 0;
-  padding: 8px 10px;
-  font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
   text-transform: lowercase;
 }
-.wifi-qr__color-text:focus {
-  border-color: var(--qt-accent);
-}
-.wifi-qr__reset-btn,
-.wifi-qr__download-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-.wifi-qr__reset-btn:hover,
-.wifi-qr__download-btn:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.wifi-qr__download-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* Centered empty/generating state — big icon + prompt. */
 .wifi-qr__placeholder {
   display: flex;
   flex-direction: column;
@@ -617,13 +495,7 @@ function resetOptions(): void {
 .wifi-qr__placeholder-icon {
   opacity: 0.4;
 }
-.wifi-qr__preview {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-}
+/* QR preview image — white card, pixel-perfect rendering. */
 .wifi-qr__img {
   display: block;
   height: auto;
@@ -632,32 +504,10 @@ function resetOptions(): void {
   background: #ffffff;
   image-rendering: pixelated;
 }
-.wifi-qr__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-.wifi-qr__meta-pill {
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-  font-variant-numeric: tabular-nums;
-}
-.wifi-qr__string-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  max-width: 560px;
-}
+/* WIFI: connection string (font via .qt-mono) — bordered, single-line ellipsis. */
 .wifi-qr__string {
   flex: 1;
   min-width: 0;
-  font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 11px;
   color: var(--qt-text);
   background: var(--qt-bg);
@@ -667,15 +517,5 @@ function resetOptions(): void {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-.wifi-qr__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: var(--qt-radius);
-  background: oklch(from var(--qt-warning, #f59e0b) 25% c h / 12%);
-  color: var(--qt-warning, #f59e0b);
-  font-size: 13px;
 }
 </style>

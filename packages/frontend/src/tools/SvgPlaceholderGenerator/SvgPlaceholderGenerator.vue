@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /**
- * SvgPlaceholderGenerator — build SVG placeholder images from dimensions,
+ * SvgPlaceholderGenerator - build SVG placeholder images from dimensions,
  * colors, text and font size.
  *
  * Inputs: width, height, background color, text (label), text color, font
  * size. Output: a live SVG preview rendered inline, with SVG and PNG
  * downloads.
  *
- * The SVG is generated entirely by hand-rolled string assembly — no external
+ * The SVG is generated entirely by hand-rolled string assembly - no external
  * dependencies. PNG download rasterises the SVG via the browser's `Image` +
  * `<canvas>` APIs.
  *
@@ -17,6 +17,7 @@
  * SVG changes.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   Image as ImageIcon,
   FileCode,
@@ -51,6 +52,9 @@ const {
   svgString,
   error,
 } = useSvgPlaceholderGenerator();
+
+const { t } = useI18n();
+const U = 'tools.svg-placeholder-generator.ui.';
 
 const hasOutput = computed(() => svgString.value.length > 0);
 const dimensionsLabel = computed(() => `${width.value}\u00D7${height.value}`);
@@ -108,7 +112,7 @@ async function downloadPng(): Promise<void> {
     a.click();
     document.body.removeChild(a);
   } catch (err) {
-    pngError.value = (err as Error).message || 'Failed to rasterise PNG.';
+    pngError.value = (err as Error).message || t(U + 'errRasterise');
   } finally {
     pngBusy.value = false;
   }
@@ -125,62 +129,62 @@ function resetOptions(): void {
 </script>
 
 <template>
-  <div class="svgph">
+  <div class="qt-tool">
     <ToolInput
-      title="Input"
-      description="Configure the placeholder dimensions, colors and label."
+      :title="t('common.input')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="svgph__reset-btn"
-          title="Reset options to defaults"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
+          :title="t(U + 'resetTitle')"
           @click="resetOptions"
         >
-          <RotateCcw :size="14" /> Reset
+          <RotateCcw :size="14" /> {{ t('common.reset') }}
         </button>
       </template>
 
-      <div class="svgph__dims">
-        <label class="svgph__field">
-          <span class="svgph__label">Width</span>
-          <span class="svgph__num-row">
+      <div class="qt-grid" style="--qt-grid-min:160px;--qt-grid-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t('common.width') }}</span>
+          <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
             <input
               type="number"
               :min="MIN_DIM"
               :max="MAX_DIM"
               step="1"
               :value="width"
-              class="svgph__num"
+              class="qt-input qt-input--mono svgph__num"
               @input="onWidth"
             />
-            <span class="svgph__unit">px</span>
+            <span class="qt-input-suffix">px</span>
           </span>
         </label>
 
-        <label class="svgph__field">
-          <span class="svgph__label">Height</span>
-          <span class="svgph__num-row">
+        <label class="qt-field">
+          <span class="qt-label">{{ t('common.height') }}</span>
+          <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
             <input
               type="number"
               :min="MIN_DIM"
               :max="MAX_DIM"
               step="1"
               :value="height"
-              class="svgph__num"
+              class="qt-input qt-input--mono svgph__num"
               @input="onHeight"
             />
-            <span class="svgph__unit">px</span>
+            <span class="qt-input-suffix">px</span>
           </span>
         </label>
       </div>
 
-      <label class="svgph__field">
-        <span class="svgph__label">Text (optional)</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'textOptional') }}</span>
         <input
           type="text"
-          class="svgph__text"
-          placeholder="Leave empty to show the dimensions"
+          class="qt-input"
+          :placeholder="t(U + 'textPlaceholder')"
           :value="text"
           spellcheck="false"
           autocomplete="off"
@@ -188,26 +192,26 @@ function resetOptions(): void {
         />
       </label>
 
-      <label class="svgph__field">
-        <span class="svgph__label">Font size</span>
-        <span class="svgph__range-row">
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'fontSize') }}</span>
+        <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
           <input
             type="range"
             :min="MIN_FONT"
             :max="MAX_FONT"
             step="1"
             :value="fontSize"
-            class="svgph__range"
+            class="qt-range"
             @input="onFontSize"
           />
           <span class="svgph__range-value">{{ fontSize }}px</span>
         </span>
       </label>
 
-      <div class="svgph__colors">
-        <label class="svgph__field svgph__color-field">
-          <span class="svgph__label"><Palette :size="12" /> Background</span>
-          <span class="svgph__color-row">
+      <div class="qt-grid" style="--qt-grid-min:200px;--qt-grid-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label"><Palette :size="12" /> {{ t('common.background') }}</span>
+          <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
             <input
               type="color"
               :value="background"
@@ -217,16 +221,16 @@ function resetOptions(): void {
             <input
               type="text"
               :value="background"
-              class="svgph__color-text"
+              class="qt-input qt-input--mono svgph__color-text"
               spellcheck="false"
               @input="onBackground"
             />
           </span>
         </label>
 
-        <label class="svgph__field svgph__color-field">
-          <span class="svgph__label">Text color</span>
-          <span class="svgph__color-row">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'textColor') }}</span>
+          <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
             <input
               type="color"
               :value="textColor"
@@ -236,7 +240,7 @@ function resetOptions(): void {
             <input
               type="text"
               :value="textColor"
-              class="svgph__color-text"
+              class="qt-input qt-input--mono svgph__color-text"
               spellcheck="false"
               @input="onTextColor"
             />
@@ -246,126 +250,67 @@ function resetOptions(): void {
     </ToolInput>
 
     <ToolOutput
-      title="SVG placeholder"
-      :description="hasOutput ? `${dimensionsLabel} · SVG` : 'Configure the inputs to generate a placeholder.'"
+      :title="t(U + 'outputTitle')"
+      :description="hasOutput ? t(U + 'descResult', { dims: dimensionsLabel }) : t(U + 'descEmpty')"
     >
       <template #actions>
         <CopyButton
           v-if="hasOutput"
           :text="svgString"
-          label="SVG"
+          :label="t(U + 'copySvg')"
         />
         <button
           type="button"
-          class="svgph__download-btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :disabled="!hasOutput || pngBusy"
-          :title="pngBusy ? 'Rasterising…' : 'Download PNG'"
+          :title="pngBusy ? t(U + 'rasterising') : t(U + 'downloadPng')"
           @click="downloadPng"
         >
           <ImageIcon :size="14" /> {{ pngBusy ? '…' : 'PNG' }}
         </button>
         <button
           type="button"
-          class="svgph__download-btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :disabled="!hasOutput"
-          title="Download SVG"
+          :title="t(U + 'downloadSvg')"
           @click="downloadSvg"
         >
           <FileCode :size="14" /> SVG
         </button>
       </template>
 
-      <div v-if="error || pngError" class="svgph__error">
+      <div v-if="error || pngError" class="qt-banner qt-banner--warn">
         <AlertTriangle :size="16" />
         <span>{{ error || pngError }}</span>
       </div>
 
-      <div v-else-if="hasOutput" class="svgph__preview">
+      <div v-else-if="hasOutput" class="qt-stack" style="--qt-stack-gap:16px;align-items:center;padding:16px">
         <div class="svgph__preview-frame" v-html="svgString" />
-        <div class="svgph__meta">
-          <span class="svgph__meta-pill">{{ dimensionsLabel }}</span>
-          <span class="svgph__meta-pill">{{ fontSize }}px font</span>
-          <span class="svgph__meta-pill">{{ svgString.length }} bytes</span>
+        <div class="qt-row" style="--qt-row-gap:6px;justify-content:center">
+          <span class="qt-badge">{{ dimensionsLabel }}</span>
+          <span class="qt-badge">{{ t(U + 'badgeFont', { size: fontSize }) }}</span>
+          <span class="qt-badge">{{ t(U + 'badgeBytes', svgString.length) }}</span>
         </div>
       </div>
 
       <div v-else class="svgph__placeholder">
         <ImageIcon :size="48" class="svgph__placeholder-icon" />
-        <span>Configure the inputs to generate a placeholder.</span>
+        <span>{{ t(U + 'empty') }}</span>
       </div>
     </ToolOutput>
   </div>
 </template>
 
 <style scoped>
-.svgph {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-}
-.svgph__dims {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.svgph__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.svgph__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.svgph__num-row,
-.svgph__range-row,
-.svgph__color-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Dimension number input (control + mono via .qt-input--mono) — grows, tabular. */
 .svgph__num {
   flex: 1;
   min-width: 0;
-  padding: 8px 10px;
-  font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 13px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
   font-variant-numeric: tabular-nums;
 }
-.svgph__num:focus {
-  border-color: var(--qt-accent);
-}
-.svgph__unit {
-  font-size: 12px;
-  color: var(--qt-muted);
-  min-width: 18px;
-}
-.svgph__text {
-  width: 100%;
-  padding: 8px 10px;
-  font-size: 13px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
-}
-.svgph__text:focus {
-  border-color: var(--qt-accent);
-}
-.svgph__range {
-  flex: 1;
-  accent-color: var(--qt-accent);
-}
+/* Range readout — fixed-width tabular value. */
 .svgph__range-value {
   font-size: 12px;
   color: var(--qt-text);
@@ -373,11 +318,7 @@ function resetOptions(): void {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.svgph__colors {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
+/* Native colour-picker swatch — fixed 36px square. */
 .svgph__color-picker {
   width: 36px;
   height: 36px;
@@ -388,46 +329,14 @@ function resetOptions(): void {
   cursor: pointer;
   flex-shrink: 0;
 }
+/* Hex text input (control + mono via .qt-input--mono) — grows, lowercase. */
 .svgph__color-text {
   flex: 1;
   min-width: 0;
-  padding: 8px 10px;
-  font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
   text-transform: lowercase;
 }
-.svgph__color-text:focus {
-  border-color: var(--qt-accent);
-}
-.svgph__reset-btn,
-.svgph__download-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-.svgph__reset-btn:hover,
-.svgph__download-btn:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.svgph__download-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* Centered empty state — big icon + prompt. */
 .svgph__placeholder {
   display: flex;
   flex-direction: column;
@@ -441,13 +350,7 @@ function resetOptions(): void {
 .svgph__placeholder-icon {
   opacity: 0.4;
 }
-.svgph__preview {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-}
+/* SVG preview frame — checkerboard backdrop for transparency. */
 .svgph__preview-frame {
   display: flex;
   align-items: center;
@@ -468,30 +371,5 @@ function resetOptions(): void {
   display: block;
   max-width: 100%;
   height: auto;
-}
-.svgph__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-.svgph__meta-pill {
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-  font-variant-numeric: tabular-nums;
-}
-.svgph__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: var(--qt-radius);
-  background: oklch(from var(--qt-warning, #f59e0b) 25% c h / 12%);
-  color: var(--qt-warning, #f59e0b);
-  font-size: 13px;
 }
 </style>

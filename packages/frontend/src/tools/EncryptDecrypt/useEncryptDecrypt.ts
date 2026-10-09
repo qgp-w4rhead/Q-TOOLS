@@ -1,5 +1,5 @@
 /**
- * useEncryptDecrypt — composable + pure logic for the encrypt/decrypt text tool.
+ * useEncryptDecrypt - composable + pure logic for the encrypt/decrypt text tool.
  *
  * Symmetric authenticated encryption using AES-GCM with PBKDF2 key derivation,
  * implemented entirely on the Web Crypto API (`crypto.subtle`). No external
@@ -10,7 +10,7 @@
  *   [ 1 byte saltLen ][ saltLen bytes salt ][ 12 bytes IV ][ AES-GCM ciphertext ]
  *
  * The salt length is stored as a single leading byte so the salt size can vary
- * (8/16/32 bytes) without breaking decryption. The IV is always 12 bytes — the
+ * (8/16/32 bytes) without breaking decryption. The IV is always 12 bytes - the
  * AES-GCM standard length recommended by NIST SP 800-38D. The ciphertext
  * produced by `crypto.subtle.encrypt` with AES-GCM already includes the 16-byte
  * authentication tag appended, so the output is authenticated as well as
@@ -32,7 +32,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** AES-GCM IV length (bytes). Fixed by NIST SP 800-38D recommendation. */
@@ -47,7 +47,7 @@ export const PBKDF2_HASH = 'SHA-256';
 export const DEFAULT_ITERATIONS = 250_000;
 /** Minimum PBKDF2 iterations (enforced floor). */
 export const MIN_ITERATIONS = 1_000;
-/** Maximum PBKDF2 iterations (sanity ceiling — keeps UI responsive). */
+/** Maximum PBKDF2 iterations (sanity ceiling - keeps UI responsive). */
 export const MAX_ITERATIONS = 1_000_000;
 /** Default salt length (bytes). */
 export const DEFAULT_SALT_LENGTH = 16;
@@ -287,7 +287,7 @@ function ensureSubtle(): SubtleCrypto {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseEncryptDecryptReturn {

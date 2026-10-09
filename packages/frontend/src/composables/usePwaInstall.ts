@@ -1,5 +1,5 @@
 /**
- * usePwaInstall — singleton composable capturing the `beforeinstallprompt`
+ * usePwaInstall - singleton composable capturing the `beforeinstallprompt`
  * event so the app can surface an "Install Q-Tools" affordance on demand.
  *
  * Browsers fire `beforeinstallprompt` when the PWA is installable but have

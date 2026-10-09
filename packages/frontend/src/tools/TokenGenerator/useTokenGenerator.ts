@@ -1,5 +1,5 @@
 /**
- * useTokenGenerator — composable + pure logic for the Token generator tool.
+ * useTokenGenerator - composable + pure logic for the Token generator tool.
  *
  * The pure functions (`buildCharset`, `secureRandomInt`, `generateToken`,
  * `generateTokens`) have no Vue dependency and can be imported standalone for
@@ -7,14 +7,14 @@
  * reactive state and wires up the embed PostMessage protocol.
  *
  * Randomness uses the Web Crypto API (`crypto.getRandomValues`) with rejection
- * sampling to avoid modulo bias — never `Math.random()`.
+ * sampling to avoid modulo bias - never `Math.random()`.
  */
 import { computed, ref, watch, type ComputedRef, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 export const CHARSET_LOWER = 'abcdefghijklmnopqrstuvwxyz';
@@ -92,7 +92,7 @@ export function secureRandomInt(max: number): number {
   const range = 0x100000000; // 2^32
   const threshold = range - (range % max);
   const buf = new Uint32Array(1);
-  // Rejection sampling loop — expected iterations ~1.x, worst case rare.
+  // Rejection sampling loop - expected iterations ~1.x, worst case rare.
   // eslint-disable-next-line no-constant-condition
   while (true) {
     crypto.getRandomValues(buf);
@@ -126,7 +126,7 @@ export function generateTokens(cfg: TokenGeneratorConfig): string[] {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 /** Clamp a number into `[min, max]`. */

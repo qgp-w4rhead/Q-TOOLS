@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * FavoriteButton — star toggle for a tool.
+ * FavoriteButton - star toggle for a tool.
  *
  * Uses the global `favoritesStore` so the star state is shared across
  * the home page, tool header, and embed alias. In embed mode the store
@@ -8,6 +8,7 @@
  * the user is not authenticated.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Star } from 'lucide-vue-next';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 
@@ -18,7 +19,7 @@ const props = withDefaults(
     label?: string;
     /** Icon size in pixels (lucide convention). */
     size?: number;
-    /** Visual variant — `icon` (header icon button) or `chip` (label row). */
+    /** Visual variant - `icon` (header icon button) or `chip` (label row). */
     variant?: 'icon' | 'chip';
   }>(),
   {
@@ -27,6 +28,7 @@ const props = withDefaults(
   },
 );
 
+const { t } = useI18n();
 const favorites = useFavoritesStore();
 
 const isFav = computed(() => favorites.isFavorite(props.slug));
@@ -43,8 +45,8 @@ function toggle() {
     :class="{ 'is-active': isFav }"
     type="button"
     :aria-pressed="isFav"
-    :title="isFav ? 'Remove from favorites' : 'Add to favorites'"
-    :aria-label="isFav ? 'Remove from favorites' : 'Add to favorites'"
+    :title="isFav ? t('favorites.remove') : t('favorites.add')"
+    :aria-label="isFav ? t('favorites.remove') : t('favorites.add')"
     @click="toggle"
   >
     <Star :size="size" :fill="isFav ? 'currentColor' : 'none'" />
@@ -58,7 +60,7 @@ function toggle() {
     @click="toggle"
   >
     <Star :size="size" :fill="isFav ? 'currentColor' : 'none'" />
-    <span>{{ isFav ? 'Favorited' : 'Favorite' }}</span>
+    <span>{{ isFav ? t('favorites.favorited') : t('favorites.favorite') }}</span>
   </button>
 </template>
 

@@ -4,6 +4,7 @@
  */
 import { computed } from 'vue';
 import { getIcon } from '@/utils/icons';
+import { categoryDescription, categoryLabel } from '@/i18n/localized';
 import ToolCard from './ToolCard.vue';
 import type { CategoryDefinition, ToolMetadata } from '@/data/tools';
 
@@ -16,15 +17,19 @@ const Icon = computed(() => getIcon(props.category.icon));
 </script>
 
 <template>
-  <section class="category-section" :data-category="category.id">
+  <section
+    class="category-section"
+    :id="`category-${category.id}`"
+    :data-category="category.id"
+  >
     <header class="category-section__header">
       <span class="category-section__icon" aria-hidden="true">
         <component :is="Icon" :size="18" />
       </span>
-      <h2 class="category-section__title">{{ category.label }}</h2>
+      <h2 class="category-section__title">{{ categoryLabel(category) }}</h2>
       <span class="category-section__count">{{ tools.length }}</span>
     </header>
-    <p class="category-section__desc">{{ category.description }}</p>
+    <p class="category-section__desc">{{ categoryDescription(category) }}</p>
     <div class="category-section__grid">
       <ToolCard v-for="tool in tools" :key="tool.slug" :tool="tool" />
     </div>
@@ -33,6 +38,7 @@ const Icon = computed(() => getIcon(props.category.icon));
 
 <style scoped>
 .category-section {
+  scroll-margin-top: 80px;
   margin-bottom: 32px;
 }
 .category-section__header {

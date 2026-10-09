@@ -6,11 +6,11 @@
  * validation for API request/response bodies; this interface is the
  * compile-time contract for tool metadata throughout the codebase.
  *
- * `apiAccessible` is optional — tools omit it when they are client-only. The
+ * `apiAccessible` is optional - tools omit it when they are client-only. The
  * backend treats a missing/`false` value as "not API-accessible".
  */
 
-/** The 10 top-level tool categories. */
+/** The top-level tool categories. */
 export type ToolCategory =
   | 'crypto'
   | 'converter'
@@ -21,7 +21,16 @@ export type ToolCategory =
   | 'math'
   | 'measurement'
   | 'text'
-  | 'data';
+  | 'data'
+  | 'security'
+  | 'cipher'
+  | 'devops'
+  | 'api'
+  | 'i18n'
+  | 'finance'
+  | 'geo'
+  | 'a11y'
+  | 'av';
 
 /** Metadata describing a single tool. */
 export interface ToolMetadata {

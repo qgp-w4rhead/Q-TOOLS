@@ -1,5 +1,5 @@
 /**
- * useIpv4AddressConverter — composable + pure logic for the IPv4 address
+ * useIpv4AddressConverter - composable + pure logic for the IPv4 address
  * converter tool.
  *
  * Parses an IPv4 dotted-decimal string (e.g. `192.168.1.10`) and converts it
@@ -16,7 +16,7 @@
  * It also reports the IP class (A/B/C/D/E) and private/loopback/link-local
  * scope, mirroring the subnet calculator's classification.
  *
- * All arithmetic uses 32-bit unsigned integers via `>>> 0` normalisation — no
+ * All arithmetic uses 32-bit unsigned integers via `>>> 0` normalisation - no
  * BigInt needed (32 bits fits comfortably in JavaScript's safe-integer range).
  *
  * Pure helpers (`parseIpv4`, `ipv4ToInt`, `intToIpv4`, `intToHex`,
@@ -33,7 +33,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** 32-bit unsigned integer representation of an IPv4 address (0 .. 2^32-1). */
@@ -92,7 +92,7 @@ export function parseIpv4(input: string): Ipv4ParseResult {
   if (trimmed.length === 0) {
     return { ok: false, value: 0, octets: [0, 0, 0, 0], error: 'IP address is empty.' };
   }
-  // Allow a trailing `/n` CIDR suffix — strip it (the converter only cares
+  // Allow a trailing `/n` CIDR suffix - strip it (the converter only cares
   // about the address itself).
   const slashIdx = trimmed.lastIndexOf('/');
   const addr = slashIdx >= 0 ? trimmed.slice(0, slashIdx).trim() : trimmed;
@@ -188,7 +188,7 @@ export function classifyIp(ip: Ipv4Int): 'A' | 'B' | 'C' | 'D' | 'E' {
  *   - `Loopback` (127.0.0.0/8)
  *   - `Private` (RFC 1918: 10/8, 172.16/12, 192.168/16)
  *   - `Link-local` (169.254/16)
- *   - `Reserved` (0/8, 240/4 — "this network" + class E future use)
+ *   - `Reserved` (0/8, 240/4 - "this network" + class E future use)
  *   - `Public` (everything else)
  */
 export function isPrivateIp(ip: Ipv4Int): { isPrivate: boolean; scope: string } {
@@ -240,7 +240,7 @@ export function convertIpv4(input: string): { ok: true; result: Ipv4ConversionRe
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseIpv4AddressConverterReturn {

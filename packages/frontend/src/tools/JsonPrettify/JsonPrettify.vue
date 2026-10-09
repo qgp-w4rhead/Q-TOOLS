@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /**
- * JsonPrettify — pretty-print and format JSON.
+ * JsonPrettify - pretty-print and format JSON.
  *
  * Parses JSON with `JSON.parse` and re-serializes it with `JSON.stringify`
  * using a configurable indent (2 spaces, 4 spaces, or a tab). The output is
- * rendered with a small hand-rolled syntax highlighter (no external deps) —
+ * rendered with a small hand-rolled syntax highlighter (no external deps) -
  * keys, strings, numbers, booleans, null, and punctuation each get their own
  * colour. A "raw" toggle switches to the unhighlighted text for easy copying.
  *
@@ -12,6 +12,7 @@
  * and sends `output` PostMessages whenever the prettified result changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, Code2, FileJson } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -32,11 +33,14 @@ const {
   setIndent,
 } = useJsonPrettify();
 
-const indentOptions: Array<{ value: JsonIndent; label: string }> = [
-  { value: 2, label: '2 spaces' },
-  { value: 4, label: '4 spaces' },
-  { value: 'tab', label: 'Tab' },
-];
+const { t } = useI18n();
+const U = 'tools.json-prettify-and-format.ui.';
+
+const indentOptions = computed<Array<{ value: JsonIndent; label: string }>>(() => [
+  { value: 2, label: t(U + 'indent2') },
+  { value: 4, label: t(U + 'indent4') },
+  { value: 'tab', label: t(U + 'indentTab') },
+]);
 
 const highlighted = computed(() =>
   outputs.value ? highlightJson(outputs.value.json) : '',
@@ -46,13 +50,13 @@ const metaLine = computed(() => {
   if (!outputs.value) return '';
   const o = outputs.value;
   const parts = [
-    `${o.outputBytes} bytes`,
-    `${o.keyCount} key${o.keyCount === 1 ? '' : 's'}`,
-    `depth ${o.maxDepth}`,
+    t(U + 'metaBytes', { n: o.outputBytes }),
+    t(o.keyCount === 1 ? U + 'metaKeysOne' : U + 'metaKeys', { n: o.keyCount }),
+    t(U + 'metaDepth', { n: o.maxDepth }),
   ];
   if (o.inputBytes !== o.outputBytes) {
     const delta = o.outputBytes - o.inputBytes;
-    parts.push(`${delta > 0 ? '+' : ''}${delta} B`);
+    parts.push(t(U + 'metaDelta', { sign: delta > 0 ? '+' : '', n: delta }));
   }
   return parts.join(' · ');
 });
@@ -61,9 +65,9 @@ const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
   if (e.line != null && e.column != null) {
-    return `Line ${e.line}, column ${e.column}`;
+    return t(U + 'errLineCol', { line: e.line, col: e.column });
   }
-  if (e.line != null) return `Line ${e.line}`;
+  if (e.line != null) return t(U + 'errLine', { line: e.line });
   return '';
 });
 
@@ -78,28 +82,29 @@ function onIndentChange(e: Event): void {
 </script>
 
 <template>
-  <div class="jp">
+  <div class="qt-tool">
     <ToolInput
-      title="JSON input"
-      description="Paste minified or messy JSON. It is parsed and re-serialized with the chosen indent."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="jp__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Format</span>
+          <span>{{ t(U + 'format') }}</span>
         </button>
       </template>
 
-      <div class="jp__opts">
-        <label class="jp__opt">
-          <span class="jp__label">Indent</span>
+      <div class="qt-row qt-row--bottom" style="--qt-row-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'indent') }}</span>
           <select
-            class="jp__select"
+            class="qt-input"
+            style="font-size:13px;padding:6px 10px"
             :value="indent"
             @change="onIndentChange"
           >
@@ -110,33 +115,34 @@ function onIndentChange(e: Event): void {
         </label>
         <button
           type="button"
-          class="jp__toggle"
-          :class="{ 'jp__toggle--active': !showRaw }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': !showRaw }"
           :aria-pressed="!showRaw"
-          title="Show syntax-highlighted output"
+          :title="t(U + 'highlightTitle')"
           @click="showRaw = false"
         >
           <Code2 :size="13" />
-          <span>Highlight</span>
+          <span>{{ t(U + 'highlight') }}</span>
         </button>
         <button
           type="button"
-          class="jp__toggle"
-          :class="{ 'jp__toggle--active': showRaw }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': showRaw }"
           :aria-pressed="showRaw"
-          title="Show raw prettified text (no colours)"
+          :title="t(U + 'rawTitle')"
           @click="showRaw = true"
         >
           <FileJson :size="13" />
-          <span>Raw</span>
+          <span>{{ t(U + 'raw') }}</span>
         </button>
       </div>
 
-      <label class="jp__field">
-        <span class="jp__label">JSON</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'jsonLabel') }}</span>
         <textarea
-          class="jp__textarea jp__textarea--mono"
-          placeholder='Paste JSON here…  e.g.  {"a":1,"b":[2,3,true,null]}'
+          class="qt-input qt-input--mono"
+          style="min-height:180px"
+          :placeholder="t(U + 'phJson')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -147,34 +153,34 @@ function onIndentChange(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="Formatted JSON"
-      :description="outputs ? metaLine : 'Paste JSON above to format.'"
+      :title="t(U + 'outTitle')"
+      :description="outputs ? metaLine : t(U + 'descEmpty')"
       :copy-text="outputs?.json ?? ''"
-      copy-label="Copy JSON"
+      :copy-label="t(U + 'copyJson')"
     >
-      <p v-if="error" class="jp__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
-          <strong v-if="errorLocation">{{ errorLocation }}:</strong>
+          <strong v-if="errorLocation" style="margin-right:4px">{{ errorLocation }}:</strong>
           {{ error.message }}
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="jp__empty">
-          Paste JSON above to format.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'descEmpty') }}
         </p>
-        <div v-if="outputs" class="jp__result">
-          <div class="jp__result-head">
-            <span class="jp__result-label">JSON</span>
-            <CopyButton :text="outputs.json" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-panel qt-stack" style="--qt-stack-gap:6px;padding:8px 10px">
+          <div class="qt-row qt-row--center" style="--qt-row-gap:8px">
+            <span class="qt-label" style="color:var(--qt-text);flex:1">{{ t(U + 'jsonLabel') }}</span>
+            <CopyButton :text="outputs.json" :label="t('common.copy')" icon-only />
           </div>
           <pre
             v-if="outputs.json"
             class="jp__code"
             :class="{ 'jp__code--raw': showRaw }"
           ><code v-if="showRaw">{{ outputs.json }}</code><code v-else v-html="highlighted" /></pre>
-          <p v-else class="jp__empty">JSON parsed to an empty result.</p>
-          <div class="jp__meta">
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center" style="--qt-row-gap:6px;font-size:12px;color:var(--qt-muted)">
             <span>{{ metaLine }}</span>
           </div>
         </div>
@@ -184,166 +190,11 @@ function onIndentChange(e: Event): void {
 </template>
 
 <style scoped>
-.jp {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.jp__opts {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.jp__opt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.jp__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.jp__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.jp__select {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  will-change: border-color;
-}
-.jp__select:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.jp__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
-}
-.jp__toggle--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
-.jp__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.jp__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.jp__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.jp__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.jp__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.jp__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.jp__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.jp__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.jp__error strong {
-  margin-right: 4px;
-}
-.jp__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.jp__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.jp__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.jp__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Formatted output — bare code inside the result panel (no border/padding). */
 .jp__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -380,13 +231,5 @@ function onIndentChange(e: Event): void {
 }
 .jp__code--raw {
   color: var(--qt-text);
-}
-.jp__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
 }
 </style>

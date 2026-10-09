@@ -1,5 +1,5 @@
 /**
- * useKeycodeInfo — composable + pure logic for the keycode info tool.
+ * useKeycodeInfo - composable + pure logic for the keycode info tool.
  *
  * Captures `keydown` events on `document` and exposes a structured
  * `KeyEventInfo` describing the most recent key press (key, code, keyCode,
@@ -14,14 +14,14 @@
  * PostMessage protocol (sends an `output` message on each captured keydown,
  * accepts `input` messages `{ pause: boolean }` and `{ clear: true }`).
  *
- * No external dependencies — only native Web APIs.
+ * No external dependencies - only native Web APIs.
  */
 import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedOutputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -40,17 +40,17 @@ export const MAX_HISTORY = 25;
 
 /** Structured description of a single keyboard event. */
 export interface KeyEventInfo {
-  /** `event.key` — the logical key value (e.g. `a`, `Enter`, `Shift`). */
+  /** `event.key` - the logical key value (e.g. `a`, `Enter`, `Shift`). */
   key: string;
-  /** `event.code` — the physical key (e.g. `KeyA`, `Enter`, `ShiftLeft`). */
+  /** `event.code` - the physical key (e.g. `KeyA`, `Enter`, `ShiftLeft`). */
   code: string;
-  /** `event.keyCode` — deprecated numeric code (0 when unset). */
+  /** `event.keyCode` - deprecated numeric code (0 when unset). */
   keyCode: number;
-  /** `event.which` — deprecated alias of keyCode (0 when unset). */
+  /** `event.which` - deprecated alias of keyCode (0 when unset). */
   which: number;
-  /** `event.charCode` — deprecated char code (0 when unset). */
+  /** `event.charCode` - deprecated char code (0 when unset). */
   charCode: number;
-  /** `event.location` — 0/1/2/3 (DOM 3). */
+  /** `event.location` - 0/1/2/3 (DOM 3). */
   location: number;
   /** Human-readable label for `location`. */
   locationLabel: string;
@@ -59,9 +59,9 @@ export interface KeyEventInfo {
   shift: boolean;
   alt: boolean;
   meta: boolean;
-  /** `event.repeat` — true when this is an auto-repeated press. */
+  /** `event.repeat` - true when this is an auto-repeated press. */
   repeat: boolean;
-  /** `event.isComposing` — true while an IME composition is active. */
+  /** `event.isComposing` - true while an IME composition is active. */
   isComposing: boolean;
   /** ISO timestamp of when the event was captured. */
   timestamp: string;
@@ -109,7 +109,7 @@ export function eventToJson(info: KeyEventInfo): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — Vue reactive wrapper + embed wiring                            */
+/* Composable - Vue reactive wrapper + embed wiring                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseKeycodeInfoReturn {

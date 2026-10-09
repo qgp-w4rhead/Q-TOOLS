@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * OpenGraphMeta — generate Open Graph (`og:*`) and Twitter Card (`twitter:*`)
+ * OpenGraphMeta - generate Open Graph (`og:*`) and Twitter Card (`twitter:*`)
  * social meta tags from a small form.
  *
  * Inputs: title, description, image URL, canonical URL, site name, OG type,
@@ -16,6 +16,7 @@
  * changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Share2, Image as ImageIcon, Link as LinkIcon, Type as TypeIcon } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -39,6 +40,9 @@ const {
   twitterCreator,
   result,
 } = useOpenGraphMeta();
+
+const { t } = useI18n();
+const U = 'tools.open-graph-meta-generator.ui.';
 
 const hasAnyInput = computed(
   () =>
@@ -66,21 +70,21 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
 </script>
 
 <template>
-  <div class="og-meta">
+  <div class="qt-tool">
     <ToolInput
-      title="Page details"
-      description="Fill in the fields to generate Open Graph and Twitter Card meta tags. Empty fields are omitted from the output."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
-      <div class="og-meta__grid">
-        <label class="og-meta__field og-meta__field--full">
-          <span class="og-meta__label">
+      <div class="qt-grid" style="--qt-grid-min:240px;--qt-grid-gap:14px">
+        <label class="qt-field og-meta__field--full">
+          <span class="qt-label">
             <TypeIcon :size="13" />
-            <span>Title</span>
+            <span>{{ t(U + 'fieldTitle') }}</span>
           </span>
           <input
-            class="og-meta__input"
+            class="qt-input"
             type="text"
-            placeholder="My Awesome Page"
+            :placeholder="t(U + 'fieldTitlePlaceholder')"
             :value="title"
             spellcheck="false"
             autocomplete="off"
@@ -88,14 +92,14 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
           />
         </label>
 
-        <label class="og-meta__field og-meta__field--full">
-          <span class="og-meta__label">
+        <label class="qt-field og-meta__field--full">
+          <span class="qt-label">
             <TypeIcon :size="13" />
-            <span>Description</span>
+            <span>{{ t(U + 'fieldDescription') }}</span>
           </span>
           <textarea
-            class="og-meta__input og-meta__textarea"
-            placeholder="A short summary that appears on social cards."
+            class="qt-input og-meta__textarea"
+            :placeholder="t(U + 'fieldDescriptionPlaceholder')"
             :value="description"
             rows="3"
             spellcheck="false"
@@ -103,13 +107,13 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
           />
         </label>
 
-        <label class="og-meta__field og-meta__field--full">
-          <span class="og-meta__label">
+        <label class="qt-field og-meta__field--full">
+          <span class="qt-label">
             <ImageIcon :size="13" />
-            <span>Image URL</span>
+            <span>{{ t(U + 'fieldImageUrl') }}</span>
           </span>
           <input
-            class="og-meta__input"
+            class="qt-input"
             type="url"
             placeholder="https://example.com/og-image.png"
             :value="imageUrl"
@@ -119,13 +123,13 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
           />
         </label>
 
-        <label class="og-meta__field og-meta__field--full">
-          <span class="og-meta__label">
+        <label class="qt-field og-meta__field--full">
+          <span class="qt-label">
             <LinkIcon :size="13" />
-            <span>Canonical URL</span>
+            <span>{{ t(U + 'fieldCanonicalUrl') }}</span>
           </span>
           <input
-            class="og-meta__input"
+            class="qt-input"
             type="url"
             placeholder="https://example.com/page"
             :value="url"
@@ -135,15 +139,15 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
           />
         </label>
 
-        <label class="og-meta__field">
-          <span class="og-meta__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <Share2 :size="13" />
-            <span>Site name</span>
+            <span>{{ t(U + 'fieldSiteName') }}</span>
           </span>
           <input
-            class="og-meta__input"
+            class="qt-input"
             type="text"
-            placeholder="My Site"
+            :placeholder="t(U + 'fieldSiteNamePlaceholder')"
             :value="siteName"
             spellcheck="false"
             autocomplete="off"
@@ -151,13 +155,13 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
           />
         </label>
 
-        <label class="og-meta__field">
-          <span class="og-meta__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <TypeIcon :size="13" />
-            <span>Open Graph type</span>
+            <span>{{ t(U + 'fieldOgType') }}</span>
           </span>
           <select
-            class="og-meta__input og-meta__select"
+            class="qt-input"
             :value="type"
             @change="onType"
           >
@@ -165,13 +169,13 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
           </select>
         </label>
 
-        <label class="og-meta__field">
-          <span class="og-meta__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <Share2 :size="13" />
-            <span>Twitter card type</span>
+            <span>{{ t(U + 'fieldTwitterCard') }}</span>
           </span>
           <select
-            class="og-meta__input og-meta__select"
+            class="qt-input"
             :value="twitterCard"
             @change="onTwitterCard"
           >
@@ -179,13 +183,13 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
           </select>
         </label>
 
-        <label class="og-meta__field">
-          <span class="og-meta__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <Share2 :size="13" />
-            <span>Twitter site handle (optional)</span>
+            <span>{{ t(U + 'fieldTwitterSite') }}</span>
           </span>
           <input
-            class="og-meta__input"
+            class="qt-input"
             type="text"
             placeholder="@qtools"
             :value="twitterSite"
@@ -195,13 +199,13 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
           />
         </label>
 
-        <label class="og-meta__field">
-          <span class="og-meta__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <Share2 :size="13" />
-            <span>Twitter creator handle (optional)</span>
+            <span>{{ t(U + 'fieldTwitterCreator') }}</span>
           </span>
           <input
-            class="og-meta__input"
+            class="qt-input"
             type="text"
             placeholder="@dev"
             :value="twitterCreator"
@@ -214,25 +218,25 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
     </ToolInput>
 
     <ToolOutput
-      title="Meta tags"
-      :description="result.html.length > 0 ? `${result.count} tag${result.count === 1 ? '' : 's'} — paste into the <head> of your page.` : 'Fill in any field above to generate meta tags.'"
+      :title="t(U + 'outputTitle')"
+      :description="result.html.length > 0 ? t(U + 'outputDesc', result.count) : t(U + 'outputDescEmpty')"
       :copy-text="result.html"
-      copy-label="Copy HTML"
+      :copy-label="t(U + 'copyHtml')"
     >
       <template v-if="!hasAnyInput && result.html.length === 0">
-        <p class="og-meta__empty">
-          Fill in any field above to generate meta tags.
+        <p class="qt-alert qt-alert--empty">
+          {{ t(U + 'empty') }}
         </p>
       </template>
       <template v-else>
-        <pre class="og-meta__code"><code>{{ result.html }}</code></pre>
-        <div class="og-meta__sections">
+        <pre class="qt-output og-meta__code"><code>{{ result.html }}</code></pre>
+        <div class="qt-row" style="--qt-row-gap:10px;margin-top:10px">
           <div class="og-meta__section">
-            <span class="og-meta__section-label">Open Graph</span>
+            <span class="qt-stat-head">{{ t(U + 'sectionOg') }}</span>
             <span class="og-meta__section-count">{{ result.ogTags.length }}</span>
           </div>
           <div class="og-meta__section">
-            <span class="og-meta__section-label">Twitter</span>
+            <span class="qt-stat-head">{{ t(U + 'sectionTwitter') }}</span>
             <span class="og-meta__section-count">{{ result.twitterTags.length }}</span>
           </div>
         </div>
@@ -242,96 +246,29 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
 </template>
 
 <style scoped>
-.og-meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.og-meta__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.og-meta__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Full-width field spanning both grid columns (layout via .qt-field). */
 .og-meta__field--full {
   grid-column: 1 / -1;
 }
-.og-meta__label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.og-meta__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 9px 12px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.og-meta__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
+/* Description textarea floor (control via .qt-input). */
 .og-meta__textarea {
-  resize: vertical;
   min-height: 64px;
-  font-family: inherit;
 }
-.og-meta__select {
-  appearance: none;
-  cursor: pointer;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 30px;
-}
-.og-meta__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
+/* Meta-tags markup block (base via .qt-output) — capped, scrollable, break-all. */
 .og-meta__code {
   margin: 0;
-  padding: 12px 14px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13px;
   line-height: 1.55;
-  color: var(--qt-text);
-  white-space: pre-wrap;
   word-break: break-all;
-  overflow-x: auto;
   max-height: 360px;
-  overflow-y: auto;
+  overflow: auto;
 }
 .og-meta__code code {
   font-family: inherit;
 }
-.og-meta__sections {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
+/* Tag-count pill — label + accent count. */
 .og-meta__section {
   display: inline-flex;
   align-items: center;
@@ -342,20 +279,9 @@ const _TWITTER_CARD_TYPES = TWITTER_CARD_TYPES;
   border-radius: 999px;
   font-size: 12px;
 }
-.og-meta__section-label {
-  font-weight: 600;
-  color: var(--qt-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
 .og-meta__section-count {
   font-variant-numeric: tabular-nums;
   color: var(--qt-accent);
   font-weight: 700;
-}
-@media (max-width: 640px) {
-  .og-meta__grid {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

@@ -1,9 +1,9 @@
 /**
- * MacAddressGenerator tool module — exports the lazy-loaded component plus its
+ * MacAddressGenerator tool module - exports the lazy-loaded component plus its
  * metadata, composable, and pure helpers so the tool can be registered in the
  * registry and routed dynamically.
  *
- * No external npm dependencies — randomness comes from the Web Crypto API
+ * No external npm dependencies - randomness comes from the Web Crypto API
  * (`crypto.getRandomValues()`).
  */
 import { defineAsyncComponent } from 'vue';

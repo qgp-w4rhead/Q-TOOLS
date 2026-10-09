@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * CrontabGenerator — visual cron expression builder.
+ * CrontabGenerator - visual cron expression builder.
  *
  * Five field editors (minute, hour, day-of-month, month, day-of-week), each
  * with a mode selector (every / specific / range / step / range-step) and the
@@ -13,6 +13,7 @@
  * `{ expression, description }` whenever the expression changes.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RotateCcw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -36,27 +37,30 @@ const {
   reset,
 } = useCrontabGenerator();
 
-const MODE_OPTIONS: { value: CronFieldMode; label: string }[] = [
-  { value: 'every', label: 'Every' },
-  { value: 'specific', label: 'Specific' },
-  { value: 'range', label: 'Range' },
-  { value: 'step', label: 'Every N' },
-  { value: 'rangeStep', label: 'Range / N' },
-];
+const { t } = useI18n();
+const U = 'tools.crontab-generator.ui.';
 
-/** Raw expression text input — applied on Enter or button click. */
+const MODE_OPTIONS = computed<{ value: CronFieldMode; label: string }[]>(() => [
+  { value: 'every', label: t(U + 'modeEvery') },
+  { value: 'specific', label: t(U + 'modeSpecific') },
+  { value: 'range', label: t(U + 'modeRange') },
+  { value: 'step', label: t(U + 'modeStep') },
+  { value: 'rangeStep', label: t(U + 'modeRangeStep') },
+]);
+
+/** Raw expression text input - applied on Enter or button click. */
 const rawExpression = ref('');
 const rawError = ref('');
 
 function applyRaw(): void {
   const trimmed = rawExpression.value.trim();
   if (!trimmed) {
-    rawError.value = 'Enter a cron expression (5 whitespace-separated fields).';
+    rawError.value = t(U + 'errEmpty');
     return;
   }
   const parts = trimmed.split(/\s+/);
   if (parts.length !== 5) {
-    rawError.value = `Expected 5 fields, got ${parts.length}.`;
+    rawError.value = t(U + 'errFields', { n: parts.length });
     return;
   }
   try {
@@ -135,33 +139,35 @@ const expressionFields = computed(() =>
 </script>
 
 <template>
-  <div class="cron-gen">
+  <div class="qt-tool">
     <ToolInput
-      title="Cron fields"
-      description="Build a 5-field cron expression: minute hour day-of-month month day-of-week."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
-        <button class="cron-gen__reset" type="button" @click="reset">
+        <button class="qt-btn qt-btn--ghost qt-btn--sm" type="button" @click="reset">
           <RotateCcw :size="14" />
-          <span>Reset</span>
+          <span>{{ t('common.reset') }}</span>
         </button>
       </template>
 
-      <div class="cron-gen__fields">
+      <div class="qt-grid" style="--qt-grid-min:220px;--qt-grid-gap:12px">
         <section
           v-for="f in expressionFields"
           :key="f.name"
-          class="cron-gen__field"
+          class="qt-panel qt-stack"
+          style="--qt-stack-gap:8px;padding:10px 12px"
         >
-          <header class="cron-gen__field-header">
-            <h3 class="cron-gen__field-title">{{ f.bounds.label }}</h3>
-            <code class="cron-gen__field-frag">{{ f.fragment }}</code>
+          <header class="qt-row qt-row--center qt-row--between" style="--qt-row-gap:8px">
+            <h3 style="margin:0;font-size:13px;font-weight:700;color:var(--qt-text)">{{ f.bounds.label }}</h3>
+            <code class="qt-badge qt-badge--info" style="font-family:var(--qt-font-mono);font-variant-numeric:tabular-nums">{{ f.fragment }}</code>
           </header>
 
-          <label class="cron-gen__row">
-            <span class="cron-gen__label">Mode</span>
+          <label class="qt-row qt-row--center" style="--qt-row-gap:8px">
+            <span class="qt-label" style="min-width:48px">{{ t(U + 'mode') }}</span>
             <select
-              class="cron-gen__select"
+              class="qt-input"
+              style="flex:1;min-width:0;font-size:13.5px;padding:6px 8px"
               :value="f.config.mode"
               @change="
                 setFieldMode(
@@ -177,21 +183,20 @@ const expressionFields = computed(() =>
           </label>
 
           <!-- Every -->
-          <p v-if="f.config.mode === 'every'" class="cron-gen__hint">
-            Matches every {{ f.bounds.unit }} ({{ f.bounds.min }}–{{
-              f.bounds.max
-            }}).
+          <p v-if="f.config.mode === 'every'" class="qt-hint" style="margin:0;font-size:12.5px">
+            {{ t(U + 'matchesEvery', { unit: f.bounds.unit, min: f.bounds.min, max: f.bounds.max }) }}
           </p>
 
           <!-- Specific (list) -->
-          <div v-else-if="f.config.mode === 'specific'" class="cron-gen__specific">
+          <div v-else-if="f.config.mode === 'specific'" class="qt-stack" style="--qt-stack-gap:6px">
             <div
               v-for="(v, i) in f.config.values"
               :key="i"
-              class="cron-gen__specific-row"
+              class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:6px"
             >
               <select
-                class="cron-gen__select"
+                class="qt-input"
+                style="flex:1;min-width:0;font-size:13.5px;padding:6px 8px"
                 :value="v"
                 @change="onSpecificValueInput(f.name, i, $event)"
               >
@@ -205,9 +210,10 @@ const expressionFields = computed(() =>
               </select>
               <button
                 type="button"
-                class="cron-gen__chip-btn cron-gen__chip-btn--remove"
+                class="qt-chip qt-chip--filled cron-gen__chip-btn--remove"
+                style="padding:2px 8px;font-size:14px;line-height:1"
                 :disabled="f.config.values.length <= 1"
-                :title="`Remove ${v}`"
+                :title="t(U + 'removeValue', { v })"
                 @click="removeSpecificValue(f.name, v)"
               >
                 ×
@@ -215,19 +221,20 @@ const expressionFields = computed(() =>
             </div>
             <button
               type="button"
-              class="cron-gen__chip-btn"
+              class="qt-chip qt-chip--filled"
               @click="addSpecificValue(f.name)"
             >
-              + Add value
+              {{ t(U + 'addValue') }}
             </button>
           </div>
 
           <!-- Range -->
-          <div v-else-if="f.config.mode === 'range'" class="cron-gen__pair">
-            <label class="cron-gen__row">
-              <span class="cron-gen__label">From</span>
+          <div v-else-if="f.config.mode === 'range'" class="qt-stack" style="--qt-stack-gap:8px">
+            <label class="qt-row qt-row--center" style="--qt-row-gap:8px">
+              <span class="qt-label" style="min-width:48px">{{ t(U + 'from') }}</span>
               <select
-                class="cron-gen__select"
+                class="qt-input"
+                style="flex:1;min-width:0;font-size:13.5px;padding:6px 8px"
                 :value="f.config.rangeStart"
                 @change="onNumberInput(f.name, 'rangeStart', $event)"
               >
@@ -240,10 +247,11 @@ const expressionFields = computed(() =>
                 </option>
               </select>
             </label>
-            <label class="cron-gen__row">
-              <span class="cron-gen__label">To</span>
+            <label class="qt-row qt-row--center" style="--qt-row-gap:8px">
+              <span class="qt-label" style="min-width:48px">{{ t(U + 'to') }}</span>
               <select
-                class="cron-gen__select"
+                class="qt-input"
+                style="flex:1;min-width:0;font-size:13.5px;padding:6px 8px"
                 :value="f.config.rangeEnd"
                 @change="onNumberInput(f.name, 'rangeEnd', $event)"
               >
@@ -259,26 +267,28 @@ const expressionFields = computed(() =>
           </div>
 
           <!-- Step (every N across whole range) -->
-          <label v-else-if="f.config.mode === 'step'" class="cron-gen__row">
-            <span class="cron-gen__label">Every</span>
+          <label v-else-if="f.config.mode === 'step'" class="qt-row qt-row--center" style="--qt-row-gap:8px">
+            <span class="qt-label" style="min-width:48px">{{ t(U + 'every') }}</span>
             <input
-              class="cron-gen__input"
+              class="qt-input"
+              style="flex:1;min-width:0;font-size:13.5px;padding:6px 8px"
               type="number"
               :min="1"
               :max="f.bounds.max - f.bounds.min + 1"
               :value="f.config.step"
               @input="onNumberInput(f.name, 'step', $event)"
             />
-            <span class="cron-gen__suffix">{{ f.bounds.unitPlural }}</span>
+            <span style="font-size:12.5px;color:var(--qt-muted)">{{ f.bounds.unitPlural }}</span>
           </label>
 
           <!-- Range + step -->
-          <div v-else-if="f.config.mode === 'rangeStep'" class="cron-gen__range-step">
-            <div class="cron-gen__pair">
-              <label class="cron-gen__row">
-                <span class="cron-gen__label">From</span>
+          <div v-else-if="f.config.mode === 'rangeStep'" class="qt-stack" style="--qt-stack-gap:8px">
+            <div class="qt-stack" style="--qt-stack-gap:8px">
+              <label class="qt-row qt-row--center" style="--qt-row-gap:8px">
+                <span class="qt-label" style="min-width:48px">{{ t(U + 'from') }}</span>
                 <select
-                  class="cron-gen__select"
+                  class="qt-input"
+                  style="flex:1;min-width:0;font-size:13.5px;padding:6px 8px"
                   :value="f.config.rangeStart"
                   @change="onNumberInput(f.name, 'rangeStart', $event)"
                 >
@@ -291,10 +301,11 @@ const expressionFields = computed(() =>
                   </option>
                 </select>
               </label>
-              <label class="cron-gen__row">
-                <span class="cron-gen__label">To</span>
+              <label class="qt-row qt-row--center" style="--qt-row-gap:8px">
+                <span class="qt-label" style="min-width:48px">{{ t(U + 'to') }}</span>
                 <select
-                  class="cron-gen__select"
+                  class="qt-input"
+                  style="flex:1;min-width:0;font-size:13.5px;padding:6px 8px"
                   :value="f.config.rangeEnd"
                   @change="onNumberInput(f.name, 'rangeEnd', $event)"
                 >
@@ -308,314 +319,70 @@ const expressionFields = computed(() =>
                 </select>
               </label>
             </div>
-            <label class="cron-gen__row">
-              <span class="cron-gen__label">Every</span>
+            <label class="qt-row qt-row--center" style="--qt-row-gap:8px">
+              <span class="qt-label" style="min-width:48px">{{ t(U + 'every') }}</span>
               <input
-                class="cron-gen__input"
+                class="qt-input"
+                style="flex:1;min-width:0;font-size:13.5px;padding:6px 8px"
                 type="number"
                 :min="1"
                 :max="f.bounds.max - f.bounds.min + 1"
                 :value="f.config.step"
                 @input="onNumberInput(f.name, 'step', $event)"
               />
-              <span class="cron-gen__suffix">{{ f.bounds.unitPlural }}</span>
+              <span style="font-size:12.5px;color:var(--qt-muted)">{{ f.bounds.unitPlural }}</span>
             </label>
           </div>
         </section>
       </div>
 
-      <details class="cron-gen__raw">
-        <summary class="cron-gen__raw-summary">Paste raw expression</summary>
-        <div class="cron-gen__raw-row">
+      <details class="qt-panel" style="margin-top:12px;padding:8px 10px">
+        <summary class="qt-label" style="cursor:pointer">{{ t(U + 'rawSummary') }}</summary>
+        <div class="qt-row" style="--qt-row-gap:8px;margin-top:8px">
           <input
             v-model="rawExpression"
-            class="cron-gen__input cron-gen__raw-input"
+            class="qt-input qt-input--mono"
+            style="flex:1"
             type="text"
-            placeholder="*/5 9-17 * * 1-5"
+            :placeholder="t(U + 'phRaw')"
             @keydown.enter.prevent="applyRaw"
           />
-          <button class="cron-gen__apply" type="button" @click="applyRaw">
-            Apply
+          <button class="qt-btn qt-btn--primary" style="font-size:12.5px;padding:6px 12px" type="button" @click="applyRaw">
+            {{ t(U + 'apply') }}
           </button>
         </div>
-        <p v-if="rawError" class="cron-gen__raw-error">{{ rawError }}</p>
+        <p v-if="rawError" class="qt-alert qt-alert--error" style="margin:6px 0 0;font-size:12.5px">{{ rawError }}</p>
       </details>
     </ToolInput>
 
     <ToolOutput
-      title="Cron expression"
+      :title="t(U + 'outTitle')"
       :copy-text="expression"
-      copy-label="Copy cron"
+      :copy-label="t(U + 'copyCron')"
     >
-      <p v-if="!isValid" class="cron-gen__error">
+      <p v-if="!isValid" class="qt-alert qt-alert--error" style="align-items:center;margin:0 0 8px">
         <AlertCircle :size="14" />
         <span>{{ validation.message }}</span>
       </p>
-      <code class="cron-gen__expression">{{ expression }}</code>
-      <p class="cron-gen__description">{{ description }}</p>
-      <div class="cron-gen__legend">
-        <span class="cron-gen__legend-item"><code>m</code> minute</span>
-        <span class="cron-gen__legend-item"><code>h</code> hour</span>
-        <span class="cron-gen__legend-item"><code>dom</code> day</span>
-        <span class="cron-gen__legend-item"><code>mon</code> month</span>
-        <span class="cron-gen__legend-item"><code>dow</code> weekday</span>
+      <code class="qt-output" style="display:block;font-size:22px;font-weight:700;letter-spacing:0.04em;font-variant-numeric:tabular-nums;word-break:break-all;white-space:pre-wrap">{{ expression }}</code>
+      <p style="margin:10px 0 0;font-size:14px;color:var(--qt-text);line-height:1.5">{{ description }}</p>
+      <div class="qt-row" style="--qt-row-gap:8px 14px;margin-top:10px;font-size:11.5px;color:var(--qt-muted)">
+        <span class="qt-row qt-row--center" style="--qt-row-gap:4px;display:inline-flex"><code class="qt-kbd" style="padding:0 5px">m</code> {{ t(U + 'legMinute') }}</span>
+        <span class="qt-row qt-row--center" style="--qt-row-gap:4px;display:inline-flex"><code class="qt-kbd" style="padding:0 5px">h</code> {{ t(U + 'legHour') }}</span>
+        <span class="qt-row qt-row--center" style="--qt-row-gap:4px;display:inline-flex"><code class="qt-kbd" style="padding:0 5px">dom</code> {{ t(U + 'legDay') }}</span>
+        <span class="qt-row qt-row--center" style="--qt-row-gap:4px;display:inline-flex"><code class="qt-kbd" style="padding:0 5px">mon</code> {{ t(U + 'legMonth') }}</span>
+        <span class="qt-row qt-row--center" style="--qt-row-gap:4px;display:inline-flex"><code class="qt-kbd" style="padding:0 5px">dow</code> {{ t(U + 'legWeekday') }}</span>
       </div>
     </ToolOutput>
   </div>
 </template>
 
 <style scoped>
-.cron-gen {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.cron-gen__fields {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 12px;
-}
-.cron-gen__field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
-}
-.cron-gen__field-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.cron-gen__field-title {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--qt-text);
-}
-.cron-gen__field-frag {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 90% c h / 0.12);
-  border: 1px solid oklch(from var(--qt-accent) 60% c h / 0.4);
-  border-radius: 999px;
-  padding: 1px 8px;
-  font-variant-numeric: tabular-nums;
-}
-.cron-gen__row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.cron-gen__label {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  font-weight: 600;
-  min-width: 48px;
-}
-.cron-gen__select,
-.cron-gen__input {
-  flex: 1 1 auto;
-  min-width: 0;
-  background: var(--qt-surface);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13.5px;
-  padding: 6px 8px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.cron-gen__select:focus,
-.cron-gen__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.cron-gen__suffix {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-}
-.cron-gen__hint {
-  margin: 0;
-  font-size: 12.5px;
-  color: var(--qt-muted);
-}
-.cron-gen__pair {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.cron-gen__range-step {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.cron-gen__specific {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.cron-gen__specific-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.cron-gen__chip-btn {
-  padding: 4px 10px;
-  background: var(--qt-surface);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-.cron-gen__chip-btn:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.cron-gen__chip-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-.cron-gen__chip-btn--remove {
-  padding: 2px 8px;
-  font-size: 14px;
-  line-height: 1;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Remove-value chip — danger hover (overrides the accent hover on .qt-chip). */
 .cron-gen__chip-btn--remove:hover:not(:disabled) {
   border-color: var(--qt-danger);
   color: var(--qt-danger);
-}
-.cron-gen__reset {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease;
-}
-.cron-gen__reset:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.cron-gen__raw {
-  margin-top: 12px;
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-}
-.cron-gen__raw-summary {
-  cursor: pointer;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.cron-gen__raw-row {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-.cron-gen__raw-input {
-  flex: 1 1 auto;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-}
-.cron-gen__apply {
-  padding: 6px 12px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-.cron-gen__apply:hover {
-  opacity: 0.9;
-}
-.cron-gen__raw-error {
-  margin: 6px 0 0 0;
-  color: var(--qt-danger);
-  font-size: 12.5px;
-}
-.cron-gen__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 8px 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.cron-gen__expression {
-  display: block;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 12px 14px;
-  letter-spacing: 0.04em;
-  font-variant-numeric: tabular-nums;
-  word-break: break-all;
-}
-.cron-gen__description {
-  margin: 10px 0 0 0;
-  font-size: 14px;
-  color: var(--qt-text);
-  line-height: 1.5;
-}
-.cron-gen__legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
-  margin-top: 10px;
-  font-size: 11.5px;
-  color: var(--qt-muted);
-}
-.cron-gen__legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.cron-gen__legend-item code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 4px;
-  padding: 0 5px;
-  color: var(--qt-text);
 }
 </style>

@@ -1,5 +1,5 @@
 /**
- * Backend tool registry — minimal metadata for the `/api/tools` endpoint.
+ * Backend tool registry - minimal metadata for the `/api/tools` endpoint.
  *
  * The authoritative full registry (86 tools) currently lives in the
  * frontend (`packages/frontend/src/data/tools.ts`). In M0.4 the
@@ -151,6 +151,46 @@ export const TOOLS: ToolMetadata[] = [
     category: 'data',
     icon: 'landmark',
     keywords: ['iban', 'bank', 'validate'],
+    dependencies: [],
+    apiAccessible: true,
+  },
+  {
+    slug: 'vin-decoder',
+    name: 'VIN decoder',
+    description: 'Decode Vehicle Identification Numbers into WMI, VDS, VIS, check digit, model year, and serial number.',
+    category: 'data',
+    icon: 'car',
+    keywords: ['vin', 'vehicle', 'identification', 'number', 'decoder'],
+    dependencies: [],
+    apiAccessible: true,
+  },
+  {
+    slug: 'swift-bic-validator',
+    name: 'SWIFT/BIC validator',
+    description: 'Validate SWIFT/BIC codes and parse into bank code, country, location, and branch code.',
+    category: 'data',
+    icon: 'building-2',
+    keywords: ['swift', 'bic', 'validate', 'bank', 'code'],
+    dependencies: [],
+    apiAccessible: true,
+  },
+  {
+    slug: 'ssn-validator',
+    name: 'SSN validator',
+    description: 'Validate US Social Security Numbers with area, group, and serial number rules.',
+    category: 'data',
+    icon: 'badge-check',
+    keywords: ['ssn', 'social', 'security', 'number', 'validate'],
+    dependencies: [],
+    apiAccessible: true,
+  },
+  {
+    slug: 'barcode-generator',
+    name: 'Barcode generator',
+    description: 'Generate CODE128, EAN-13, EAN-8, and UPC-A barcodes.',
+    category: 'data',
+    icon: 'barcode',
+    keywords: ['barcode', 'code128', 'ean13', 'ean8', 'upca', 'generate'],
     dependencies: [],
     apiAccessible: true,
   },

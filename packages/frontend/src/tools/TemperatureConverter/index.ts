@@ -1,5 +1,5 @@
 /**
- * TemperatureConverter tool module — exports the lazy-loaded component plus
+ * TemperatureConverter tool module - exports the lazy-loaded component plus
  * its metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
@@ -7,20 +7,24 @@
  * Rankine, Delisle, Newton, Réaumur, Rømer) via a Kelvin canonical
  * intermediate.
  *
- * No external dependencies — pure arithmetic only.
+ * No external dependencies - pure arithmetic only.
  */
-import { defineAsyncComponent } from 'vue';
-import type { ToolMetadata } from '@q-tools/shared';
+import { defineTool } from '@/tools/defineTool';
 
-export const metadata: ToolMetadata = {
-  slug: 'temperature-converter',
-  name: 'Temperature converter',
-  description: 'Convert between Celsius, Fahrenheit, Kelvin, Rankine, Delisle, Newton, Réaumur, and Rømer.',
-  category: 'measurement',
-  icon: 'thermometer',
-  keywords: ['temperature', 'celsius', 'fahrenheit', 'kelvin', 'rankine', 'delisle', 'newton', 'reaumur', 'romer'],
-  dependencies: [],
-};
+const { metadata, component } = defineTool(
+  {
+    slug: 'temperature-converter',
+    name: 'Temperature converter',
+    description: 'Convert between Celsius, Fahrenheit, Kelvin, Rankine, Delisle, Newton, Réaumur, and Rømer.',
+    category: 'measurement',
+    icon: 'thermometer',
+    keywords: ['temperature', 'celsius', 'fahrenheit', 'kelvin', 'rankine', 'delisle', 'newton', 'reaumur', 'romer'],
+    dependencies: [],
+  },
+  () => import('./TemperatureConverter.vue'),
+);
+
+export { metadata };
 
 export {
   useTemperatureConverter,
@@ -40,8 +44,4 @@ export type {
   UseTemperatureConverterReturn,
 } from './useTemperatureConverter';
 
-const TemperatureConverter = defineAsyncComponent(
-  () => import('./TemperatureConverter.vue'),
-);
-
-export default TemperatureConverter;
+export default component;

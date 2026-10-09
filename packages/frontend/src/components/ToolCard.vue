@@ -7,27 +7,32 @@
  */
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { getIcon } from '@/utils/icons';
+import { localizedToolDescription, localizedToolName } from '@/i18n/localized';
 import type { ToolMetadata } from '@/data/tools';
 
 const props = defineProps<{ tool: ToolMetadata }>();
 
+const { t } = useI18n();
 const router = useRouter();
 const Icon = computed(() => getIcon(props.tool.icon));
+const name = computed(() => localizedToolName(props.tool));
+const description = computed(() => localizedToolDescription(props.tool));
 
 function open() {
-  router.push({ name: 'tool', params: { slug: props.tool.slug } });
+  router.push({ name: 'tool-view', params: { slug: props.tool.slug } });
 }
 </script>
 
 <template>
-  <button class="tool-card" type="button" @click="open" :aria-label="`Open ${tool.name}`">
+  <button class="tool-card" type="button" @click="open" :aria-label="t('tool.open', { name })">
     <span class="tool-card__icon" aria-hidden="true">
       <component :is="Icon" :size="22" />
     </span>
     <span class="tool-card__body">
-      <span class="tool-card__name">{{ tool.name }}</span>
-      <span class="tool-card__desc">{{ tool.description }}</span>
+      <span class="tool-card__name">{{ name }}</span>
+      <span class="tool-card__desc">{{ description }}</span>
     </span>
   </button>
 </template>

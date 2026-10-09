@@ -1,12 +1,12 @@
 /**
- * useColorConverter — composable + pure logic for the Color converter tool.
+ * useColorConverter - composable + pure logic for the Color converter tool.
  *
  * Bidirectional conversion between HEX, RGB, HSL, HSV, and CMYK color
  * spaces. A single text input is auto-detected (or parsed against a
  * user-selected format) into an internal RGB triple, then every supported
  * format is rendered simultaneously with a live preview swatch.
  *
- * All color math is implemented by hand — no external dependencies. The
+ * All color math is implemented by hand - no external dependencies. The
  * conversions follow the standard formulas:
  *
  *   - RGB ↔ HEX:        per-channel 0-255 → 2-digit hex.
@@ -29,7 +29,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Internal RGB triple (0-255 integers). */
@@ -116,10 +116,10 @@ export function hexToRgb(input: string): Rgb | null {
   if (s.length === 3) {
     s = s[0]! + s[0]! + s[1]! + s[1]! + s[2]! + s[2]!;
   } else if (s.length === 4) {
-    // #rgba shorthand — drop alpha.
+    // #rgba shorthand - drop alpha.
     s = s[0]! + s[0]! + s[1]! + s[1]! + s[2]! + s[2]!;
   } else if (s.length === 8) {
-    // #rrggbbaa — drop alpha.
+    // #rrggbbaa - drop alpha.
     s = s.slice(0, 6);
   }
   if (s.length !== 6 || !/^[0-9a-fA-F]{6}$/.test(s)) return null;
@@ -251,7 +251,7 @@ export function rgbToCmyk(rgb: Rgb): Cmyk {
   const b = rgb.b / 255;
   const k = 1 - Math.max(r, g, b);
   if (k === 1) {
-    // Pure black — CMY are all 0.
+    // Pure black - CMY are all 0.
     return { c: 0, m: 0, y: 0, k: 100 };
   }
   const c = (1 - r - k) / (1 - k);
@@ -474,7 +474,7 @@ export function parseColor(input: string, mode: ParseMode = 'auto'): Rgb | null 
     if (fn === 'cmyk') return parseCmykString(s);
     return null;
   }
-  // Bare argument lists — try each parser in turn. CMYK needs 4 tokens,
+  // Bare argument lists - try each parser in turn. CMYK needs 4 tokens,
   // HSL/HSV/RGB need 3, so order by specificity.
   const tokens = splitArgs(s);
   if (tokens.length >= 4) {
@@ -501,7 +501,7 @@ export function parseColor(input: string, mode: ParseMode = 'auto'): Rgb | null 
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseColorConverterReturn {

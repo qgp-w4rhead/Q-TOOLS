@@ -1,5 +1,5 @@
 /**
- * useRsaKeyPair — composable + pure logic for the RSA key pair generator tool.
+ * useRsaKeyPair - composable + pure logic for the RSA key pair generator tool.
  *
  * Generates RSA key pairs using the Web Crypto API
  * (`crypto.subtle.generateKey` with `RSASSA-PKCS1-v1_5`, SHA-256 hash, and
@@ -15,14 +15,14 @@
  * reuse. The `useRsaKeyPair()` composable wraps them in reactive state and
  * wires up the embed PostMessage protocol.
  *
- * Dependencies: `node-forge` (lazy-loaded) — listed in tech-stack.md.
+ * Dependencies: `node-forge` (lazy-loaded) - listed in tech-stack.md.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Supported RSA key sizes in bits. */
@@ -75,7 +75,7 @@ export async function ensureForgeModule(): Promise<typeof import('node-forge')> 
 /**
  * Convert a `Uint8Array` to a binary string (each byte → one char). Built in
  * 32 KiB chunks to avoid `String.fromCharCode` call-stack limits for large
- * buffers (8192-bit PKCS#8 DER is ~2 KB — well under the limit, but the helper
+ * buffers (8192-bit PKCS#8 DER is ~2 KB - well under the limit, but the helper
  * is robust for any size).
  */
 export function bytesToBinaryString(bytes: Uint8Array): string {
@@ -137,7 +137,7 @@ export async function generateRsaKeyPair(
     ['sign', 'verify'],
   );
 
-  // Export as DER — SubjectPublicKeyInfo (public) + PKCS#8 PrivateKeyInfo.
+  // Export as DER - SubjectPublicKeyInfo (public) + PKCS#8 PrivateKeyInfo.
   const spkiDer = await crypto.subtle.exportKey('spki', keyPair.publicKey);
   const pkcs8Der = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
 
@@ -156,7 +156,7 @@ export async function generateRsaKeyPair(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseRsaKeyPairReturn {

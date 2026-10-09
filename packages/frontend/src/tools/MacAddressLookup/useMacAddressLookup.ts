@@ -1,5 +1,5 @@
 /**
- * useMacAddressLookup — composable + pure logic for the MAC address lookup tool.
+ * useMacAddressLookup - composable + pure logic for the MAC address lookup tool.
  *
  * Parses a MAC-48 address (or a bare 3-octet OUI prefix) from any common
  * notation (`:`/`-`/`.` separated, or contiguous hex), normalises it, classifies
@@ -16,14 +16,14 @@
  * `useMacAddressLookup()` composable wraps them in reactive state, manages the
  * async OUI database load, and wires up the embed PostMessage protocol.
  *
- * No external dependencies — only the bundled OUI JSON asset.
+ * No external dependencies - only the bundled OUI JSON asset.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* OUI database — lazy-loaded static asset                                     */
+/* OUI database - lazy-loaded static asset                                     */
 /* -------------------------------------------------------------------------- */
 
 /** Shape of the bundled `oui-database.json`: `{ "AABBCC": "Vendor Name" }`. */
@@ -57,7 +57,7 @@ export function loadOuiDatabase(): Promise<OuiDatabase> {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** A MAC-48 address as an array of 6 octets (0-255). */
@@ -66,7 +66,7 @@ export type MacOctets = [number, number, number, number, number, number];
 /** Separator styles for MAC address formatting. */
 export type MacSeparator = ':' | '-' | '.' | 'none';
 
-/** Result of `parseMac` — the structural breakdown of a MAC input. */
+/** Result of `parseMac` - the structural breakdown of a MAC input. */
 export interface ParsedMac {
   /** Original input (trimmed). */
   raw: string;
@@ -278,8 +278,8 @@ export function isMulticast(octets: MacOctets): boolean {
 }
 
 /**
- * Whether the MAC is locally administered (the U/L bit — second-least-
- * significant bit of the first octet — is 1, per IEEE 802).
+ * Whether the MAC is locally administered (the U/L bit - second-least-
+ * significant bit of the first octet - is 1, per IEEE 802).
  */
 export function isLocallyAdministered(octets: MacOctets): boolean {
   return (octets[0] & 0b0000_0010) === 0b10;
@@ -348,7 +348,7 @@ export function resolveMacLookup(parsed: ParsedMac, db: OuiDatabase): MacLookupR
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseMacAddressLookupReturn {
@@ -405,7 +405,7 @@ export function useMacAddressLookup(): UseMacAddressLookupReturn {
       return;
     }
     if (!dbLoaded.value || !dbCache) {
-      // Database not loaded yet — show partial result without vendor.
+      // Database not loaded yet - show partial result without vendor.
       result.value = {
         raw: parsed.raw,
         isValid: true,

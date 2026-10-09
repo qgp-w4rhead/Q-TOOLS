@@ -1,5 +1,5 @@
 /**
- * useSqlPrettify — composable + pure logic for the SQL prettify & format tool.
+ * useSqlPrettify - composable + pure logic for the SQL prettify & format tool.
  *
  * Formats SQL queries via the lazy-loaded `sql-formatter` package. The
  * formatter supports multiple dialects (standard SQL, MySQL, PostgreSQL,
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -95,7 +95,7 @@ export function _resetSqlFormatterCache(): void {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -163,7 +163,7 @@ export async function formatSql(
 /**
  * Convert a thrown value into a normalised `SqlPrettifyError`. `sql-formatter`
  * throws `ConfigError` (a subclass of `Error`) for invalid configuration and
- * plain `Error` for tokeniser/parser issues — both surface a useful
+ * plain `Error` for tokeniser/parser issues - both surface a useful
  * `message`.
  */
 export function normaliseError(err: unknown): SqlPrettifyError {
@@ -174,7 +174,7 @@ export function normaliseError(err: unknown): SqlPrettifyError {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface SqlPrettifyOutputs {

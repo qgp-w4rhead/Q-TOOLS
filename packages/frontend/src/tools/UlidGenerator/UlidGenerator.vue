@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
- * UlidGenerator — generate ULIDs (Universally Unique Lexicographically Sortable
+ * UlidGenerator - generate ULIDs (Universally Unique Lexicographically Sortable
  * Identifiers, https://github.com/ulid/spec).
  *
  *   - 26-character Crockford Base32 string.
  *   - First 10 chars encode a 48-bit millisecond timestamp (sortable).
- *   - Last 16 chars are random (cryptographically secure — we inject a PRNG
+ *   - Last 16 chars are random (cryptographically secure - we inject a PRNG
  *     backed by `crypto.getRandomValues`).
  *
  * Two modes:
@@ -20,6 +20,7 @@
  * uppercase and sends `output` PostMessages with the generated ULIDs.
  */
 import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RefreshCw, AlertCircle, Loader2, ArrowUpWideNarrow, Shuffle } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -30,6 +31,8 @@ import {
   MAX_QUANTITY,
   type UlidMode,
 } from './useUlidGenerator';
+
+const { t } = useI18n();
 
 const {
   mode,
@@ -42,7 +45,7 @@ const {
   generate,
 } = useUlidGenerator();
 
-/** All ULIDs joined by newlines — used for the "copy all" button. */
+/** All ULIDs joined by newlines - used for the "copy all" button. */
 const allUlidsText = computed(() => ulids.value.join('\n'));
 
 /** Whether the Generate button should be enabled. */
@@ -50,13 +53,16 @@ const canGenerate = computed(() => !generating.value);
 
 const MODE_OPTIONS: {
   value: UlidMode;
-  label: string;
-  hint: string;
+  labelKey: string;
+  hintKey: string;
   icon: typeof Shuffle;
 }[] = [
-  { value: 'standard', label: 'Standard', hint: 'independent random', icon: Shuffle },
-  { value: 'monotonic', label: 'Monotonic', hint: 'lex-increasing within a ms', icon: ArrowUpWideNarrow },
+  { value: 'standard', labelKey: 'modeStandard', hintKey: 'modeStandardHint', icon: Shuffle },
+  { value: 'monotonic', labelKey: 'modeMonotonic', hintKey: 'modeMonotonicHint', icon: ArrowUpWideNarrow },
 ];
+
+/** Localized mode label (used in the output description too). */
+const modeLabel = computed(() => t(`tools.ulid-generator.ui.${mode.value === 'standard' ? 'modeStandard' : 'modeMonotonic'}`));
 
 /** Format a millisecond timestamp as an ISO string for display. */
 function formatTimestamp(ts: number): string {
@@ -81,27 +87,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="ulid-gen">
+  <div class="qt-tool">
     <ToolInput
-      title="Configuration"
-      description="ULIDs are 26-char Crockford Base32 strings — 10 timestamp chars + 16 random chars. Sortable, 128-bit compatible."
+      :title="t('common.configuration')"
+      :description="t('tools.ulid-generator.ui.desc')"
     >
       <template #actions>
         <button
-          class="ulid-gen__generate"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="!canGenerate"
           @click="generate"
         >
-          <Loader2 v-if="generating" :size="14" class="ulid-gen__spin" />
+          <Loader2 v-if="generating" :size="14" class="qt-spin" />
           <RefreshCw v-else :size="14" />
-          <span>{{ generating ? 'Generating…' : 'Generate' }}</span>
+          <span>{{ generating ? t('common.generating') : t('common.generate') }}</span>
         </button>
       </template>
 
-      <div class="ulid-gen__field">
-        <span class="ulid-gen__label">Mode</span>
-        <div class="ulid-gen__modes" role="radiogroup" aria-label="ULID generation mode">
+      <div class="qt-field">
+        <span class="qt-label">{{ t('tools.ulid-generator.ui.mode') }}</span>
+        <div class="ulid-gen__modes" role="radiogroup" :aria-label="t('tools.ulid-generator.ui.modeLabel')">
           <button
             v-for="opt in MODE_OPTIONS"
             :key="opt.value"
@@ -110,20 +116,20 @@ onMounted(() => {
             :aria-checked="mode === opt.value"
             class="ulid-gen__mode"
             :class="{ 'ulid-gen__mode--active': mode === opt.value }"
-            :title="opt.hint"
+            :title="t(`tools.ulid-generator.ui.${opt.hintKey}`)"
             @click="mode = opt.value"
           >
             <component :is="opt.icon" :size="14" />
-            <span class="ulid-gen__mode-label">{{ opt.label }}</span>
-            <span class="ulid-gen__mode-hint">{{ opt.hint }}</span>
+            <span class="ulid-gen__mode-label">{{ t(`tools.ulid-generator.ui.${opt.labelKey}`) }}</span>
+            <span class="ulid-gen__mode-hint">{{ t(`tools.ulid-generator.ui.${opt.hintKey}`) }}</span>
           </button>
         </div>
       </div>
 
-      <label class="ulid-gen__field">
-        <span class="ulid-gen__label">Quantity</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t('common.quantity') }}</span>
         <input
-          class="ulid-gen__input"
+          class="qt-input"
           type="number"
           :min="MIN_QUANTITY"
           :max="MAX_QUANTITY"
@@ -132,36 +138,36 @@ onMounted(() => {
         />
       </label>
 
-      <div class="ulid-gen__toggles">
-        <label class="ulid-gen__toggle">
+      <div class="qt-row" style="--qt-row-gap:18px">
+        <label class="qt-check">
           <input
             type="checkbox"
             :checked="uppercase"
             @change="uppercase = ($event.target as HTMLInputElement).checked"
           />
-          <span>Uppercase</span>
+          <span>{{ t('common.uppercase') }}</span>
         </label>
       </div>
     </ToolInput>
 
     <ToolOutput
-      title="Generated ULIDs"
-      :description="ulids.length ? `${ulids.length} ULID${ulids.length === 1 ? '' : 's'} (${mode})` : ''"
+      :title="t('tools.ulid-generator.ui.outputTitle')"
+      :description="ulids.length ? t('tools.ulid-generator.ui.outputDesc', { n: ulids.length, mode: modeLabel }, ulids.length) : ''"
       :copy-text="allUlidsText"
-      copy-label="Copy all"
+      :copy-label="t('common.copyAll')"
     >
-      <p v-if="error" class="ulid-gen__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
-      <p v-else-if="ulids.length === 0" class="ulid-gen__empty">
-        No ULIDs yet — click <strong>Generate</strong>.
+      <p v-else-if="ulids.length === 0" class="qt-alert qt-alert--empty">
+        {{ t('tools.ulid-generator.ui.empty') }}
       </p>
-      <ul v-else class="ulid-gen__list">
-        <li v-for="(u, i) in ulids" :key="i" class="ulid-gen__ulid">
+      <ul v-else class="qt-list qt-stack ulid-gen__list" style="--qt-stack-gap:6px">
+        <li v-for="(u, i) in ulids" :key="i" class="qt-result-row">
           <span class="ulid-gen__idx">{{ i + 1 }}</span>
           <div class="ulid-gen__ulid-body">
-            <code class="ulid-gen__ulid-text">{{ u }}</code>
+            <code class="qt-mono ulid-gen__ulid-text">{{ u }}</code>
             <span
               v-if="timestamps[i] !== undefined"
               class="ulid-gen__ts"
@@ -170,7 +176,7 @@ onMounted(() => {
               {{ formatTimestamp(timestamps[i]!) }}
             </span>
           </div>
-          <CopyButton :text="u" label="Copy" icon-only />
+          <CopyButton :text="u" :label="t('common.copy')" icon-only />
         </li>
       </ul>
     </ToolOutput>
@@ -178,42 +184,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.ulid-gen {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.ulid-gen__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.ulid-gen__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.ulid-gen__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 9px 11px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.ulid-gen__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Mode picker — fixed 2-col grid of selectable cards. */
 .ulid-gen__modes {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -235,7 +208,6 @@ onMounted(() => {
     border-color 0.15s ease,
     background-color 0.15s ease,
     color 0.15s ease;
-  will-change: border-color;
 }
 .ulid-gen__mode:hover {
   border-color: var(--qt-accent);
@@ -257,91 +229,12 @@ onMounted(() => {
   font-size: 10.5px;
   opacity: 0.85;
 }
-.ulid-gen__toggles {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-.ulid-gen__toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  color: var(--qt-text);
-  cursor: pointer;
-}
-.ulid-gen__toggle input[type='checkbox'] {
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
-.ulid-gen__generate {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.ulid-gen__generate:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.ulid-gen__generate:active:not(:disabled) {
-  transform: translateY(0);
-}
-.ulid-gen__generate:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.ulid-gen__spin {
-  animation: ulid-gen-spin 0.8s linear infinite;
-}
-@keyframes ulid-gen-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.ulid-gen__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.ulid-gen__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
+/* Scrollable ULID list. */
 .ulid-gen__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   max-height: 60vh;
   overflow-y: auto;
 }
-.ulid-gen__ulid {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 7px 10px;
-}
+/* Row index. */
 .ulid-gen__idx {
   flex: 0 0 auto;
   font-size: 11px;
@@ -350,6 +243,7 @@ onMounted(() => {
   min-width: 28px;
   text-align: right;
 }
+/* ULID body — value + timestamp column. */
 .ulid-gen__ulid-body {
   flex: 1 1 auto;
   min-width: 0;
@@ -358,7 +252,6 @@ onMounted(() => {
   gap: 2px;
 }
 .ulid-gen__ulid-text {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--qt-text);
   word-break: break-all;

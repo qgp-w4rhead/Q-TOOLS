@@ -1,5 +1,5 @@
 /**
- * LoremIpsum tool module — exports the lazy-loaded component plus its
+ * LoremIpsum tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
@@ -7,7 +7,7 @@
  * configurable paragraphs, sentences per paragraph, words per sentence,
  * and an optional classic "Lorem ipsum dolor sit amet" opening.
  *
- * No external dependencies — pure logic + `crypto.getRandomValues`.
+ * No external dependencies - pure logic + `crypto.getRandomValues`.
  */
 import { defineAsyncComponent } from 'vue';
 import type { ToolMetadata } from '@q-tools/shared';

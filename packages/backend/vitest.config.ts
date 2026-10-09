@@ -6,7 +6,7 @@ export default defineConfig({
     include: ['test/**/*.test.ts'],
     testTimeout: 30000,
     hookTimeout: 30000,
-    // Run tests sequentially — they share a MongoDB connection and test DB.
+    // Run tests sequentially - they share a MongoDB connection and test DB.
     pool: 'forks',
     singleFork: true,
   },

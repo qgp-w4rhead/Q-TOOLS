@@ -1,9 +1,9 @@
 /**
- * useYamlToJson — composable + pure logic for the YAML → JSON converter.
+ * useYamlToJson - composable + pure logic for the YAML → JSON converter.
  *
  * Parses YAML text (single document or multi-document streams) and emits
  * pretty-printed (or compact) JSON. The `yaml` package is part of the
- * initial bundle per `tech-stack.md`, so it is statically imported here —
+ * initial bundle per `tech-stack.md`, so it is statically imported here -
  * no dynamic import, no separate Vite chunk.
  *
  * Pure helpers (`yamlToJson`, `parseYamlDocuments`) have no Vue dependency
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation mode for the JSON output. */
@@ -148,7 +148,7 @@ function toYamlError(err: unknown): YamlParseError {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface YamlToJsonOutputs {

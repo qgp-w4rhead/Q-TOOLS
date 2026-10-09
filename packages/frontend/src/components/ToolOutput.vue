@@ -1,41 +1,47 @@
 <script setup lang="ts">
 /**
- * ToolOutput — reusable labelled output wrapper for tool components.
+ * ToolOutput - reusable labelled output wrapper for tool components.
  *
  * Provides a consistent header (title + optional description + a CopyButton
  * that copies the `copyText` prop) and a content slot for the tool's result.
  * When `copyText` is empty/whitespace the copy button is disabled.
  */
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import CopyButton from './CopyButton.vue';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
-    /** Section title (e.g. "Output"). */
+    /** Section title (defaults to localized "Output"). */
     title?: string;
     /** Optional helper text shown under the title. */
     description?: string;
     /** Text to copy when the copy button is clicked. When empty, the button is disabled. */
     copyText?: string;
-    /** Label for the copy button. */
+    /** Label for the copy button (defaults to localized "Copy"). */
     copyLabel?: string;
     /** Hide the copy button entirely (e.g. for non-text output). */
     hideCopy?: boolean;
   }>(),
   {
-    title: 'Output',
+    title: undefined,
     description: '',
     copyText: '',
-    copyLabel: 'Copy',
+    copyLabel: undefined,
     hideCopy: false,
   },
 );
+
+const { t } = useI18n();
+const resolvedTitle = computed(() => props.title ?? t('common.output'));
+const resolvedCopyLabel = computed(() => props.copyLabel ?? t('common.copy'));
 </script>
 
 <template>
   <section class="tool-output">
-    <header v-if="title || !hideCopy || $slots.actions" class="tool-output__header">
+    <header v-if="resolvedTitle || !hideCopy || $slots.actions" class="tool-output__header">
       <div class="tool-output__heading">
-        <h2 v-if="title" class="tool-output__title">{{ title }}</h2>
+        <h2 v-if="resolvedTitle" class="tool-output__title">{{ resolvedTitle }}</h2>
         <p v-if="description" class="tool-output__desc">{{ description }}</p>
       </div>
       <div v-if="!hideCopy || $slots.actions" class="tool-output__actions">
@@ -43,7 +49,7 @@ withDefaults(
         <CopyButton
           v-if="!hideCopy"
           :text="copyText"
-          :label="copyLabel"
+          :label="resolvedCopyLabel"
           :disabled="!copyText"
         />
       </div>

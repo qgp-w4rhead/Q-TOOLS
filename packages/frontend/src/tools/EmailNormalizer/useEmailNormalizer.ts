@@ -1,5 +1,5 @@
 /**
- * useEmailNormalizer — composable + pure logic for the Email normalizer tool.
+ * useEmailNormalizer - composable + pure logic for the Email normalizer tool.
  *
  * Parses an email address into its local part and domain, validates it with a
  * pragmatic (non-RFC-5322-strict) grammar, and produces a canonical normalized
@@ -7,7 +7,7 @@
  *
  *   1. Lowercase the whole address.
  *   2. Strip the `+suffix` sub-address tag from the local part (applies to all
- *      providers — `user+tag@domain` → `user@domain`).
+ *      providers - `user+tag@domain` → `user@domain`).
  *   3. For Gmail addresses (`gmail.com` and `googlemail.com`), also strip
  *      every `.` from the local part (Gmail ignores dots).
  *
@@ -23,7 +23,7 @@
  * standalone for unit testing or reuse. The `useEmailNormalizer()` composable
  * wraps them in reactive state and wires up the embed PostMessage protocol.
  *
- * No external dependencies — only a bundled disposable-domain set and a
+ * No external dependencies - only a bundled disposable-domain set and a
  * provider map.
  */
 import { ref, watch, type Ref } from 'vue';
@@ -31,7 +31,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Domains Google treats as equivalent to `gmail.com` for normalisation. */
@@ -41,7 +41,7 @@ const GMAIL_DOMAINS = new Set<string>(['gmail.com', 'googlemail.com']);
  * Curated set of common disposable / temporary / throwaway email providers.
  *
  * This is intentionally a hand-maintained list of the most widely used
- * temp-mail services — it is not exhaustive (no public list is), but it covers
+ * temp-mail services - it is not exhaustive (no public list is), but it covers
  * the providers a developer is realistically likely to encounter when
  * filtering sign-ups. All entries are lowercased.
  */
@@ -161,7 +161,7 @@ const PROVIDER_MAP: ReadonlyArray<{ pattern: string; provider: string }> = [
   { pattern: 'sina.cn', provider: 'Sina Mail' },
 ];
 
-/** Result of `parseEmail` — the structural breakdown of an address. */
+/** Result of `parseEmail` - the structural breakdown of an address. */
 export interface ParsedEmail {
   /** Original input (trimmed, not lowercased). */
   raw: string;
@@ -175,7 +175,7 @@ export interface ParsedEmail {
   error: string | null;
 }
 
-/** Result of `normalizeEmail` — the canonical form + breakdown. */
+/** Result of `normalizeEmail` - the canonical form + breakdown. */
 export interface NormalizedEmail {
   /** Canonical normalized address (lowercase, dots/plus stripped per rules). */
   normalized: string;
@@ -206,7 +206,7 @@ export interface NormalizedEmail {
 /**
  * Pragmatic email validation.
  *
- * This is NOT a strict RFC 5322 implementation — it accepts the common
+ * This is NOT a strict RFC 5322 implementation - it accepts the common
  * address shapes a developer will encounter in practice and rejects the
  * obvious mistakes (missing `@`, empty local part, invalid characters, no
  * TLD, consecutive dots, leading/trailing dots in local part).
@@ -260,7 +260,7 @@ export function isValidEmail(input: string): { valid: boolean; error: string | n
     if (inner.length === 0) {
       return { valid: false, error: 'IP-literal domain is empty.' };
     }
-    // Accept any non-empty IPv4 / IPv6 literal — full IP validation is out of
+    // Accept any non-empty IPv4 / IPv6 literal - full IP validation is out of
     // scope for an email normaliser.
     return { valid: true, error: null };
   }
@@ -308,7 +308,7 @@ export function parseEmail(input: string): ParsedEmail {
     localPart = raw.slice(0, atIdx);
     domain = raw.slice(atIdx + 1);
   } else {
-    // No `@` — treat the whole string as the local part for display purposes.
+    // No `@` - treat the whole string as the local part for display purposes.
     localPart = raw;
   }
   const { valid, error } = isValidEmail(raw);
@@ -424,7 +424,7 @@ export function normalizeEmail(input: string): NormalizedEmail {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseEmailNormalizerReturn {

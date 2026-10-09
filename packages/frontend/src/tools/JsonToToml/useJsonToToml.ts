@@ -1,10 +1,10 @@
 /**
- * useJsonToToml — composable + pure logic for the JSON → TOML converter.
+ * useJsonToToml - composable + pure logic for the JSON → TOML converter.
  *
- * Parses JSON text (single object only — TOML's root is always a table) and
+ * Parses JSON text (single object only - TOML's root is always a table) and
  * emits TOML via `smol-toml`'s `stringify`. The `smol-toml` package is part
  * of the initial bundle per `tech-stack.md`, so it is statically imported
- * here — no dynamic import, no separate Vite chunk.
+ * here - no dynamic import, no separate Vite chunk.
  *
  * Pure helpers (`parseJsonObject`, `jsonToToml`) have no Vue dependency and
  * can be imported standalone for unit testing or reuse. The `useJsonToToml()`
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Result of a successful JSON → TOML conversion. */
@@ -169,7 +169,7 @@ function toError(err: unknown, stage: 'json' | 'toml', source?: string): JsonToT
 
 /** Extract the character position from a V8/Node SyntaxError message. */
 function extractPosition(message: string): number {
-  // Matches "at position N" (V8) — returns -1 if not found.
+  // Matches "at position N" (V8) - returns -1 if not found.
   const m = /at position (\d+)/.exec(message);
   return m ? Number(m[1]!) : -1;
 }
@@ -192,7 +192,7 @@ function posToLineCol(source: string, pos: number): { line: number; column: numb
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface JsonToTomlOutputs {

@@ -1,5 +1,5 @@
 /**
- * useEmbed — PostMessage protocol composable for iframe embed mode.
+ * useEmbed - PostMessage protocol composable for iframe embed mode.
  *
  * Tools call this composable to participate in the embed PostMessage protocol:
  *   - Detect whether the tool is running inside an iframe (embed mode).
@@ -12,7 +12,7 @@
  * Messages with a `source` other than `'Q-Tools-parent'` are ignored, making
  * the protocol safe to use alongside other PostMessage traffic on the page.
  *
- * The composable is a no-op when not in embed mode (standalone app usage) —
+ * The composable is a no-op when not in embed mode (standalone app usage) -
  * callbacks simply never fire and `sendOutput` does nothing.
  */
 import { onBeforeUnmount, onMounted, ref, shallowRef, type Ref } from 'vue';
@@ -60,7 +60,7 @@ function detectEmbed(): boolean {
   try {
     return window.self !== window.top;
   } catch {
-    // Cross-origin access to window.top throws — we are definitely framed.
+    // Cross-origin access to window.top throws - we are definitely framed.
     return true;
   }
 }
@@ -71,7 +71,7 @@ function resolveTarget(
 ): HTMLElement | null {
   if (!target) return null;
   if (target instanceof HTMLElement) return target;
-  // It's a ref — read its .value.
+  // It's a ref - read its .value.
   if ('value' in target) return (target as Ref<HTMLElement | null>).value;
   return null;
 }
@@ -81,7 +81,7 @@ export function useEmbed(options: UseEmbedOptions = {}): UseEmbedReturn {
   const isEmbed = ref(detectEmbed());
   const input = ref<EmbedInputPayload | null>(null);
 
-  // ResizeObserver instance — kept in a shallowRef so we can disconnect later.
+  // ResizeObserver instance - kept in a shallowRef so we can disconnect later.
   const observer = shallowRef<ResizeObserver | null>(null);
 
   function sendOutput(payload: EmbedOutputPayload): void {
@@ -103,7 +103,7 @@ export function useEmbed(options: UseEmbedOptions = {}): UseEmbedReturn {
   }
 
   function handleMessage(event: MessageEvent): void {
-    // Accept messages from any origin — the source tag is the protocol guard.
+    // Accept messages from any origin - the source tag is the protocol guard.
     if (!isParentToToolMessage(event.data)) return;
     input.value = event.data.payload;
     onInput?.(event.data.payload);

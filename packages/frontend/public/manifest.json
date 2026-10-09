@@ -1,7 +1,7 @@
 {
   "name": "Q-Tools",
   "short_name": "Q-Tools",
-  "description": "Comprehensive developer & utility tools — offline-first PWA, iframe-embeddable.",
+  "description": "Comprehensive developer & utility tools - offline-first PWA, iframe-embeddable.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

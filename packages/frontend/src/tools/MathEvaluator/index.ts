@@ -1,5 +1,5 @@
 /**
- * MathEvaluator tool module — exports the lazy-loaded component plus its
+ * MathEvaluator tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry and
  * routed dynamically.
  *
@@ -7,18 +7,22 @@
  * composable), which lands in its own Vite chunk (~15 KB) and is cached after
  * first use. The expression is **never** passed through `eval()`.
  */
-import { defineAsyncComponent } from 'vue';
-import type { ToolMetadata } from '@q-tools/shared';
+import { defineTool } from '@/tools/defineTool';
 
-export const metadata: ToolMetadata = {
-  slug: 'math-evaluator',
-  name: 'Math evaluator',
-  description: 'Safely evaluate math expressions (no eval).',
-  category: 'math',
-  icon: 'calculator',
-  keywords: ['math', 'evaluate', 'expression', 'expr-eval', 'calculator'],
-  dependencies: ['expr-eval'],
-};
+const { metadata, component } = defineTool(
+  {
+    slug: 'math-evaluator',
+    name: 'Math evaluator',
+    description: 'Safely evaluate math expressions (no eval).',
+    category: 'math',
+    icon: 'calculator',
+    keywords: ['math', 'evaluate', 'expression', 'expr-eval', 'calculator'],
+    dependencies: ['expr-eval'],
+  },
+  () => import('./MathEvaluator.vue'),
+);
+
+export { metadata };
 
 export {
   useMathEvaluator,
@@ -36,8 +40,4 @@ export type {
   MathHistoryEntry,
 } from './useMathEvaluator';
 
-const MathEvaluator = defineAsyncComponent(
-  () => import('./MathEvaluator.vue'),
-);
-
-export default MathEvaluator;
+export default component;

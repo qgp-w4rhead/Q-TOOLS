@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * UserAgentParser — parse a User-Agent string into browser / engine / OS /
+ * UserAgentParser - parse a User-Agent string into browser / engine / OS /
  * device / CPU details.
  *
  * The `ua-parser-js` package is lazy-loaded inside the composable so it lands
@@ -13,6 +13,7 @@
  * with the parsed fields whenever the result changes.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Monitor, RefreshCw, Check, Copy, Loader2 } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -21,6 +22,25 @@ import { useUserAgentParser, resultToText } from './useUserAgentParser';
 
 const { userAgent, result, loading, error, useMyUa, recompute } =
   useUserAgentParser();
+
+const { t } = useI18n();
+const U = 'tools.user-agent-parser.ui.';
+
+function groupLabel(id: string): string {
+  return t(`${U}groups.${id}`);
+}
+const FIELD_LABEL_KEYS: Record<string, string> = {
+  Name: 'name',
+  Version: 'version',
+  Type: 'type',
+  Vendor: 'vendor',
+  Model: 'model',
+  Architecture: 'architecture',
+};
+function fieldLabel(label: string): string {
+  const k = FIELD_LABEL_KEYS[label];
+  return k ? t(`${U}fields.${k}`) : label;
+}
 
 const hasInput = computed(() => userAgent.value.trim().length > 0);
 const totalFields = computed(() =>
@@ -49,29 +69,29 @@ function onInput(e: Event): void {
 </script>
 
 <template>
-  <div class="ua">
+  <div class="qt-tool">
     <ToolInput
-      title="User-agent string"
-      description="Paste a User-Agent string to decode it into browser, engine, OS, device, and CPU details. Your current browser's UA is auto-filled on load."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
-        <button class="ua__btn" type="button" @click="useMyUa">
+        <button class="qt-btn qt-btn--primary" type="button" @click="useMyUa">
           <Monitor :size="14" />
-          <span>Use my UA</span>
+          <span>{{ t(U + 'useMyUa') }}</span>
         </button>
         <button
-          class="ua__btn ua__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
           :disabled="!hasInput || loading"
           @click="recompute"
         >
-          <RefreshCw :size="14" :class="{ 'ua__spin': loading }" />
-          <span>{{ loading ? 'Parsing…' : 'Re-parse' }}</span>
+          <RefreshCw :size="14" :class="{ 'qt-spin': loading }" />
+          <span>{{ loading ? t(U + 'parsing') : t(U + 'reparse') }}</span>
         </button>
       </template>
 
       <textarea
-        class="ua__textarea"
+        class="qt-input qt-input--mono ua__textarea"
         placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
         :value="userAgent"
         spellcheck="false"
@@ -83,51 +103,52 @@ function onInput(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="Parsed result"
-      :description="result ? `${totalFields} fields detected` : 'Paste a User-Agent above to parse it.'"
+      :title="t(U + 'outputTitle')"
+      :description="result ? t(U + 'descResult', totalFields) : t(U + 'descEmpty')"
     >
       <template v-if="!hasInput">
-        <p class="ua__empty">Paste a User-Agent above to parse it.</p>
+        <p class="qt-alert qt-alert--empty">{{ t(U + 'empty') }}</p>
       </template>
       <template v-else-if="loading">
-        <div class="ua__loading">
-          <Loader2 :size="16" class="ua__spin" />
-          <span>Loading parser…</span>
+        <div class="qt-row qt-row--center ua__loading" style="--qt-row-gap:8px">
+          <Loader2 :size="16" class="qt-spin" />
+          <span>{{ t(U + 'loadingParser') }}</span>
         </div>
       </template>
       <template v-else-if="error">
-        <div class="ua__error">
+        <div class="qt-banner qt-banner--error">
           <span>{{ error }}</span>
         </div>
       </template>
       <template v-else-if="result">
-        <div class="ua__toolbar">
+        <div class="qt-row qt-row--end" style="margin-bottom:10px">
           <button
-            class="ua__btn ua__btn--ghost ua__btn--sm"
+            class="qt-btn qt-btn--ghost qt-btn--sm"
             type="button"
             @click="onCopyAll"
           >
             <component :is="copiedAll ? Check : Copy" :size="13" />
-            <span>{{ copiedAll ? 'Copied!' : 'Copy all' }}</span>
+            <span>{{ copiedAll ? t('common.copiedFeedback') : t('common.copyAll') }}</span>
           </button>
         </div>
 
-        <div class="ua__groups">
+        <div class="qt-stack" style="--qt-stack-gap:18px">
           <section
             v-for="group in result.groups"
             :key="group.id"
-            class="ua__group"
+            class="qt-stack"
+            style="--qt-stack-gap:8px"
           >
-            <h3 class="ua__group-title">{{ group.label }}</h3>
-            <dl class="ua__grid">
+            <h3 class="qt-stat-head ua__group-title">{{ groupLabel(group.id) }}</h3>
+            <dl class="qt-stack" style="--qt-stack-gap:2px;margin:0">
               <div
                 v-for="f in group.fields"
                 :key="f.key"
                 class="ua__row"
                 :class="{ 'ua__row--unavailable': f.unavailable }"
               >
-                <dt class="ua__key">{{ f.label }}</dt>
-                <dd class="ua__value" :title="f.value">{{ f.value || '—' }}</dd>
+                <dt class="qt-label">{{ fieldLabel(f.label) }}</dt>
+                <dd class="qt-mono ua__value" :title="f.value">{{ f.value || '-' }}</dd>
                 <CopyButton
                   v-if="!f.unavailable"
                   :text="f.value"
@@ -143,138 +164,29 @@ function onInput(e: Event): void {
 </template>
 
 <style scoped>
-.ua {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.ua__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.ua__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.ua__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.ua__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.ua__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.ua__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.ua__btn--sm {
-  font-size: 12px;
-  padding: 5px 10px;
-}
-.ua__spin {
-  animation: ua-spin 0.8s linear infinite;
-}
-@keyframes ua-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .ua__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
   font-size: 13px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 72px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.ua__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.ua__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
+/* Loading row (layout via .qt-row) — muted text + accent spinner. */
 .ua__loading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   color: var(--qt-muted);
   font-size: 13.5px;
 }
 .ua__loading svg {
   color: var(--qt-accent);
 }
-.ua__error {
-  padding: 10px 12px;
-  background: oklch(from var(--qt-danger) 35% c h / 0.18);
-  border: 1px solid oklch(from var(--qt-danger) 60% c h / 0.5);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-size: 13.5px;
-}
-.ua__toolbar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
-}
-.ua__groups {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-.ua__group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* Group heading (base via .qt-stat-head) — bottom rule. */
 .ua__group-title {
   margin: 0;
-  font-size: 12.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--qt-muted);
   padding-bottom: 6px;
   border-bottom: 1px solid var(--qt-border);
+  width: 100%;
 }
-.ua__grid {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 0;
-}
+/* Field rows — 3-col grid (key / value / copy) with hover reveal. */
 .ua__row {
   display: grid;
   grid-template-columns: minmax(140px, 220px) 1fr auto;
@@ -290,16 +202,10 @@ function onInput(e: Event): void {
 .ua__row--unavailable {
   opacity: 0.65;
 }
-.ua__key {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
 .ua__value {
   margin: 0;
   font-size: 13.5px;
   color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   word-break: break-word;
   min-width: 0;
 }

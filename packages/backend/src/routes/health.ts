@@ -1,8 +1,8 @@
 /**
- * GET /api/health — liveness/health check.
+ * GET /api/health - liveness/health check.
  *
  * Returns `{ status: 'ok', ... }` with build and uptime metadata. Does not
- * require a database connection — the health endpoint must succeed even
+ * require a database connection - the health endpoint must succeed even
  * when MongoDB is starting up.
  */
 import type { FastifyInstance } from 'fastify';

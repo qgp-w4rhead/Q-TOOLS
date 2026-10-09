@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * MarkdownToHtml — render Markdown to sanitized HTML.
+ * MarkdownToHtml - render Markdown to sanitized HTML.
  *
  * Uses `marked` (initial bundle, statically imported in the composable) to
  * parse Markdown, then optionally runs the DOMParser-based allowlist
@@ -15,6 +15,7 @@
  * the computed HTML changes.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, Eye, Code2 } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -34,9 +35,10 @@ const {
   setSanitize,
 } = useMarkdownToHtml();
 
-const description = computed(() =>
-  'Render Markdown to HTML with marked. GFM enables tables, strikethrough, and task lists; breaks converts single newlines to <br>; sanitize strips unsafe tags and attributes.',
-);
+const { t } = useI18n();
+const U = 'tools.markdown-to-html.ui.';
+
+const description = computed(() => t(U + 'desc'));
 
 const viewMode = ref<'preview' | 'source'>('preview');
 
@@ -67,58 +69,55 @@ function setView(mode: 'preview' | 'source'): void {
 </script>
 
 <template>
-  <div class="m2h">
-    <ToolInput title="Markdown input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'inputTitle')" :description="description">
       <template #actions>
         <button
-          class="m2h__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Render</span>
+          <span>{{ t(U + 'render') }}</span>
         </button>
       </template>
 
-      <div class="m2h__opts">
-        <label class="m2h__opt m2h__opt--check">
+      <div class="qt-row qt-row--center" style="--qt-row-gap:16px">
+        <label class="qt-check">
           <input
-            class="m2h__checkbox"
             type="checkbox"
             :checked="gfm"
             @change="onGfmToggle"
           />
-          <span class="m2h__label">GFM</span>
+          <span>{{ t(U + 'gfm') }}</span>
         </label>
 
-        <label class="m2h__opt m2h__opt--check">
+        <label class="qt-check">
           <input
-            class="m2h__checkbox"
             type="checkbox"
             :checked="breaks"
             :disabled="!gfm"
             @change="onBreaksToggle"
           />
-          <span class="m2h__label">Breaks</span>
+          <span>{{ t(U + 'breaks') }}</span>
         </label>
 
-        <label class="m2h__opt m2h__opt--check">
+        <label class="qt-check">
           <input
-            class="m2h__checkbox"
             type="checkbox"
             :checked="sanitize"
             @change="onSanitizeToggle"
           />
-          <span class="m2h__label">Sanitize</span>
+          <span>{{ t(U + 'sanitize') }}</span>
         </label>
       </div>
 
-      <label class="m2h__field">
-        <span class="m2h__label">Markdown</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'markdownLabel') }}</span>
         <textarea
-          class="m2h__textarea m2h__textarea--mono"
-          placeholder="# Hello&#10;&#10;Paste **Markdown** here…"
+          class="qt-input qt-input--mono m2h__textarea"
+          :placeholder="t(U + 'placeholder')"
           :value="input"
           rows="12"
           spellcheck="false"
@@ -129,12 +128,12 @@ function setView(mode: 'preview' | 'source'): void {
     </ToolInput>
 
     <ToolOutput
-      title="HTML output"
-      :description="outputs ? `${outputs.outputBytes} bytes` : 'Paste Markdown above to render.'"
+      :title="t(U + 'outputTitle')"
+      :description="outputs ? t(U + 'outputDesc', { n: outputs.outputBytes }) : t(U + 'empty')"
       :copy-text="outputs?.html ?? ''"
-      copy-label="Copy HTML"
+      :copy-label="t(U + 'copyHtml')"
     >
-      <p v-if="error" class="m2h__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
           <strong v-if="errorLocation">{{ errorLocation }}:</strong>
@@ -142,11 +141,11 @@ function setView(mode: 'preview' | 'source'): void {
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="m2h__empty">
-          Paste Markdown above to render.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'empty') }}
         </p>
-        <div v-if="outputs" class="m2h__result">
-          <div class="m2h__result-head">
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
             <div class="m2h__tabs">
               <button
                 class="m2h__tab"
@@ -155,7 +154,7 @@ function setView(mode: 'preview' | 'source'): void {
                 @click="setView('preview')"
               >
                 <Eye :size="14" />
-                <span>Preview</span>
+                <span>{{ t(U + 'preview') }}</span>
               </button>
               <button
                 class="m2h__tab"
@@ -164,21 +163,21 @@ function setView(mode: 'preview' | 'source'): void {
                 @click="setView('source')"
               >
                 <Code2 :size="14" />
-                <span>Source</span>
+                <span>{{ t(U + 'source') }}</span>
               </button>
             </div>
-            <CopyButton :text="outputs.html" label="Copy" icon-only />
+            <CopyButton :text="outputs.html" :label="t('common.copy')" icon-only />
           </div>
 
           <div v-if="viewMode === 'preview'" class="m2h__preview" v-html="outputs.html" />
-          <pre v-else class="m2h__code">{{ outputs.html }}</pre>
+          <pre v-else class="qt-mono m2h__code">{{ outputs.html }}</pre>
 
-          <div class="m2h__meta">
-            <span>{{ outputs.inputBytes }} bytes in</span>
+          <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px">
+            <span>{{ t(U + 'bytesIn', { n: outputs.inputBytes }) }}</span>
             <span class="m2h__dot">·</span>
-            <span>{{ outputs.outputBytes }} bytes out</span>
+            <span>{{ t(U + 'bytesOut', { n: outputs.outputBytes }) }}</span>
             <span v-if="sanitize" class="m2h__dot">·</span>
-            <span v-if="sanitize">sanitized</span>
+            <span v-if="sanitize">{{ t(U + 'sanitized') }}</span>
           </div>
         </div>
       </template>
@@ -187,127 +186,13 @@ function setView(mode: 'preview' | 'source'): void {
 </template>
 
 <style scoped>
-.m2h {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.m2h__opts {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.m2h__opt--check {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.m2h__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.m2h__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.m2h__checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
-.m2h__checkbox:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .m2h__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 220px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.m2h__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.m2h__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.m2h__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.m2h__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.m2h__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.m2h__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.m2h__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.m2h__error strong {
-  margin-right: 4px;
-}
-.m2h__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.m2h__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.m2h__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* Preview/source tab toggle (borderless). */
 .m2h__tabs {
   display: flex;
   gap: 4px;
@@ -330,7 +215,6 @@ function setView(mode: 'preview' | 'source'): void {
     color 0.15s ease,
     background-color 0.15s ease,
     border-color 0.15s ease;
-  will-change: color, background-color;
 }
 .m2h__tab:hover {
   color: var(--qt-text);
@@ -340,8 +224,8 @@ function setView(mode: 'preview' | 'source'): void {
   background: var(--qt-surface);
   border-color: var(--qt-border);
 }
+/* HTML source block (font via .qt-mono) — scrollable, pre-wrapped. */
 .m2h__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -350,19 +234,12 @@ function setView(mode: 'preview' | 'source'): void {
   max-height: 60vh;
   overflow: auto;
 }
-.m2h__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
-}
+/* Meta separator dot. */
 .m2h__dot {
   opacity: 0.6;
 }
 
-/* Live HTML preview — render Markdown output with readable typography. */
+/* Live HTML preview - render Markdown output with readable typography. */
 .m2h__preview {
   color: var(--qt-text);
   font-size: 14px;

@@ -1,5 +1,5 @@
 /**
- * useJwtParser — composable + pure logic for the JWT parser tool.
+ * useJwtParser - composable + pure logic for the JWT parser tool.
  *
  * Decodes a JSON Web Token (JWS compact form: `header.payload.signature`) into
  * its three base64url-encoded parts, parses the header and payload as JSON, and
@@ -12,14 +12,14 @@
  * standalone for unit testing or reuse. The `useJwtParser()` composable wraps
  * them in reactive state and wires up the embed PostMessage protocol.
  *
- * No external dependencies — only the native `atob` / `TextDecoder` APIs.
+ * No external dependencies - only the native `atob` / `TextDecoder` APIs.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -74,7 +74,7 @@ export function decodeJwtPart(part: string): string {
   return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
 }
 
-/** Stage tag for `JwtParseError` — where in the parse pipeline it failed. */
+/** Stage tag for `JwtParseError` - where in the parse pipeline it failed. */
 export type JwtParseStage = 'structure' | 'segment' | 'json';
 
 /** Error thrown by the JWT parser. Carries a stage tag for UI surfacing. */
@@ -87,7 +87,7 @@ export class JwtParseError extends Error {
   }
 }
 
-/** Decoded header or payload part — JSON value plus the raw decoded text. */
+/** Decoded header or payload part - JSON value plus the raw decoded text. */
 export interface JwtPart {
   /** Raw decoded UTF-8 text of the segment (before JSON.parse). */
   raw: string;
@@ -255,7 +255,7 @@ function numericClaim(value: unknown): number | null {
  * Format a JWT numeric date (seconds since epoch) as a human-readable string.
  *
  * Returns both the local time and the UTC time, plus the relative offset, e.g.
- * `2024-01-15 12:30:00 local (2024-01-15 17:30 UTC) — in 3 days`.
+ * `2024-01-15 12:30:00 local (2024-01-15 17:30 UTC) - in 3 days`.
  */
 export function formatDate(seconds: number): string {
   const ms = seconds * 1000;
@@ -299,7 +299,7 @@ export function checkValidity(
     const secondsRemaining = nbfSec - nowSec;
     return {
       status: 'not-yet-valid',
-      message: `Not valid yet — becomes valid in ${humanizeDuration(
+      message: `Not valid yet - becomes valid in ${humanizeDuration(
         secondsRemaining,
       )}`,
       secondsRemaining,
@@ -317,7 +317,7 @@ export function checkValidity(
     }
     return {
       status: 'valid',
-      message: `Valid — expires in ${humanizeDuration(secondsRemaining)}`,
+      message: `Valid - expires in ${humanizeDuration(secondsRemaining)}`,
       secondsRemaining,
     };
   }
@@ -349,7 +349,7 @@ function humanizeDuration(seconds: number): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseJwtParserReturn {

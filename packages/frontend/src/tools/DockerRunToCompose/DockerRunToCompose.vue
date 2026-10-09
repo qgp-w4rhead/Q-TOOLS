@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * DockerRunToCompose — convert `docker run` commands into a
+ * DockerRunToCompose - convert `docker run` commands into a
  * `docker-compose.yml` file.
  *
  * Paste one or more `docker run` invocations (optionally joined by `&&`,
@@ -15,6 +15,7 @@
  * changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, Container, TriangleAlert } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -23,12 +24,18 @@ import { useDockerRunToCompose } from './useDockerRunToCompose';
 
 const { input, outputs, error, recompute } = useDockerRunToCompose();
 
+const { t } = useI18n();
+const U = 'tools.docker-run-to-compose.ui.';
+
 const metaLine = computed(() => {
   if (!outputs.value) return '';
   const o = outputs.value;
-  const parts = [`${o.serviceCount} service${o.serviceCount === 1 ? '' : 's'}`, `${o.outputBytes} bytes`];
+  const parts = [
+    t(o.serviceCount === 1 ? U + 'servicesOne' : U + 'services', { n: o.serviceCount }),
+    t(U + 'metaBytes', { n: o.outputBytes }),
+  ];
   if (o.warnings.length > 0) {
-    parts.push(`${o.warnings.length} warning${o.warnings.length === 1 ? '' : 's'}`);
+    parts.push(t(o.warnings.length === 1 ? U + 'warningsOne' : U + 'warnings', { n: o.warnings.length }));
   }
   return parts.join(' · ');
 });
@@ -57,31 +64,31 @@ function loadExample(): void {
 </script>
 
 <template>
-  <div class="drc">
+  <div class="qt-tool">
     <ToolInput
-      title="docker run command"
-      description="Paste one or more `docker run` commands. Shell quoting and line continuations are supported."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
-        <button class="drc__btn drc__btn--ghost" type="button" @click="loadExample">
-          Example
+        <button class="qt-btn qt-btn--outline" type="button" @click="loadExample">
+          {{ t(U + 'example') }}
         </button>
         <button
-          class="drc__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t(U + 'convert') }}</span>
         </button>
       </template>
 
-      <label class="drc__field">
-        <span class="drc__label">Command</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'command') }}</span>
         <textarea
-          class="drc__textarea drc__textarea--mono"
-          placeholder="docker run -d --name web -p 80:80 -v ./html:/usr/share/nginx/html nginx:alpine"
+          class="qt-input qt-input--mono drc__textarea"
+          :placeholder="t(U + 'phCommand')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -92,39 +99,39 @@ function loadExample(): void {
     </ToolInput>
 
     <ToolOutput
-      title="docker-compose.yml"
-      :description="outputs ? metaLine : 'Paste a docker run command above to convert.'"
+      :title="t(U + 'outTitle')"
+      :description="outputs ? metaLine : t(U + 'descEmpty')"
       :copy-text="outputs?.yaml ?? ''"
-      copy-label="Copy YAML"
+      :copy-label="t(U + 'copyYaml')"
     >
-      <p v-if="error" class="drc__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="drc__empty">
-          Paste a docker run command above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'descEmpty') }}
         </p>
-        <div v-if="outputs" class="drc__result">
-          <div class="drc__result-head">
-            <span class="drc__result-label">
+        <div v-if="outputs" class="qt-panel qt-stack" style="--qt-stack-gap:6px;padding:8px 10px">
+          <div class="qt-row qt-row--center" style="--qt-row-gap:8px">
+            <span class="qt-label" style="color:var(--qt-text);flex:1">
               <Container :size="13" />
-              <span>{{ outputs.serviceCount }} service{{ outputs.serviceCount === 1 ? '' : 's' }}</span>
+              <span>{{ t(outputs.serviceCount === 1 ? U + 'servicesOne' : U + 'services', { n: outputs.serviceCount }) }}</span>
             </span>
-            <CopyButton :text="outputs.yaml" label="Copy" icon-only />
+            <CopyButton :text="outputs.yaml" :label="t('common.copy')" icon-only />
           </div>
           <pre v-if="outputs.yaml" class="drc__code"><code>{{ outputs.yaml }}</code></pre>
-          <p v-else class="drc__empty">Conversion produced an empty result.</p>
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
           <div v-if="outputs.warnings.length > 0" class="drc__warnings">
             <div class="drc__warnings-head">
               <TriangleAlert :size="13" />
-              <span>{{ outputs.warnings.length }} warning{{ outputs.warnings.length === 1 ? '' : 's' }}</span>
+              <span>{{ t(outputs.warnings.length === 1 ? U + 'warningsOne' : U + 'warnings', { n: outputs.warnings.length }) }}</span>
             </div>
             <ul class="drc__warnings-list">
               <li v-for="(w, idx) in outputs.warnings" :key="idx">{{ w }}</li>
             </ul>
           </div>
-          <div class="drc__meta">
+          <div class="qt-row qt-row--center" style="--qt-row-gap:6px;font-size:12px;color:var(--qt-muted)">
             <span>{{ metaLine }}</span>
           </div>
         </div>
@@ -134,124 +141,16 @@ function loadExample(): void {
 </template>
 
 <style scoped>
-.drc {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.drc__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.drc__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Command textarea — taller min-height (collapses on narrow). */
 .drc__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.drc__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.drc__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.drc__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.drc__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.drc__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.drc__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.drc__btn--ghost {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  color: var(--qt-text);
-}
-.drc__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-  transform: none;
-}
-.drc__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.drc__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.drc__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.drc__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.drc__result-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+
+/* Compose output — bare code inside the result panel (no border/padding). */
 .drc__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -265,6 +164,8 @@ function loadExample(): void {
   font: inherit;
   white-space: pre-wrap;
 }
+
+/* Unsupported-flag warnings — tinted callout with a mono list. */
 .drc__warnings {
   margin-top: 4px;
   padding: 8px 10px;
@@ -288,17 +189,10 @@ function loadExample(): void {
   line-height: 1.5;
 }
 .drc__warnings-list li {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   word-break: break-word;
 }
-.drc__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
-}
+
 @media (max-width: 520px) {
   .drc__textarea {
     min-height: 140px;

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * TextStatistics — compute comprehensive statistics about a body of text.
+ * TextStatistics - compute comprehensive statistics about a body of text.
  *
  * Type or paste text into the input area; the statistics panel updates live
  * (debounced). Statistics include character counts (with and without spaces),
@@ -11,6 +11,7 @@
  * sends `output` PostMessages with the computed statistics.
  */
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RotateCcw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -21,6 +22,9 @@ import {
 } from './useTextStatistics';
 
 const { input, stats, reset } = useTextStatistics();
+
+const { t } = useI18n();
+const U = 'tools.text-statistics.ui.';
 
 // Debounce the recompute so typing stays responsive. The composable watches
 // `input` directly; we just buffer the textarea value and flush on a timer.
@@ -48,187 +52,94 @@ interface StatCard {
 }
 
 const cards = (s: TextStats): StatCard[] => [
-  { label: 'Characters', value: String(s.characters) },
-  { label: 'Characters (no spaces)', value: String(s.charactersNoSpaces) },
-  { label: 'Words', value: String(s.words) },
-  { label: 'Sentences', value: String(s.sentences) },
-  { label: 'Paragraphs', value: String(s.paragraphs) },
-  { label: 'Lines', value: String(s.lines) },
+  { label: t(U + 'statCharacters'), value: String(s.characters) },
+  { label: t(U + 'statCharactersNoSpaces'), value: String(s.charactersNoSpaces) },
+  { label: t(U + 'statWords'), value: String(s.words) },
+  { label: t(U + 'statSentences'), value: String(s.sentences) },
+  { label: t(U + 'statParagraphs'), value: String(s.paragraphs) },
+  { label: t(U + 'statLines'), value: String(s.lines) },
   {
-    label: 'Avg. word length',
+    label: t(U + 'statAvgWordLength'),
     value: s.avgWordLength.toFixed(2),
-    hint: 'characters',
+    hint: t(U + 'hintCharacters'),
   },
   {
-    label: 'Avg. sentence length',
+    label: t(U + 'statAvgSentenceLength'),
     value: s.avgSentenceLength.toFixed(2),
-    hint: 'words',
+    hint: t(U + 'hintWords'),
   },
   {
-    label: 'Reading time',
+    label: t(U + 'statReadingTime'),
     value: formatDuration(s.readingTimeMs),
-    hint: '@ 200 wpm',
+    hint: t(U + 'hintWpm', { n: 200 }),
   },
   {
-    label: 'Speaking time',
+    label: t(U + 'statSpeakingTime'),
     value: formatDuration(s.speakingTimeMs),
-    hint: '@ 130 wpm',
+    hint: t(U + 'hintWpm', { n: 130 }),
   },
 ];
 
 const summary = (s: TextStats): string =>
-  `${s.characters} chars · ${s.words} words · ${s.sentences} sentences · ${s.lines} lines`;
+  t(U + 'summary', { chars: s.characters, words: s.words, sentences: s.sentences, lines: s.lines });
 
 const copyStats = (s: TextStats): string =>
   [
-    `Characters: ${s.characters}`,
-    `Characters (no spaces): ${s.charactersNoSpaces}`,
-    `Words: ${s.words}`,
-    `Sentences: ${s.sentences}`,
-    `Paragraphs: ${s.paragraphs}`,
-    `Lines: ${s.lines}`,
-    `Avg. word length: ${s.avgWordLength.toFixed(2)}`,
-    `Avg. sentence length: ${s.avgSentenceLength.toFixed(2)}`,
-    `Reading time: ${formatDuration(s.readingTimeMs)}`,
-    `Speaking time: ${formatDuration(s.speakingTimeMs)}`,
+    `${t(U + 'statCharacters')}: ${s.characters}`,
+    `${t(U + 'statCharactersNoSpaces')}: ${s.charactersNoSpaces}`,
+    `${t(U + 'statWords')}: ${s.words}`,
+    `${t(U + 'statSentences')}: ${s.sentences}`,
+    `${t(U + 'statParagraphs')}: ${s.paragraphs}`,
+    `${t(U + 'statLines')}: ${s.lines}`,
+    `${t(U + 'statAvgWordLength')}: ${s.avgWordLength.toFixed(2)}`,
+    `${t(U + 'statAvgSentenceLength')}: ${s.avgSentenceLength.toFixed(2)}`,
+    `${t(U + 'statReadingTime')}: ${formatDuration(s.readingTimeMs)}`,
+    `${t(U + 'statSpeakingTime')}: ${formatDuration(s.speakingTimeMs)}`,
   ].join('\n');
 </script>
 
 <template>
-  <div class="ts">
+  <div class="qt-tool">
     <ToolInput
-      title="Input"
-      description="Type or paste text. Statistics update live."
+      :title="t('common.input')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="ts__btn ts__btn--ghost"
-          title="Clear input"
+          class="qt-btn qt-btn--ghost"
+          :title="t(U + 'clearTitle')"
           @click="onReset"
         >
           <RotateCcw :size="14" />
-          <span>Clear</span>
+          <span>{{ t('common.clear') }}</span>
         </button>
       </template>
 
       <textarea
-        class="ts__input"
+        class="qt-input"
+        style="min-height:220px;line-height:1.6;padding:12px 14px"
         spellcheck="false"
-        placeholder="Start typing…"
+        :placeholder="t(U + 'placeholder')"
         :value="draft"
         @input="onInput"
-        aria-label="Text to analyse"
+        :aria-label="t(U + 'ariaInput')"
       ></textarea>
     </ToolInput>
 
     <ToolOutput
-      title="Statistics"
+      :title="t(U + 'outputTitle')"
       :description="summary(stats)"
       :copy-text="copyStats(stats)"
-      copy-label="Copy stats"
+      :copy-label="t(U + 'copyStats')"
     >
-      <div class="ts__grid">
-        <div v-for="card in cards(stats)" :key="card.label" class="ts__card">
-          <span class="ts__card-label">{{ card.label }}</span>
-          <span class="ts__card-value">{{ card.value }}</span>
-          <span v-if="card.hint" class="ts__card-hint">{{ card.hint }}</span>
+      <div class="qt-grid" style="--qt-grid-min:160px;--qt-grid-gap:10px">
+        <div v-for="card in cards(stats)" :key="card.label" class="qt-result" style="padding:12px 14px">
+          <span class="qt-stat-head">{{ card.label }}</span>
+          <span style="font-size:22px;font-weight:700;color:var(--qt-text);font-variant-numeric:tabular-nums;line-height:1.2">{{ card.value }}</span>
+          <span v-if="card.hint" class="qt-hint">{{ card.hint }}</span>
         </div>
       </div>
     </ToolOutput>
   </div>
 </template>
-
-<style scoped>
-.ts {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.ts__input {
-  width: 100%;
-  min-height: 220px;
-  resize: vertical;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  line-height: 1.6;
-  padding: 12px 14px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.ts__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.ts__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: var(--qt-radius-sm);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.ts__btn--ghost {
-  background: transparent;
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-}
-.ts__btn--ghost:hover {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.ts__btn--ghost:active {
-  transform: translateY(1px);
-}
-.ts__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
-}
-.ts__card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 12px 14px;
-}
-.ts__card-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.ts__card-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--qt-text);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.2;
-}
-.ts__card-hint {
-  font-size: 11.5px;
-  color: var(--qt-muted);
-}
-</style>

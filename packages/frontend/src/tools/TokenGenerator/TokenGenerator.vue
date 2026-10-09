@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * TokenGenerator — generate cryptographically secure random tokens.
+ * TokenGenerator - generate cryptographically secure random tokens.
  *
  * Configurable length (1-512), charset (lowercase/uppercase/numbers/symbols or
  * a custom string), and quantity (1-1000). Randomness comes from
@@ -10,6 +10,7 @@
  * sends `output` PostMessages whenever the generated tokens change.
  */
 import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RefreshCw, AlertCircle } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -22,6 +23,8 @@ import {
   MAX_QUANTITY,
 } from './useTokenGenerator';
 
+const { t } = useI18n();
+
 const {
   config,
   tokens,
@@ -31,7 +34,7 @@ const {
   regenerate,
 } = useTokenGenerator();
 
-/** All tokens joined by newlines — used for the "copy all" button. */
+/** All tokens joined by newlines - used for the "copy all" button. */
 const allTokensText = computed(() => tokens.value.join('\n'));
 
 /** True when at least one preset flag is on (or custom mode is active). */
@@ -65,28 +68,28 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="token-gen">
+  <div class="qt-tool">
     <ToolInput
-      title="Configuration"
-      description="Cryptographically secure random tokens (Web Crypto API)."
+      :title="t('common.configuration')"
+      :description="t('tools.token-generator.ui.desc')"
     >
       <template #actions>
         <button
-          class="token-gen__generate"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="!hasCharsetSelected"
           @click="regenerate"
         >
           <RefreshCw :size="14" />
-          <span>Generate</span>
+          <span>{{ t('common.generate') }}</span>
         </button>
       </template>
 
-      <div class="token-gen__row">
-        <label class="token-gen__field">
-          <span class="token-gen__label">Length</span>
+      <div class="qt-row">
+        <label class="qt-field qt-field--grow">
+          <span class="qt-label">{{ t('tools.token-generator.ui.length') }}</span>
           <input
-            class="token-gen__input"
+            class="qt-input"
             type="number"
             :min="MIN_LENGTH"
             :max="MAX_LENGTH"
@@ -94,10 +97,10 @@ onMounted(() => {
             @input="onLengthInput"
           />
         </label>
-        <label class="token-gen__field">
-          <span class="token-gen__label">Quantity</span>
+        <label class="qt-field qt-field--grow">
+          <span class="qt-label">{{ t('common.quantity') }}</span>
           <input
-            class="token-gen__input"
+            class="qt-input"
             type="number"
             :min="MIN_QUANTITY"
             :max="MAX_QUANTITY"
@@ -107,7 +110,7 @@ onMounted(() => {
         </label>
       </div>
 
-      <div class="token-gen__range-row">
+      <div class="qt-row qt-row--center qt-row--nowrap">
         <input
           class="token-gen__range"
           type="range"
@@ -121,97 +124,97 @@ onMounted(() => {
       </div>
 
       <fieldset class="token-gen__fieldset">
-        <legend class="token-gen__legend">Charset</legend>
-        <div class="token-gen__checks">
-          <label class="token-gen__check">
+        <legend class="qt-label token-gen__legend">{{ t('tools.token-generator.ui.charset') }}</legend>
+        <div class="qt-grid" style="--qt-grid-min:180px; --qt-grid-gap:6px 12px">
+          <label class="qt-check">
             <input
               type="checkbox"
               :checked="config.lowercase"
               :disabled="config.useCustom"
               @change="config.lowercase = ($event.target as HTMLInputElement).checked"
             />
-            <span>lowercase (a-z)</span>
+            <span>{{ t('tools.token-generator.ui.lowercase') }}</span>
           </label>
-          <label class="token-gen__check">
+          <label class="qt-check">
             <input
               type="checkbox"
               :checked="config.uppercase"
               :disabled="config.useCustom"
               @change="config.uppercase = ($event.target as HTMLInputElement).checked"
             />
-            <span>UPPERCASE (A-Z)</span>
+            <span>{{ t('tools.token-generator.ui.uppercaseOpt') }}</span>
           </label>
-          <label class="token-gen__check">
+          <label class="qt-check">
             <input
               type="checkbox"
               :checked="config.numbers"
               :disabled="config.useCustom"
               @change="config.numbers = ($event.target as HTMLInputElement).checked"
             />
-            <span>Numbers (0-9)</span>
+            <span>{{ t('tools.token-generator.ui.numbers') }}</span>
           </label>
-          <label class="token-gen__check">
+          <label class="qt-check">
             <input
               type="checkbox"
               :checked="config.symbols"
               :disabled="config.useCustom"
               @change="config.symbols = ($event.target as HTMLInputElement).checked"
             />
-            <span>Symbols</span>
+            <span>{{ t('tools.token-generator.ui.symbols') }}</span>
           </label>
-          <label class="token-gen__check">
+          <label class="qt-check">
             <input
               type="checkbox"
               :checked="config.excludeAmbiguous"
               :disabled="config.useCustom"
               @change="config.excludeAmbiguous = ($event.target as HTMLInputElement).checked"
             />
-            <span>Exclude ambiguous (l 1 I 0 O o)</span>
+            <span>{{ t('tools.token-generator.ui.excludeAmbiguous') }}</span>
           </label>
         </div>
 
-        <label class="token-gen__check token-gen__check--custom">
+        <label class="qt-check token-gen__check--custom">
           <input
             type="checkbox"
             :checked="config.useCustom"
             @change="config.useCustom = ($event.target as HTMLInputElement).checked"
           />
-          <span>Custom charset</span>
+          <span>{{ t('tools.token-generator.ui.customCharset') }}</span>
         </label>
         <input
           v-if="config.useCustom"
-          class="token-gen__input token-gen__input--mono"
+          class="qt-input qt-input--mono"
           type="text"
-          placeholder="Enter custom characters, e.g. abc123!@#"
+          :placeholder="t('tools.token-generator.ui.customPlaceholder')"
           :value="config.customCharset"
           @input="onCustomCharsetInput"
         />
       </fieldset>
 
       <p class="token-gen__charset-preview">
-        <span class="token-gen__charset-label">Effective charset</span>
-        <code class="token-gen__charset-value">{{ charset || '—' }}</code>
-        <span class="token-gen__charset-count">{{ charset.length }} chars</span>
+        <span class="token-gen__charset-label">{{ t('tools.token-generator.ui.effectiveCharset') }}</span>
+        <code class="qt-mono token-gen__charset-value">{{ charset || '-' }}</code>
+        <span class="token-gen__charset-count">{{ t('common.chars', { n: charset.length }) }}</span>
       </p>
     </ToolInput>
 
     <ToolOutput
-      title="Generated tokens"
-      :description="tokens.length ? `${tokens.length} token${tokens.length === 1 ? '' : 's'} of ${config.length} characters` : ''"
+      :title="t('tools.token-generator.ui.outputTitle')"
+      :description="tokens.length ? t('tools.token-generator.ui.outputDesc', { n: tokens.length, len: config.length }, tokens.length) : ''"
       :copy-text="allTokensText"
-      copy-label="Copy all"
+      :copy-label="t('common.copyAll')"
     >
-      <p v-if="error" class="token-gen__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
-      <p v-else-if="tokens.length === 0" class="token-gen__empty">
-        No tokens yet — click <strong>Generate</strong>.
+      <p v-else-if="tokens.length === 0" class="qt-alert qt-alert--empty">
+        {{ t('tools.token-generator.ui.empty') }}
       </p>
-      <ul v-else class="token-gen__list">
-        <li v-for="(t, i) in tokens" :key="i" class="token-gen__token">
-          <code class="token-gen__token-text">{{ t }}</code>
-          <CopyButton :text="t" label="Copy" icon-only />
+      <ul v-else class="qt-list qt-stack" style="--qt-stack-gap:6px">
+        <li v-for="(token, i) in tokens" :key="i" class="qt-result-row">
+          <code class="qt-mono token-gen__token-text">{{ token }}</code>
+          <CopyButton :text="token" :label="t('common.copy')" icon-only />
         </li>
       </ul>
     </ToolOutput>
@@ -219,56 +222,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.token-gen {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.token-gen__row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.token-gen__field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1 1 120px;
-}
-.token-gen__label {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  font-weight: 600;
-}
-.token-gen__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 8px 10px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.token-gen__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.token-gen__input--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.token-gen__range-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Range slider + readout. */
 .token-gen__range {
   flex: 1 1 auto;
   accent-color: var(--qt-accent);
@@ -281,6 +237,7 @@ onMounted(() => {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+/* Bordered checkbox group. */
 .token-gen__fieldset {
   border: 1px solid var(--qt-border);
   border-radius: var(--qt-radius-sm);
@@ -291,36 +248,14 @@ onMounted(() => {
   gap: 8px;
 }
 .token-gen__legend {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
   padding: 0 6px;
 }
-.token-gen__checks {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 6px 12px;
-}
-.token-gen__check {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  color: var(--qt-text);
-  cursor: pointer;
-}
-.token-gen__check input[type='checkbox'] {
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
-.token-gen__check input:disabled + span {
-  color: var(--qt-muted);
-  opacity: 0.6;
-}
+/* "Custom charset" check — emphasized + spaced. */
 .token-gen__check--custom {
   margin-top: 4px;
   font-weight: 600;
 }
+/* Effective-charset preview line. */
 .token-gen__charset-preview {
   display: flex;
   align-items: center;
@@ -334,7 +269,6 @@ onMounted(() => {
   font-weight: 600;
 }
 .token-gen__charset-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   background: var(--qt-bg);
   border: 1px solid var(--qt-border);
   border-radius: var(--qt-radius-sm);
@@ -347,68 +281,10 @@ onMounted(() => {
   margin-left: auto;
   font-variant-numeric: tabular-nums;
 }
-.token-gen__generate {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.token-gen__generate:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.token-gen__generate:active:not(:disabled) {
-  transform: translateY(0);
-}
-.token-gen__generate:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.token-gen__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.token-gen__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.token-gen__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.token-gen__token {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-}
+/* Token text (font via .qt-mono). */
 .token-gen__token-text {
   flex: 1 1 auto;
   min-width: 0;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--qt-text);
   word-break: break-all;

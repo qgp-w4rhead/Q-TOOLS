@@ -1,5 +1,5 @@
 /**
- * useChmodCalculator — composable + pure logic for the Chmod calculator tool.
+ * useChmodCalculator - composable + pure logic for the Chmod calculator tool.
  *
  * Interactive Unix file permission calculator covering the three permission
  * scopes (owner / group / other) × three permission bits (read / write /
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** The three permission scopes, in canonical octal order. */
@@ -329,7 +329,7 @@ export function describePermissions(perm: ChmodPermissions): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseChmodCalculatorReturn {

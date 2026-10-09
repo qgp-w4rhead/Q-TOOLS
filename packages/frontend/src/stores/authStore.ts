@@ -1,12 +1,12 @@
 /**
- * Auth store — JWT access/refresh tokens + user profile.
+ * Auth store - JWT access/refresh tokens + user profile.
  *
  * Tokens persist in LocalStorage (`q-tools-auth`) so a page reload keeps
  * the session. The store exposes `register`, `login`, `logout`, `refresh`,
  * `loadMe`, and `restore` actions. Other stores (favorites, presets) read
  * `isAuthenticated` to decide whether to sync with the backend.
  *
- * No UI is provided by this store — login/register screens are a separate
+ * No UI is provided by this store - login/register screens are a separate
  * concern. The store is the single source of truth for auth state.
  */
 import { defineStore } from 'pinia';
@@ -180,7 +180,7 @@ export const useAuthStore = defineStore('auth', {
 
     /**
      * Rehydrate from LocalStorage and validate the session. Safe to call
-     * on boot — no-ops when no tokens are stored.
+     * on boot - no-ops when no tokens are stored.
      */
     async restore(): Promise<UserProfile | null> {
       if (!this.accessToken) return null;

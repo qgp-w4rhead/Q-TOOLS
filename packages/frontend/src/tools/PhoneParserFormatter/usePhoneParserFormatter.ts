@@ -1,5 +1,5 @@
 /**
- * usePhoneParserFormatter — composable + pure logic for the phone parser and
+ * usePhoneParserFormatter - composable + pure logic for the phone parser and
  * formatter tool.
  *
  * Parses an arbitrary phone number string into a structured result using the
@@ -20,7 +20,7 @@ import type { EmbedInputPayload } from '@q-tools/shared';
 import type { CountryCode } from 'libphonenumber-js';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 /** A supported default country (ISO-3166 alpha-2) or `null` for auto-detect. */
@@ -209,7 +209,7 @@ export const FORMAT_ORDER: readonly PhoneFormat[] = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/* Pure helpers — no Vue dependency                                            */
+/* Pure helpers - no Vue dependency                                            */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -392,7 +392,7 @@ export async function buildResult(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 /** Debounce window (ms) for recomputing on input changes. */

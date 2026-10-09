@@ -1,9 +1,9 @@
 /**
- * useJsonDiff — composable + pure logic for the JSON diff tool.
+ * useJsonDiff - composable + pure logic for the JSON diff tool.
  *
  * Walks two parsed JSON values and produces a flat, path-based list of
  * `DiffEntry` records describing what was added, removed, changed, or left
- * unchanged. The walker is a hand-rolled recursive comparison — no external
+ * unchanged. The walker is a hand-rolled recursive comparison - no external
  * dependency (the milestone spec explicitly allows a custom implementation).
  *
  * Pure helpers (`parseJson`, `diffJson`, `deepEqualJson`, `formatJsonValue`)
@@ -18,7 +18,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Kind of difference recorded at a given path. */
@@ -87,7 +87,7 @@ export function parseJson(input: string, side: 'left' | 'right'): unknown {
 /**
  * Deep equality for JSON values. Uses `JSON.stringify` after a structural
  * kind check so that, e.g., `1` and `"1"` are not equal, and `{a:1,b:2}`
- * equals `{b:2,a:1}` (key order independent — `JSON.stringify` sorts? No, it
+ * equals `{b:2,a:1}` (key order independent - `JSON.stringify` sorts? No, it
  * does not, so we sort keys first via a canonicaliser).
  */
 export function deepEqualJson(a: unknown, b: unknown): boolean {
@@ -97,7 +97,7 @@ export function deepEqualJson(a: unknown, b: unknown): boolean {
 /**
  * Produce a canonical JSON string with sorted object keys so that key order
  * does not affect equality. Handles `undefined` (treated as `null` for
- * comparison purposes — JSON has no undefined).
+ * comparison purposes - JSON has no undefined).
  */
 function canonicalString(value: unknown): string {
   return JSON.stringify(sortKeys(value));
@@ -301,7 +301,7 @@ function posToLineCol(source: string, pos: number): { line: number; column: numb
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface JsonDiffOutputs {

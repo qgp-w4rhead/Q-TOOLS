@@ -1,5 +1,5 @@
 /**
- * useAsciiBinary — composable + pure logic for the Text-to-ASCII-binary tool.
+ * useAsciiBinary - composable + pure logic for the Text-to-ASCII-binary tool.
  *
  * Bidirectional conversion between UTF-8 text and binary (base-2) byte
  * representations. Each input byte is rendered as 8 bits (zero-padded to
@@ -7,7 +7,7 @@
  * single space).
  *
  * Because the conversion operates on UTF-8 bytes (via `TextEncoder` /
- * `TextDecoder`), any Unicode code point round-trips correctly — not just
+ * `TextDecoder`), any Unicode code point round-trips correctly - not just
  * ASCII. The "ASCII binary" name is the conventional label for this kind of
  * tool; the implementation is UTF-8 safe.
  *
@@ -23,7 +23,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Conversion mode. */
@@ -86,7 +86,7 @@ export function binaryToBytes(input: string): Uint8Array | null {
     return out;
   }
 
-  // Contiguous stream — must be a multiple of 8 bits, all 0/1.
+  // Contiguous stream - must be a multiple of 8 bits, all 0/1.
   if (!/^[01]+$/.test(trimmed)) return null;
   if (trimmed.length % 8 !== 0) return null;
   const count = trimmed.length / 8;
@@ -126,7 +126,7 @@ export function binaryToText(input: string): string | null {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface AsciiBinaryOutputs {

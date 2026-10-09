@@ -7,11 +7,13 @@ const STORAGE_KEY = 'q-tools-settings';
 interface PersistedSettings {
   theme: ThemeMode;
   locale: string;
+  sidebarCollapsed: boolean;
 }
 
 const DEFAULTS: PersistedSettings = {
   theme: 'dark',
   locale: 'en',
+  sidebarCollapsed: false,
 };
 
 function readPersisted(): PersistedSettings {
@@ -65,14 +67,22 @@ export const useSettingsStore = defineStore('settings', {
     setTheme(theme: ThemeMode) {
       this.theme = theme;
       applyTheme(theme);
-      persist({ theme: this.theme, locale: this.locale });
+      persist({ theme: this.theme, locale: this.locale, sidebarCollapsed: this.sidebarCollapsed });
     },
     toggleTheme() {
       this.setTheme(this.theme === 'dark' ? 'light' : 'dark');
     },
     setLocale(locale: string) {
       this.locale = locale;
-      persist({ theme: this.theme, locale: this.locale });
+      persist({ theme: this.theme, locale: this.locale, sidebarCollapsed: this.sidebarCollapsed });
+    },
+    toggleSidebar() {
+      this.sidebarCollapsed = !this.sidebarCollapsed;
+      persist({ theme: this.theme, locale: this.locale, sidebarCollapsed: this.sidebarCollapsed });
+    },
+    setSidebarCollapsed(collapsed: boolean) {
+      this.sidebarCollapsed = collapsed;
+      persist({ theme: this.theme, locale: this.locale, sidebarCollapsed: this.sidebarCollapsed });
     },
   },
 });

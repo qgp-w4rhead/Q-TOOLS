@@ -1,11 +1,11 @@
 /**
- * useRandomPortGenerator — composable + pure logic for the Random port
+ * useRandomPortGenerator - composable + pure logic for the Random port
  * generator tool.
  *
  * Generates cryptographically secure random TCP/UDP port numbers in a
  * user-configurable range, with an "exclude well-known ports (<1024)" toggle
  * and a quantity control. Randomness uses the Web Crypto API
- * (`crypto.getRandomValues`) with rejection sampling to avoid modulo bias —
+ * (`crypto.getRandomValues`) with rejection sampling to avoid modulo bias -
  * never `Math.random()`.
  *
  * The pure functions (`secureRandomIntInRange`, `generatePort`,
@@ -21,7 +21,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Minimum/maximum TCP/UDP port numbers (IANA range). */
@@ -100,7 +100,7 @@ export function validateConfig(cfg: RandomPortConfig): ConfigValidation {
     normalized.min = WELL_KNOWN_BOUNDARY;
   }
   if (normalized.max < WELL_KNOWN_BOUNDARY && normalized.excludeWellKnown) {
-    // The whole range is below the well-known boundary — lift max too so the
+    // The whole range is below the well-known boundary - lift max too so the
     // range is non-empty (single port 1024).
     normalized.max = WELL_KNOWN_BOUNDARY;
   }
@@ -170,7 +170,7 @@ export function secureRandomIntInRange(min: number, max: number): number {
   const full = 0x100000000;
   const threshold = full - (full % range);
   const buf = new Uint32Array(1);
-  // Rejection sampling loop — expected iterations ~1.x.
+  // Rejection sampling loop - expected iterations ~1.x.
   // eslint-disable-next-line no-constant-condition
   while (true) {
     crypto.getRandomValues(buf);
@@ -207,7 +207,7 @@ export function generatePorts(cfg: RandomPortConfig): number[] {
 
   // Unique mode.
   if (span <= 65536) {
-    // Small range — partial Fisher–Yates shuffle. Build the index array once.
+    // Small range - partial Fisher–Yates shuffle. Build the index array once.
     // For very large spans this would be heavy on memory, so we cap the
     // array-building path at the full TCP/UDP range (65536 entries = 256KB).
     const pool = new Array<number>(span);
@@ -223,7 +223,7 @@ export function generatePorts(cfg: RandomPortConfig): number[] {
     return pool.slice(0, c.quantity);
   }
 
-  // Large range + unique — rejection-sample into a Set. With a huge range the
+  // Large range + unique - rejection-sample into a Set. With a huge range the
   // collision probability is negligible so this is effectively O(quantity).
   const seen = new Set<number>();
   while (seen.size < c.quantity) {
@@ -233,7 +233,7 @@ export function generatePorts(cfg: RandomPortConfig): number[] {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseRandomPortGeneratorReturn {

@@ -1,5 +1,5 @@
 /**
- * useIbanValidatorParser — composable + pure logic for the IBAN validator and
+ * useIbanValidatorParser - composable + pure logic for the IBAN validator and
  * parser tool.
  *
  * Validates an International Bank Account Number (IBAN) per ISO 13616 and
@@ -22,7 +22,7 @@
  * `useIbanValidatorParser()` composable wraps them in reactive state and wires
  * up the embed PostMessage protocol.
  *
- * No external dependencies — the country spec table and mod-97 algorithm are
+ * No external dependencies - the country spec table and mod-97 algorithm are
  * hand-rolled.
  */
 import { ref, watch, type Ref } from 'vue';
@@ -30,7 +30,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Segment kind within a country's BBAN. */
@@ -950,7 +950,7 @@ export interface IbanValidation {
  *   5. Reject invalid characters in the BBAN per the country's segment specs.
  *   6. Verify the mod-97 checksum (rearrange + expand letters + mod 97 = 1).
  *
- * The input may be raw (with spaces) — it is normalised internally.
+ * The input may be raw (with spaces) - it is normalised internally.
  */
 export function validateIban(input: string): IbanValidation {
   const iban = normalizeIban(input);
@@ -1017,7 +1017,7 @@ export function validateIban(input: string): IbanValidation {
   return { valid: true, error: null };
 }
 
-/** Result of `parseIban` — the full structural breakdown. */
+/** Result of `parseIban` - the full structural breakdown. */
 export interface IbanParseResult {
   /** Original input (trimmed, not normalised). */
   raw: string;
@@ -1048,7 +1048,7 @@ export interface IbanParseResult {
 /**
  * Parse an IBAN into its constituent parts.
  *
- * Always returns an `IbanParseResult` — even for invalid input — so the UI can
+ * Always returns an `IbanParseResult` - even for invalid input - so the UI can
  * display whatever breakdown is recoverable alongside the validation error.
  * For invalid input, the segment fields are populated best-effort from the
  * country spec when the country code is recognised and the length matches.
@@ -1149,7 +1149,7 @@ export function formatIban(iban: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseIbanValidatorParserReturn {

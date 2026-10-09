@@ -1,9 +1,9 @@
 /**
- * Tool routes — list and invoke.
+ * Tool routes - list and invoke.
  *
- *   GET  /api/tools             — list all available tools (metadata)
- *   GET  /api/tools/:toolName   — get a single tool's metadata
- *   POST /api/tools/:toolName   — invoke an API-accessible tool
+ *   GET  /api/tools             - list all available tools (metadata)
+ *   GET  /api/tools/:toolName   - get a single tool's metadata
+ *   POST /api/tools/:toolName   - invoke an API-accessible tool
  *
  * Only tools flagged `apiAccessible: true` in the registry can be invoked
  * via POST. The actual per-tool execution handlers are registered in later

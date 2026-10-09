@@ -1,5 +1,5 @@
 /**
- * useBase64File — composable + pure logic for the Base64 file converter.
+ * useBase64File - composable + pure logic for the Base64 file converter.
  *
  * Bidirectional conversion between binary files and Base64:
  *  - **Encode**: drop/pick a file → Base64 string (raw or as a Data URI).
@@ -30,13 +30,13 @@ import {
 } from '@/tools/Base64String/useBase64String';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Conversion mode. */
 export type Base64FileMode = 'encode' | 'decode';
 
-/** Maximum file size we accept for encoding (32 MiB — keeps the tab responsive). */
+/** Maximum file size we accept for encoding (32 MiB - keeps the tab responsive). */
 export const MAX_FILE_SIZE = 32 * 1024 * 1024;
 
 /** Default download filename when none can be inferred. */
@@ -89,7 +89,7 @@ export function readFileAsDataURL(file: Blob): Promise<string> {
 /**
  * Parse a Data URI into its components.
  *
- * Accepts `data:[<mediatype>][;base64],<data>` (base64 only — the
+ * Accepts `data:[<mediatype>][;base64],<data>` (base64 only - the
  * URL-encoded form is rare for binary data and not supported). Returns
  * `null` when the input is not a Data URI.
  */
@@ -127,7 +127,7 @@ export function parseDataUri(input: string): ParsedDataUri | null {
 /**
  * Build a Data URI from a Base64 string and a MIME type.
  *
- * `data:<mime>;base64,<payload>` — the canonical form for binary data.
+ * `data:<mime>;base64,<payload>` - the canonical form for binary data.
  */
 export function buildDataUri(base64: string, mimeType: string): string {
   const mime = mimeType || 'application/octet-stream';
@@ -168,7 +168,7 @@ export function downloadBytes(
  * Format a byte count as a human-readable string (B / KiB / MiB / GiB).
  */
 export function formatFileSize(bytes: number): string {
-  if (!Number.isFinite(bytes) || bytes < 0) return '—';
+  if (!Number.isFinite(bytes) || bytes < 0) return '-';
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KiB`;
   if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(2)} MiB`;
@@ -222,7 +222,7 @@ export function stripDataUri(input: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 /** Reactive encode-mode state (the picked file). */
@@ -261,7 +261,7 @@ export interface UseBase64FileReturn {
   dataUri: Ref<string>;
   /** The recovered download metadata (decode mode) or null. */
   decoded: Ref<DecodeFileState | null>;
-  /** The recovered bytes (decode mode) — kept for the download button. */
+  /** The recovered bytes (decode mode) - kept for the download button. */
   decodedBytes: Ref<Uint8Array | null>;
   /** Error message (empty string when none). */
   error: Ref<string>;
@@ -296,7 +296,7 @@ export function useBase64File(): UseBase64FileReturn {
   const error = ref<string>('');
   const busy = ref<boolean>(false);
 
-  /** Raw bytes from the last encode — kept so we can re-render on toggle changes. */
+  /** Raw bytes from the last encode - kept so we can re-render on toggle changes. */
   let encodeBytes: Uint8Array | null = null;
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
@@ -354,7 +354,7 @@ export function useBase64File(): UseBase64FileReturn {
       mimeType = parsed.mimeType;
       payload = parsed.base64;
     }
-    // Tolerate either alphabet regardless of the toggle — many Data URIs
+    // Tolerate either alphabet regardless of the toggle - many Data URIs
     // use the standard alphabet even when the user has URL-safe selected.
     const bytes = base64ToBytes(payload, urlSafe.value);
     if (bytes === null) {
@@ -436,7 +436,7 @@ export function useBase64File(): UseBase64FileReturn {
       // Decode-mode inputs.
       if (typeof p.base64 === 'string') input.value = p.base64;
       else if (typeof p.dataUri === 'string') input.value = p.dataUri;
-      // Encode-mode input via a URL — fetch + decode as if the user dropped it.
+      // Encode-mode input via a URL - fetch + decode as if the user dropped it.
       const url = p.url;
       const fileNameHint = p.fileName;
       const mimeTypeHint = p.mimeType;

@@ -1,24 +1,25 @@
 <script setup lang="ts">
 /**
- * YamlPrettify — pretty-print and format YAML.
+ * YamlPrettify - pretty-print and format YAML.
  *
  * Parses YAML (single document or multi-document `---` streams) via the
  * `yaml` package and re-serializes it with a configurable indent (2 spaces,
  * 4 spaces, or a tab), optional flow style, and optional `---` document
  * markers. The output is rendered with a small hand-rolled syntax
- * highlighter (no external deps) — keys, strings, numbers, booleans, null,
+ * highlighter (no external deps) - keys, strings, numbers, booleans, null,
  * comments, anchors/aliases, tags, and punctuation each get their own
  * colour. A "raw" toggle switches to the unhighlighted text for easy
  * copying.
  *
  * The `yaml` package is part of the initial bundle (per `tech-stack.md`),
- * so this tool does not produce its own lazy chunk for the parser — it
+ * so this tool does not produce its own lazy chunk for the parser - it
  * rides the app-shell bundle.
  *
  * Works in embed mode: receives `input` PostMessages to pre-fill the YAML,
  * and sends `output` PostMessages whenever the prettified result changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, Code2, FileJson } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -43,11 +44,14 @@ const {
   toggleDirectives,
 } = useYamlPrettify();
 
-const indentOptions: Array<{ value: YamlIndent; label: string }> = [
-  { value: 2, label: '2 spaces' },
-  { value: 4, label: '4 spaces' },
-  { value: 'tab', label: 'Tab' },
-];
+const { t } = useI18n();
+const U = 'tools.yaml-prettify-and-format.ui.';
+
+const indentOptions = computed<Array<{ value: YamlIndent; label: string }>>(() => [
+  { value: 2, label: t(U + 'indent2') },
+  { value: 4, label: t(U + 'indent4') },
+  { value: 'tab', label: t(U + 'indentTab') },
+]);
 
 const highlighted = computed(() =>
   outputs.value ? highlightYaml(outputs.value.yaml) : '',
@@ -57,14 +61,14 @@ const metaLine = computed(() => {
   if (!outputs.value) return '';
   const o = outputs.value;
   const parts = [
-    `${o.documentCount} doc${o.documentCount === 1 ? '' : 's'}`,
-    `${o.outputBytes} bytes`,
-    `${o.keyCount} key${o.keyCount === 1 ? '' : 's'}`,
-    `depth ${o.maxDepth}`,
+    t(o.documentCount === 1 ? U + 'metaDocsOne' : U + 'metaDocs', { n: o.documentCount }),
+    t(U + 'metaBytes', { n: o.outputBytes }),
+    t(o.keyCount === 1 ? U + 'metaKeysOne' : U + 'metaKeys', { n: o.keyCount }),
+    t(U + 'metaDepth', { n: o.maxDepth }),
   ];
   if (o.inputBytes !== o.outputBytes) {
     const delta = o.outputBytes - o.inputBytes;
-    parts.push(`${delta > 0 ? '+' : ''}${delta} B`);
+    parts.push(t(U + 'metaDelta', { sign: delta > 0 ? '+' : '', n: delta }));
   }
   return parts.join(' · ');
 });
@@ -73,9 +77,9 @@ const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
   if (e.line != null && e.column != null) {
-    return `Line ${e.line}, column ${e.column}`;
+    return t(U + 'errLineCol', { line: e.line, col: e.column });
   }
-  if (e.line != null) return `Line ${e.line}`;
+  if (e.line != null) return t(U + 'errLine', { line: e.line });
   return '';
 });
 
@@ -90,28 +94,29 @@ function onIndentChange(e: Event): void {
 </script>
 
 <template>
-  <div class="yp">
+  <div class="qt-tool">
     <ToolInput
-      title="YAML input"
-      description="Paste messy or minified YAML. It is parsed and re-serialized with the chosen indent."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="yp__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Format</span>
+          <span>{{ t(U + 'format') }}</span>
         </button>
       </template>
 
-      <div class="yp__opts">
-        <label class="yp__opt">
-          <span class="yp__label">Indent</span>
+      <div class="qt-row qt-row--bottom" style="--qt-row-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'indent') }}</span>
           <select
-            class="yp__select"
+            class="qt-input"
+            style="font-size:13px;padding:6px 10px"
             :value="indent"
             @change="onIndentChange"
           >
@@ -122,55 +127,56 @@ function onIndentChange(e: Event): void {
         </label>
         <button
           type="button"
-          class="yp__toggle"
-          :class="{ 'yp__toggle--active': flow }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': flow }"
           :aria-pressed="flow"
-          title="Use flow-style collections ({ } and [ ]) instead of block style"
+          :title="t(U + 'flowTitle')"
           @click="toggleFlow"
         >
           <Code2 :size="13" />
-          <span>Flow</span>
+          <span>{{ t(U + 'flow') }}</span>
         </button>
         <button
           type="button"
-          class="yp__toggle"
-          :class="{ 'yp__toggle--active': directives }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': directives }"
           :aria-pressed="directives"
-          title="Emit explicit --- document-start markers"
+          :title="t(U + 'directivesTitle')"
           @click="toggleDirectives"
         >
           <FileJson :size="13" />
-          <span>Directives</span>
+          <span>{{ t(U + 'directives') }}</span>
         </button>
         <button
           type="button"
-          class="yp__toggle"
-          :class="{ 'yp__toggle--active': !showRaw }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': !showRaw }"
           :aria-pressed="!showRaw"
-          title="Show syntax-highlighted output"
+          :title="t(U + 'highlightTitle')"
           @click="showRaw = false"
         >
           <Code2 :size="13" />
-          <span>Highlight</span>
+          <span>{{ t(U + 'highlight') }}</span>
         </button>
         <button
           type="button"
-          class="yp__toggle"
-          :class="{ 'yp__toggle--active': showRaw }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': showRaw }"
           :aria-pressed="showRaw"
-          title="Show raw prettified text (no colours)"
+          :title="t(U + 'rawTitle')"
           @click="showRaw = true"
         >
           <FileJson :size="13" />
-          <span>Raw</span>
+          <span>{{ t(U + 'raw') }}</span>
         </button>
       </div>
 
-      <label class="yp__field">
-        <span class="yp__label">YAML</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'yamlLabel') }}</span>
         <textarea
-          class="yp__textarea yp__textarea--mono"
-          placeholder="Paste YAML here…  e.g.  name: Q-Tools&#10;tools: [a, b, c]"
+          class="qt-input qt-input--mono"
+          style="min-height:180px"
+          :placeholder="t(U + 'phYaml')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -181,34 +187,34 @@ function onIndentChange(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="Formatted YAML"
-      :description="outputs ? metaLine : 'Paste YAML above to format.'"
+      :title="t(U + 'outTitle')"
+      :description="outputs ? metaLine : t(U + 'descEmpty')"
       :copy-text="outputs?.yaml ?? ''"
-      copy-label="Copy YAML"
+      :copy-label="t(U + 'copyYaml')"
     >
-      <p v-if="error" class="yp__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
-          <strong v-if="errorLocation">{{ errorLocation }}:</strong>
+          <strong v-if="errorLocation" style="margin-right:4px">{{ errorLocation }}:</strong>
           {{ error.message }}
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="yp__empty">
-          Paste YAML above to format.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'descEmpty') }}
         </p>
-        <div v-if="outputs" class="yp__result">
-          <div class="yp__result-head">
-            <span class="yp__result-label">YAML</span>
-            <CopyButton :text="outputs.yaml" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-panel qt-stack" style="--qt-stack-gap:6px;padding:8px 10px">
+          <div class="qt-row qt-row--center" style="--qt-row-gap:8px">
+            <span class="qt-label" style="color:var(--qt-text);flex:1">{{ t(U + 'yamlLabel') }}</span>
+            <CopyButton :text="outputs.yaml" :label="t('common.copy')" icon-only />
           </div>
           <pre
             v-if="outputs.yaml"
             class="yp__code"
             :class="{ 'yp__code--raw': showRaw }"
           ><code v-if="showRaw">{{ outputs.yaml }}</code><code v-else v-html="highlighted" /></pre>
-          <p v-else class="yp__empty">YAML parsed to an empty result.</p>
-          <div class="yp__meta">
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center" style="--qt-row-gap:6px;font-size:12px;color:var(--qt-muted)">
             <span>{{ metaLine }}</span>
           </div>
         </div>
@@ -218,166 +224,11 @@ function onIndentChange(e: Event): void {
 </template>
 
 <style scoped>
-.yp {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.yp__opts {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.yp__opt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.yp__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.yp__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.yp__select {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  will-change: border-color;
-}
-.yp__select:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.yp__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
-}
-.yp__toggle--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
-.yp__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.yp__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.yp__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.yp__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.yp__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.yp__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.yp__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.yp__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.yp__error strong {
-  margin-right: 4px;
-}
-.yp__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.yp__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.yp__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.yp__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Formatted output — bare code inside the result panel (no border/padding). */
 .yp__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -434,13 +285,5 @@ function onIndentChange(e: Event): void {
 }
 .yp__code--raw {
   color: var(--qt-text);
-}
-.yp__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Chronometer — precision stopwatch with lap timing.
+ * Chronometer - precision stopwatch with lap timing.
  *
  * Elapsed time is measured with `performance.now()` and the display refreshes
  * via `requestAnimationFrame` for smooth 60fps updates. Supports
@@ -12,14 +12,20 @@
  */
 import { Flag, Pause, Play, RotateCcw, Square, Timer } from 'lucide-vue-next';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
+import ToolButton from '@/components/ToolButton.vue';
+import ToolAlert from '@/components/ToolAlert.vue';
 import CopyButton from '@/components/CopyButton.vue';
 import {
   useChronometer,
   formatStopwatch,
   formatLapDelta,
 } from './useChronometer';
+
+const { t } = useI18n();
+const U = 'tools.chronometer.ui.';
 
 const {
   running,
@@ -77,9 +83,9 @@ const hasLaps = computed(() => laps.value.length > 0);
 
 /** The primary action button label/icon depending on current state. */
 const primaryLabel = computed(() => {
-  if (running.value) return 'Pause';
-  if (paused.value) return 'Resume';
-  return 'Start';
+  if (running.value) return t(U + 'btnPause');
+  if (paused.value) return t(U + 'btnResume');
+  return t(U + 'btnStart');
 });
 
 function onPrimary(): void {
@@ -90,80 +96,70 @@ function onPrimary(): void {
 </script>
 
 <template>
-  <div class="chrono">
+  <div class="qt-tool">
     <ToolInput
-      title="Chronometer"
-      description="Precision stopwatch with lap timing. Uses performance.now() for sub-millisecond accuracy."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
-        <button
-          type="button"
-          class="chrono__btn chrono__btn--ghost"
-          title="Reset stopwatch and clear laps"
+        <ToolButton
+          :title="t(U + 'resetTitle')"
           :disabled="stopped"
           @click="reset"
         >
           <RotateCcw :size="14" />
-          <span>Reset</span>
-        </button>
+          <span>{{ t('common.reset') }}</span>
+        </ToolButton>
       </template>
 
-      <div class="chrono__display-wrap">
-        <Timer :size="18" class="chrono__display-icon" />
+      <div class="qt-row qt-row--center" style="--qt-row-gap:12px;background:var(--qt-bg);border:1px solid var(--qt-border);border-radius:var(--qt-radius);padding:18px 22px;flex-wrap:nowrap">
+        <Timer :size="18" style="color:var(--qt-muted);flex-shrink:0" />
         <div class="chrono__display" :class="{ 'chrono__display--running': running }">
           {{ display }}
         </div>
       </div>
 
-      <div class="chrono__controls">
-        <button
-          type="button"
-          class="chrono__btn chrono__btn--primary"
-          @click="onPrimary"
-        >
+      <div class="qt-row">
+        <ToolButton variant="primary" @click="onPrimary">
           <component :is="running ? Pause : Play" :size="15" />
           <span>{{ primaryLabel }}</span>
-        </button>
-        <button
-          type="button"
-          class="chrono__btn chrono__btn--ghost"
+        </ToolButton>
+        <ToolButton
           :disabled="!canLap"
-          title="Record a lap split"
+          :title="t(U + 'lapTitle')"
           @click="lap"
         >
           <Flag :size="14" />
-          <span>Lap</span>
-        </button>
-        <button
-          type="button"
-          class="chrono__btn chrono__btn--ghost"
+          <span>{{ t(U + 'btnLap') }}</span>
+        </ToolButton>
+        <ToolButton
           :disabled="stopped"
-          title="Stop and freeze the timer"
+          :title="t(U + 'stopTitle')"
           @click="stop"
         >
           <Square :size="14" />
-          <span>Stop</span>
-        </button>
+          <span>{{ t(U + 'btnStop') }}</span>
+        </ToolButton>
       </div>
     </ToolInput>
 
     <ToolOutput
-      title="Laps"
+      :title="t(U + 'outTitle')"
       :description="
         hasLaps
-          ? `${laps.length} lap${laps.length === 1 ? '' : 's'} recorded.`
-          : 'No laps recorded yet. Press Lap while the timer is running.'
+          ? t(laps.length === 1 ? U + 'descLapsOne' : U + 'descLaps', { n: laps.length })
+          : t(U + 'descEmpty')
       "
     >
-      <p v-if="!hasLaps" class="chrono__empty">
-        No laps recorded yet. Press Lap while the timer is running.
-      </p>
+      <ToolAlert v-if="!hasLaps" kind="empty">
+        {{ t(U + 'alertEmpty') }}
+      </ToolAlert>
       <template v-else>
         <div class="chrono__laps">
           <div class="chrono__lap chrono__lap--head">
             <span>#</span>
-            <span>Split</span>
-            <span>Total</span>
+            <span>{{ t(U + 'colSplit') }}</span>
+            <span>{{ t(U + 'colTotal') }}</span>
           </div>
           <div
             v-for="(l, i) in laps"
@@ -171,13 +167,13 @@ function onPrimary(): void {
             class="chrono__lap"
             :class="lapClass(i)"
           >
-            <span class="chrono__lap-index">#{{ l.index }}</span>
+            <span style="color:var(--qt-muted);font-weight:600">#{{ l.index }}</span>
             <span class="chrono__lap-split">{{ formatLapDelta(l.splitMs) }}</span>
-            <span class="chrono__lap-total">{{ formatStopwatch(l.totalMs) }}</span>
+            <span style="color:var(--qt-text)">{{ formatStopwatch(l.totalMs) }}</span>
           </div>
         </div>
-        <div class="chrono__laps-actions">
-          <CopyButton :text="lapsText" label="Copy laps" />
+        <div class="qt-row qt-row--end" style="margin-top:10px">
+          <CopyButton :text="lapsText" :label="t(U + 'copyLaps')" />
         </div>
       </template>
     </ToolOutput>
@@ -185,28 +181,11 @@ function onPrimary(): void {
 </template>
 
 <style scoped>
-.chrono {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.chrono__display-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  padding: 18px 22px;
-}
-.chrono__display-icon {
-  color: var(--qt-muted);
-  flex-shrink: 0;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Hero timer readout — large mono digits; accent while running. */
 .chrono__display {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 40px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -219,57 +198,8 @@ function onPrimary(): void {
 .chrono__display--running {
   color: var(--qt-accent);
 }
-.chrono__controls {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.chrono__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  border-radius: var(--qt-radius-sm);
-  font: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 9px 16px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.chrono__btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-.chrono__btn--primary {
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  color: var(--qt-bg);
-}
-.chrono__btn--primary:hover:not(:disabled) {
-  opacity: 0.9;
-}
-.chrono__btn--ghost {
-  background: transparent;
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-}
-.chrono__btn--ghost:hover:not(:disabled) {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.chrono__btn:active:not(:disabled) {
-  transform: translateY(1px);
-}
-.chrono__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
+
+/* Lap table — fixed-column grid rows with head + best/worst highlight. */
 .chrono__laps {
   display: flex;
   flex-direction: column;
@@ -283,7 +213,7 @@ function onPrimary(): void {
   grid-template-columns: 56px 1fr 1fr;
   gap: 10px;
   padding: 8px 12px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13.5px;
   font-variant-numeric: tabular-nums;
   border-bottom: 1px solid var(--qt-border);
@@ -315,20 +245,8 @@ function onPrimary(): void {
   color: oklch(0.62 0.2 25);
   font-weight: 700;
 }
-.chrono__lap-index {
-  color: var(--qt-muted);
-  font-weight: 600;
-}
 .chrono__lap-split {
   color: var(--qt-text);
   font-weight: 600;
-}
-.chrono__lap-total {
-  color: var(--qt-text);
-}
-.chrono__laps-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
 }
 </style>

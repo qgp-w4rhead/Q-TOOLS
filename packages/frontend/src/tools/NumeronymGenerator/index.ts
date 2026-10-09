@@ -1,5 +1,5 @@
 /**
- * NumeronymGenerator tool module — exports the lazy-loaded component plus its
+ * NumeronymGenerator tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry and
  * routed dynamically.
  *
@@ -9,7 +9,7 @@
  * are left verbatim; non-word separators are preserved; an optional toggle
  * controls whether the first/last letters keep their original case.
  *
- * No external dependencies — pure string arithmetic.
+ * No external dependencies - pure string arithmetic.
  */
 import { defineAsyncComponent } from 'vue';
 import type { ToolMetadata } from '@q-tools/shared';

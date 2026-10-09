@@ -1,5 +1,5 @@
 /**
- * RandomPortGenerator tool module — exports the lazy-loaded component plus its
+ * RandomPortGenerator tool module - exports the lazy-loaded component plus its
  * metadata, composable, and pure helpers so the tool can be registered in the
  * registry and routed dynamically.
  */

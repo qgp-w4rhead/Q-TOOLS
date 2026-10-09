@@ -1,8 +1,8 @@
 /**
- * useMarkdownToHtml — composable + pure logic for the Markdown → HTML converter.
+ * useMarkdownToHtml - composable + pure logic for the Markdown → HTML converter.
  *
  * Renders Markdown text to HTML via `marked` (initial bundle per
- * `tech-stack.md`, statically imported here — no dynamic import, no separate
+ * `tech-stack.md`, statically imported here - no dynamic import, no separate
  * Vite chunk). The component itself is still lazy-loaded so the UI lands in
  * its own chunk.
  *
@@ -10,7 +10,7 @@
  * acceptance criterion we provide a DOMParser-based allowlist sanitizer
  * (`sanitizeHtml`) that strips dangerous tags (`<script>`, `<iframe>`, …),
  * event-handler attributes (`on*`), and `javascript:`/`vbscript:` URLs in
- * `href`/`src`. It uses only the browser DOM API — no new npm dependency.
+ * `href`/`src`. It uses only the browser DOM API - no new npm dependency.
  *
  * Pure helpers (`renderMarkdown`, `sanitizeHtml`, `markdownToHtml`) have no
  * Vue dependency and can be imported standalone for unit testing or reuse.
@@ -25,7 +25,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Options accepted by the pure `markdownToHtml` helper. */
@@ -125,7 +125,7 @@ export function renderMarkdown(
     const out = marked.parse(input, {
       gfm: opts.gfm,
       breaks: opts.breaks,
-      // Synchronous parse — marked.parse returns a string when `async: false`.
+      // Synchronous parse - marked.parse returns a string when `async: false`.
       async: false,
     });
     return typeof out === 'string' ? out : '';
@@ -143,7 +143,7 @@ export function renderMarkdown(
  *    stripping whitespace and control chars used to disguise schemes),
  *  - `style` attributes (could carry `url(javascript:...)` or CSS expressions).
  *
- * Uses the browser DOM API only — no external dependency. When called outside
+ * Uses the browser DOM API only - no external dependency. When called outside
  * a browser (SSR / unit test without DOM), falls back to a regex-based strip
  * of `<script>`/`on*=`/`javascript:` to remain safe.
  */
@@ -172,7 +172,7 @@ function sanitizeNode(node: Element): void {
         }
         parent.removeChild(child);
         // Re-process the moved children (they may themselves be unsafe).
-        // We do this by recursing on `node` again — but to avoid infinite
+        // We do this by recursing on `node` again - but to avoid infinite
         // loops on pathological input, we just continue scanning the
         // remaining snapshot; moved children are still in `node`'s subtree
         // and will be visited because they were inserted before `child`'s
@@ -299,7 +299,7 @@ function toMdError(err: unknown): MarkdownToHtmlError {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface MarkdownToHtmlOutputs {

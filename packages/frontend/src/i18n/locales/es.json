@@ -1,0 +1,251 @@
+{
+  "app": {
+    "name": "Q-Tools",
+    "language": "Idioma",
+    "metaDescription": "Q-Tools - herramientas completas para desarrolladores y utilidades. PWA offline, integrable por iframe.",
+    "titleHome": "Q-Tools - Herramientas para desarrolladores y utilidades",
+    "titleTool": "{name} - Q-Tools"
+  },
+  "nav": {
+    "open": "Abrir navegación",
+    "close": "Cerrar navegación",
+    "categories": "Categorías",
+    "collapse": "Contraer barra lateral",
+    "expand": "Expandir barra lateral"
+  },
+  "theme": {
+    "toLight": "Cambiar a tema claro",
+    "toDark": "Cambiar a tema oscuro",
+    "light": "Modo claro",
+    "dark": "Modo oscuro"
+  },
+  "common": {
+    "back": "Volver",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "copiedFeedback": "¡Copiado!",
+    "failed": "Falló",
+    "clear": "Limpiar",
+    "download": "Descargar",
+    "generate": "Generar",
+    "input": "Entrada",
+    "output": "Salida",
+    "loading": "Cargando…",
+    "error": "Error",
+    "search": "Buscar",
+    "install": "Instalar",
+    "installing": "Instalando…",
+    "copyAll": "Copiar todo",
+    "configuration": "Configuración",
+    "generating": "Generando…",
+    "working": "Procesando…",
+    "quantity": "Cantidad",
+    "uppercase": "Mayúsculas",
+    "hyphenated": "Con guiones",
+    "mode": "Modo",
+    "version": "Versión",
+    "name": "Nombre",
+    "namespace": "Espacio de nombres",
+    "password": "Contraseña",
+    "verify": "Verificar",
+    "hash": "Hash",
+    "chars": "{n} caracteres",
+    "bits": "{n} bits",
+    "dismiss": "Descartar",
+    "convert": "Convertir",
+    "swap": "Intercambiar",
+    "swapTitle": "Intercambiar dirección y usar el resultado como entrada",
+    "direction": "Dirección",
+    "encode": "Codificar",
+    "decode": "Decodificar",
+    "copyResult": "Copiar resultado",
+    "copyOutput": "Copiar salida",
+    "copyInput": "Copiar entrada",
+    "text": "Texto",
+    "format": "Formato",
+    "outputs": "Salidas",
+    "words": "Sin palabras | {n} palabra | {n} palabras",
+    "lines": "Sin líneas | {n} línea | {n} líneas",
+    "mapped": "{n} mapeados",
+    "downloadFile": "Descargar archivo",
+    "now": "Ahora",
+    "file": "Archivo",
+    "size": "Tamaño",
+    "result": "Resultado",
+    "filename": "Nombre de archivo",
+    "enterToConvert": "Introduce un valor arriba para convertir.",
+    "typeOrPaste": "Escribe o pega texto aquí…",
+    "dropFile": "Suelta un archivo aquí o haz clic para explorar",
+    "dropFileHint": "Máx. 32 MiB · procesado localmente",
+    "readingFile": "Leyendo archivo…",
+    "urlSafe": "URL-safe",
+    "urlSafeTitle": "Usar alfabeto URL-safe (-_ en vez de +/, sin relleno)",
+    "dataUri": "Data URI",
+    "dataUriTitle": "Salida como Data URI (data:<mime>;base64,...)",
+    "base64": "Base64",
+    "recoveredFile": "Archivo recuperado",
+    "pasteBase64": "Pega Base64 o un data: URI aquí…",
+    "auto": "Auto",
+    "reset": "Restablecer",
+    "quality": "Calidad",
+    "background": "Fondo",
+    "foreground": "Primer plano",
+    "width": "Anchura",
+    "height": "Altura",
+    "outputFormat": "Formato de salida",
+    "unsupported": "no compatible",
+    "before": "Antes",
+    "after": "Después",
+    "noImageLoaded": "Sin imagen cargada.",
+    "loadImageStart": "Carga una imagen para empezar.",
+    "remove": "Quitar",
+    "localOnly": "Procesado localmente - nada sale de tu navegador.",
+    "value": "Valor",
+    "unit": "Unidad",
+    "convertedValues": "Valores convertidos",
+    "allUnitsGlance": "Todas las unidades de un vistazo.",
+    "resetDefaults": "Restablecer valores",
+    "refresh": "Actualizar",
+    "type": "Tipo",
+    "add": "Añadir",
+    "optional": "Opcional"
+  },
+  "home": {
+    "title": "Herramientas para desarrolladores y utilidades, offline e integrables",
+    "subtitle": "{count} herramientas en {categories} categorías - se ejecutan en tu navegador, funcionan offline y se integran en cualquier sitio mediante iframe.",
+    "matchCount": "Ninguna herramienta coincide | {n} herramienta coincide | {n} herramientas coinciden",
+    "empty": "Ninguna herramienta coincide con “{query}”.",
+    "footer": "Q-Tools - creado con Vue 3 + Ionic + Pinia"
+  },
+  "search": {
+    "placeholder": "Buscar herramientas…",
+    "ariaLabel": "Buscar herramientas",
+    "clear": "Limpiar búsqueda",
+    "results": "Resultados de búsqueda",
+    "matchCount": "Ninguna herramienta coincide | {n} herramienta coincide | {n} herramientas coinciden",
+    "recent": "Búsquedas recientes",
+    "clearRecent": "Limpiar",
+    "removeRecent": "Eliminar búsqueda reciente",
+    "popular": "Herramientas populares",
+    "noResults": "Ninguna herramienta coincide con “{query}”.",
+    "noResultsHint": "Prueba con otra palabra clave o explora las categorías.",
+    "hintNavigate": "navegar",
+    "hintOpen": "abrir",
+    "hintClose": "cerrar",
+    "field": {
+      "name": "nombre",
+      "description": "descripción",
+      "keywords": "palabra clave",
+      "category": "categoría"
+    }
+  },
+  "favorites": {
+    "title": "Favoritos",
+    "description": "Tus herramientas destacadas, sincronizadas entre dispositivos al iniciar sesión.",
+    "add": "Añadir a favoritos",
+    "remove": "Quitar de favoritos",
+    "favorited": "En favoritos",
+    "favorite": "Favorito"
+  },
+  "tool": {
+    "fallbackTitle": "Herramienta",
+    "open": "Abrir {name}",
+    "openEmbed": "Abrir vista de inserción",
+    "notImplemented": "Esta herramienta aún no está implementada.",
+    "category": "Categoría:",
+    "comingSoon": "Próximamente - creada en M0, se implementará en un hito posterior."
+  },
+  "offline": {
+    "banner": "Estás sin conexión - las herramientas siguen funcionando, pero las funciones de backend (sincronización, autenticación) están en pausa.",
+    "dismiss": "Descartar aviso de sin conexión"
+  },
+  "install": {
+    "title": "Instalar Q-Tools",
+    "subtitle": "Añade a tu pantalla de inicio para acceder rápidamente a todas las herramientas, incluso offline.",
+    "ariaLabel": "Instalar Q-Tools",
+    "dismiss": "Descartar aviso de instalación"
+  },
+  "embed": {
+    "loadingTool": "Cargando herramienta…",
+    "toolNotFound": "Herramienta no encontrada"
+  },
+  "categories": {
+    "crypto": {
+      "label": "Cripto",
+      "description": "Herramientas de hash, cifrado, claves y contraseñas."
+    },
+    "converter": {
+      "label": "Conversores",
+      "description": "Convierte entre formatos de datos, codificaciones y unidades."
+    },
+    "web": {
+      "label": "Web",
+      "description": "Utilidades de URL, HTTP, JWT y navegador."
+    },
+    "media": {
+      "label": "Imágenes y vídeos",
+      "description": "Códigos QR, marcadores SVG y grabación de cámara."
+    },
+    "dev": {
+      "label": "Desarrollo",
+      "description": "Git, Docker, JSON, SQL, regex y chuletas de desarrollo."
+    },
+    "network": {
+      "label": "Red",
+      "description": "Utilidades de IP, subredes, MAC e IPv6."
+    },
+    "math": {
+      "label": "Matemáticas",
+      "description": "Evaluadores y calculadoras."
+    },
+    "measurement": {
+      "label": "Medidas",
+      "description": "Temporizadores, temperatura y benchmarks."
+    },
+    "text": {
+      "label": "Texto",
+      "description": "Generadores, estadísticas, diffs y ofuscación."
+    },
+    "data": {
+      "label": "Datos",
+      "description": "Teléfonos, IBAN, VIN, SSN, tarjetas, ISBN, SWIFT/BIC y códigos de barras."
+    },
+    "security": {
+      "label": "Seguridad y privacidad",
+      "description": "Redacción de PII, cabeceras de seguridad, brechas, análisis CSP y decodificación de certificados."
+    },
+    "cipher": {
+      "label": "Cifrados clásicos",
+      "description": "Cifrados históricos y educativos: César, Vigenère, Atbash, Morse y más."
+    },
+    "devops": {
+      "label": "DevOps e infraestructura",
+      "description": "Utilidades de Nginx, systemd, Kubernetes, DNS, Dockerfile, cron y port-forwarding."
+    },
+    "api": {
+      "label": "API y pruebas",
+      "description": "Construcción de peticiones HTTP, desarrollo de APIs, mocks y validación de esquemas."
+    },
+    "i18n": {
+      "label": "Internacionalización",
+      "description": "ICU MessageFormat, formatos locales, reglas de plural, códigos de idioma/moneda/país y utilidades Unicode."
+    },
+    "finance": {
+      "label": "Finanzas y calculadoras",
+      "description": "Calculadoras de préstamos, interés compuesto, divisas, IVA, impuestos, facturas, ROI, depreciación y punto de equilibrio."
+    },
+    "geo": {
+      "label": "Geografía y coordenadas",
+      "description": "Conversión de coordenadas, geohash, Plus Code, distancia, zonas horarias, bounding box y what3words."
+    },
+    "a11y": {
+      "label": "Accesibilidad",
+      "description": "Contraste de color, etiquetas ARIA, texto alternativo, orden de tabulación, referencia WCAG, encabezados, foco y texto para lectores de pantalla."
+    },
+    "av": {
+      "label": "Audio y vídeo",
+      "description": "Conversión, transcodificación, recorte, unión y metadatos de audio y vídeo."
+    }
+  },
+  "tools": {}
+}

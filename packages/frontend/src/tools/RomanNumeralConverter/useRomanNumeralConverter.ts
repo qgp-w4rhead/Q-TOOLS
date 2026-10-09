@@ -1,9 +1,9 @@
 /**
- * useRomanNumeralConverter — composable + pure logic for the Roman numeral
+ * useRomanNumeralConverter - composable + pure logic for the Roman numeral
  * converter.
  *
  * Bidirectional conversion between Roman numerals and integers in the
- * classic range 1-3999 (no overbar / vinculum notation — the largest value
+ * classic range 1-3999 (no overbar / vinculum notation - the largest value
  * representable is MMMCMXCIX = 3999).
  *
  * Pure helpers (`romanToInt`, `intToRoman`, `isValidRoman`, `isValidInt`,
@@ -18,7 +18,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Smallest convertible integer (Roman numerals have no zero). */
@@ -59,7 +59,7 @@ const SYMBOL_VALUES: Readonly<Record<string, number>> = {
 
 /**
  * Normalise a Roman-numeral string: trim, uppercase, strip surrounding
- * whitespace. Does not validate — use {@link isValidRoman} for that.
+ * whitespace. Does not validate - use {@link isValidRoman} for that.
  */
 export function normalizeRoman(input: string): string {
   return input.trim().toUpperCase();
@@ -120,7 +120,7 @@ export function validateRoman(input: string): string | null {
         return `Invalid subtractive pair "${pair}". Allowed: IV, IX, XL, XC, CD, CM.`;
       }
       // After a subtractive pair, the next symbol must be strictly smaller
-      // than `cur` (e.g. IX is followed by nothing or by V/I — but actually
+      // than `cur` (e.g. IX is followed by nothing or by V/I - but actually
       // IXV is invalid; the rule is the value after the pair must be <= cur
       // and < next, and also cannot repeat the subtracted symbol).
       if (next > prev) {
@@ -154,7 +154,7 @@ export function isValidRoman(input: string): boolean {
 /**
  * Parse a Roman-numeral string into an integer. Returns `null` for empty
  * input or any character outside `IVXLCDM`. Does NOT enforce canonical
- * form — use {@link validateRoman} for that. This is a lenient parser that
+ * form - use {@link validateRoman} for that. This is a lenient parser that
  * sums symbols left-to-right, subtracting when a smaller symbol precedes a
  * larger one.
  */
@@ -206,7 +206,7 @@ export function validateInt(input: string): string | null {
     return `Integer must be at least ${MIN_VALUE} (Roman numerals have no zero).`;
   }
   if (n > MAX_VALUE) {
-    return `Integer must be at most ${MAX_VALUE} (MMMCMXCIX) — vinculum notation is not supported.`;
+    return `Integer must be at most ${MAX_VALUE} (MMMCMXCIX) - vinculum notation is not supported.`;
   }
   return null;
 }
@@ -236,7 +236,7 @@ export function intToRoman(value: number): string | null {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface RomanNumeralConverterOutputs {

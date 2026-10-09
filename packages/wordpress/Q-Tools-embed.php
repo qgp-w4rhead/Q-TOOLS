@@ -77,6 +77,7 @@ function qtools_enqueue_embed_script() {
  *   width   (optional) iframe width (default "100%").
  *   height  (optional) iframe height (default "auto").
  *   allow   (optional) iframe `allow` attribute (Permissions Policy).
+ *   lang    (optional) UI locale for the embedded tool: en, es, or fr.
  *   target  (optional) CSS selector for a custom mount element.
  *
  * @param array $atts Shortcode attributes.
@@ -90,6 +91,7 @@ function qtools_shortcode( $atts ) {
 			'width'  => '100%',
 			'height' => 'auto',
 			'allow'  => '',
+			'lang'   => '',
 			'target' => '',
 		),
 		$atts,
@@ -122,6 +124,13 @@ function qtools_shortcode( $atts ) {
 	}
 	if ( '' !== $atts['allow'] ) {
 		$script_attrs['data-allow'] = $atts['allow'];
+	}
+	if ( '' !== $atts['lang'] ) {
+		// Only allow supported locale codes; embed.js maps this to ?lang=.
+		$lang = sanitize_key( $atts['lang'] );
+		if ( in_array( $lang, array( 'en', 'es', 'fr' ), true ) ) {
+			$script_attrs['data-locale'] = $lang;
+		}
 	}
 	if ( '' !== $atts['input'] ) {
 		// Validate JSON before emitting to avoid breaking the page.

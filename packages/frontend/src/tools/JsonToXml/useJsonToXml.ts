@@ -1,9 +1,9 @@
 /**
- * useJsonToXml — composable + pure logic for the JSON → XML converter.
+ * useJsonToXml - composable + pure logic for the JSON → XML converter.
  *
  * Builds XML text from a parsed JSON value via `fast-xml-parser`'s
  * `XMLBuilder`. The `fast-xml-parser` package is part of the initial
- * bundle per `tech-stack.md`, so it is statically imported here — no
+ * bundle per `tech-stack.md`, so it is statically imported here - no
  * dynamic import, no separate Vite chunk.
  *
  * Pure helpers (`parseJson`, `jsonToXml`, `buildBuilder`) have no Vue
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation mode for the XML output (only used when `pretty` is true). */
@@ -34,7 +34,7 @@ export interface JsonToXmlOptions {
    *   `{ [rootName]: parsed }` before building. This guarantees a single
    *     root element (well-formed XML) regardless of the input shape.
    * - When empty, the parsed object is passed to the builder as-is. Its
-   *   top-level keys become root elements — valid XML only if there is
+   *   top-level keys become root elements - valid XML only if there is
    *   exactly one top-level key.
    *
    * Default `'root'`.
@@ -163,7 +163,7 @@ export function jsonToXml(
     typeof parsed === 'object' &&
     !Array.isArray(parsed)
   ) {
-    // No wrapping — use the parsed object directly. Its top-level keys
+    // No wrapping - use the parsed object directly. Its top-level keys
     // become root elements (valid XML only if there is exactly one).
     feed = parsed as Record<string, unknown>;
     rootKeyCount = Object.keys(feed).length;
@@ -210,10 +210,10 @@ function toJsonError(err: unknown): JsonToXmlError {
  *
  * V8 emits two error formats:
  * 1. `Expected property name or '}' in JSON at position 1 (line 1 column 2)`
- *    — explicit position + line/column. We extract both.
+ *    - explicit position + line/column. We extract both.
  * 2. `Unexpected token '}', "...snippet..." is not valid JSON` (or
  *    `Unexpected token 'X', ..."trailing snippet" is not valid JSON` for
- *    long input) — no explicit position. We extract the token char and
+ *    long input) - no explicit position. We extract the token char and
  *    the source snippet so `enrichError` can derive a real line/column
  *    by locating the snippet in the original input.
  */
@@ -317,7 +317,7 @@ export function enrichError(
     return error;
   }
 
-  // Strategy 2: V8 style 2 "Unexpected token" — no explicit position, but
+  // Strategy 2: V8 style 2 "Unexpected token" - no explicit position, but
   // we have the unexpected token character. V8's embedded snippet is a
   // window around the error (not necessarily starting at it), so we scan
   // the full input for the first occurrence of the token character outside
@@ -367,7 +367,7 @@ function posToLineCol(input: string, pos: number): { line: number; col: number }
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface JsonToXmlOutputs {
@@ -436,7 +436,7 @@ export function useJsonToXml(): UseJsonToXmlReturn {
     } catch (e) {
       outputs.value = null;
       // `parseJson` trims the input before `JSON.parse`, so error positions
-      // are relative to the trimmed text — pass the same trimmed text to
+      // are relative to the trimmed text - pass the same trimmed text to
       // `enrichError` for accurate line/column.
       const err = enrichError(e as JsonToXmlError, text.trim());
       error.value = err;

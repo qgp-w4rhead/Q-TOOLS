@@ -2,7 +2,7 @@
 /**
  * Chromeless embed view for `/embed/tools/:slug`.
  *
- * Renders only the tool component — no sidebar, header, or app chrome. The
+ * Renders only the tool component - no sidebar, header, or app chrome. The
  * PostMessage protocol (input/output/resize) is handled by each tool via
  * the `useEmbed()` composable; this view simply hosts the tool with zero
  * padding so the iframe (and embed.js auto-resize) sizes tightly to the
@@ -11,7 +11,7 @@
  * Tools are lazy-loaded by slug. Until a tool is implemented (M1+), a
  * placeholder is shown so the route never 404s.
  */
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, shallowRef, watch, type Component } from 'vue';
 import { useRoute } from 'vue-router';
 import { getToolBySlug } from '@/data/tools';
 import ToolPlaceholder from './ToolPlaceholder.vue';
@@ -22,26 +22,26 @@ const route = useRoute();
 const resolvedSlug = computed(() => props.slug ?? (route.params.slug as string | undefined) ?? '');
 const tool = computed(() => getToolBySlug(resolvedSlug.value));
 
-/**
- * Dynamic tool loader. Tool modules live at
- * `@/tools/<ToolName>/index.ts` and export a default Vue component. We map
- * slug → module path so each tool lands in its own Vite chunk. Until the
- * module exists the dynamic import rejects and we fall back to the
- * placeholder — this keeps the scaffold green across M0.
- */
-const ToolComponent = defineAsyncComponent({
-  loader: async () => {
+const ToolComponent = shallowRef<Component>(ToolPlaceholder);
+
+watch(
+  resolvedSlug,
+  async (slug) => {
+    if (!slug || !getToolBySlug(slug)) {
+      ToolComponent.value = ToolPlaceholder;
+      return;
+    }
     try {
-      // The module map is populated as tools are implemented (M1+).
-      const mod = await loadToolModule(resolvedSlug.value);
-      return mod.default ?? mod;
-    } catch {
-      return ToolPlaceholder;
+      const mod = await loadToolModule(slug);
+      ToolComponent.value = (mod.default ?? mod) as Component;
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(`[EmbedView] failed to load tool module "${slug}":`, err);
+      ToolComponent.value = ToolPlaceholder;
     }
   },
-  errorComponent: ToolPlaceholder,
-  delay: 0,
-});
+  { immediate: true },
+);
 
 async function loadToolModule(slug: string): Promise<{ default: unknown }> {
   // Vite needs literal specifiers to analyse dynamic imports. We enumerate
@@ -87,20 +87,31 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'basic-auth-generator': () => import('@/tools/BasicAuthGenerator/index'),
     'open-graph-meta-generator': () => import('@/tools/OpenGraphMeta/index'),
     'otp-code-generator': () => import('@/tools/OtpCodeGenerator/index'),
-    'mime-types': () => import('@/tools/MimeTypes/index'),
     'jwt-parser': () => import('@/tools/JwtParser/index'),
     'keycode-info': () => import('@/tools/KeycodeInfo/index'),
     'slugify-string': () => import('@/tools/SlugifyString/index'),
     'html-wysiwyg-editor': () => import('@/tools/HtmlWysiwygEditor/index'),
     'user-agent-parser': () => import('@/tools/UserAgentParser/index'),
-    'http-status-codes': () => import('@/tools/HttpStatusCodes/index'),
     'json-diff': () => import('@/tools/JsonDiff/index'),
     'outlook-safelink-decoder': () => import('@/tools/OutlookSafelinkDecoder/index'),
     'qr-code-generator': () => import('@/tools/QrCodeGenerator/index'),
     'wifi-qr-code-generator': () => import('@/tools/WifiQrCodeGenerator/index'),
     'svg-placeholder-generator': () => import('@/tools/SvgPlaceholderGenerator/index'),
     'camera-recorder': () => import('@/tools/CameraRecorder/index'),
-    'git-cheatsheet': () => import('@/tools/GitCheatsheet/index'),
+    'image-converter': () => import('@/tools/ImageConverter/index'),
+    'image-compressor': () => import('@/tools/ImageCompressor/index'),
+    'image-resizer': () => import('@/tools/ImageResizer/index'),
+    'image-cropper': () => import('@/tools/ImageCropper/index'),
+    'exif-viewer': () => import('@/tools/ExifViewer/index'),
+    'metadata-stripper': () => import('@/tools/MetadataStripper/index'),
+    'qr-code-reader': () => import('@/tools/QrCodeReader/index'),
+    'favicon-generator': () => import('@/tools/FaviconGenerator/index'),
+    'color-palette-extractor': () =>
+      import('@/tools/ColorPaletteExtractor/index'),
+    'screen-recorder': () => import('@/tools/ScreenRecorder/index'),
+    'svg-optimizer': () => import('@/tools/SvgOptimizer/index'),
+    'image-to-ascii': () => import('@/tools/ImageToAscii/index'),
+    'image-redactor': () => import('@/tools/ImageRedactor/index'),
     'random-port-generator': () =>
       import('@/tools/RandomPortGenerator/index'),
     'crontab-generator': () => import('@/tools/CrontabGenerator/index'),
@@ -115,7 +126,6 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'yaml-prettify-and-format': () => import('@/tools/YamlPrettify/index'),
     'email-normalizer': () => import('@/tools/EmailNormalizer/index'),
     'regex-tester': () => import('@/tools/RegexTester/index'),
-    'regex-cheatsheet': () => import('@/tools/RegexCheatsheet/index'),
     'ipv4-subnet-calculator': () =>
       import('@/tools/Ipv4SubnetCalculator/index'),
     'ipv4-address-converter': () =>
@@ -128,6 +138,28 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/MacAddressGenerator/index'),
     'ipv6-ula-generator': () =>
       import('@/tools/Ipv6UlaGenerator/index'),
+    'port-reference': () =>
+      import('@/tools/PortReference/index'),
+    'subnet-splitter': () =>
+      import('@/tools/SubnetSplitter/index'),
+    'cidr-aggregator': () =>
+      import('@/tools/CidrAggregator/index'),
+    'ipv6-compressor': () =>
+      import('@/tools/Ipv6Compressor/index'),
+    'ip-classifier': () =>
+      import('@/tools/IpClassifier/index'),
+    'mac-normalizer': () =>
+      import('@/tools/MacNormalizer/index'),
+    'eui-64-calculator': () =>
+      import('@/tools/Eui64Calculator/index'),
+    'wildcard-mask-converter': () =>
+      import('@/tools/WildcardMaskConverter/index'),
+    'rdap-lookup': () =>
+      import('@/tools/RdapLookup/index'),
+    'ip-geolocation': () =>
+      import('@/tools/IpGeolocation/index'),
+    'wol-packet-builder': () =>
+      import('@/tools/WolPacketBuilder/index'),
     'math-evaluator': () => import('@/tools/MathEvaluator/index'),
     'eta-calculator': () => import('@/tools/EtaCalculator/index'),
     'percentage-calculator': () =>
@@ -154,6 +186,271 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
       import('@/tools/PhoneParserFormatter/index'),
     'iban-validator-and-parser': () =>
       import('@/tools/IbanValidatorParser/index'),
+    'data-size-converter': () =>
+      import('@/tools/DataSizeConverter/index'),
+    'length-converter': () =>
+      import('@/tools/LengthConverter/index'),
+    'speed-converter': () =>
+      import('@/tools/SpeedConverter/index'),
+    'time-unit-converter': () =>
+      import('@/tools/TimeUnitConverter/index'),
+    'prime-number-checker': () =>
+      import('@/tools/PrimeNumberChecker/index'),
+    'fibonacci-generator': () =>
+      import('@/tools/FibonacciGenerator/index'),
+    'gcd-lcm-calculator': () =>
+      import('@/tools/GcdLcmCalculator/index'),
+    'text-reverser': () =>
+      import('@/tools/TextReverser/index'),
+    'text-sorter': () =>
+      import('@/tools/TextSorter/index'),
+    'duplicate-line-remover': () =>
+      import('@/tools/DuplicateLineRemover/index'),
+    'credit-card-validator': () =>
+      import('@/tools/CreditCardValidator/index'),
+    'isbn-validator': () =>
+      import('@/tools/IsbnValidator/index'),
+    'vin-decoder': () =>
+      import('@/tools/VinDecoder/index'),
+    'swift-bic-validator': () =>
+      import('@/tools/SwiftBicValidator/index'),
+    'ssn-validator': () =>
+      import('@/tools/SsnValidator/index'),
+    'barcode-generator': () =>
+      import('@/tools/BarcodeGenerator/index'),
+    'csv-to-json': () =>
+      import('@/tools/CsvToJson/index'),
+    'ipv6-subnet-calculator': () =>
+      import('@/tools/Ipv6SubnetCalculator/index'),
+    'weight-converter': () =>
+      import('@/tools/WeightConverter/index'),
+    'volume-converter': () =>
+      import('@/tools/VolumeConverter/index'),
+    'area-converter': () =>
+      import('@/tools/AreaConverter/index'),
+    'pressure-converter': () =>
+      import('@/tools/PressureConverter/index'),
+    'energy-converter': () =>
+      import('@/tools/EnergyConverter/index'),
+    'angle-converter': () =>
+      import('@/tools/AngleConverter/index'),
+    'fuel-economy-converter': () =>
+      import('@/tools/FuelEconomyConverter/index'),
+    'frequency-converter': () =>
+      import('@/tools/FrequencyConverter/index'),
+    'pii-redactor': () => import('@/tools/PiiRedactor/index'),
+    'security-headers-builder': () =>
+      import('@/tools/SecurityHeadersBuilder/index'),
+    'password-breach-checker': () =>
+      import('@/tools/PasswordBreachChecker/index'),
+    'cors-policy-tester': () =>
+      import('@/tools/CorsPolicyTester/index'),
+    'xss-payload-sanitizer': () =>
+      import('@/tools/XssPayloadSanitizer/index'),
+    'csp-evaluator': () => import('@/tools/CspEvaluator/index'),
+    'certificate-decoder': () =>
+      import('@/tools/CertificateDecoder/index'),
+    'hash-identifier': () =>
+      import('@/tools/HashIdentifier/index'),
+    'password-entropy-calculator': () =>
+      import('@/tools/PasswordEntropyCalculator/index'),
+    'sri-hash-generator': () =>
+      import('@/tools/SriHashGenerator/index'),
+    'file-checksum-verifier': () =>
+      import('@/tools/FileChecksumVerifier/index'),
+    'secret-scanner': () => import('@/tools/SecretScanner/index'),
+    'email-header-analyzer': () =>
+      import('@/tools/EmailHeaderAnalyzer/index'),
+    'mail-auth-record-builder': () =>
+      import('@/tools/MailAuthRecordBuilder/index'),
+    'security-txt-generator': () =>
+      import('@/tools/SecurityTxtGenerator/index'),
+    'cookie-flags-analyzer': () =>
+      import('@/tools/CookieFlagsAnalyzer/index'),
+    'homoglyph-detector': () =>
+      import('@/tools/HomoglyphDetector/index'),
+    'browser-leak-demo': () =>
+      import('@/tools/BrowserLeakDemo/index'),
+    'htpasswd-generator': () =>
+      import('@/tools/HtpasswdGenerator/index'),
+    'ssh-key-generator': () =>
+      import('@/tools/SshKeyGenerator/index'),
+    'permissions-policy-builder': () =>
+      import('@/tools/PermissionsPolicyBuilder/index'),
+    'caesar-cipher': () => import('@/tools/CaesarCipher/index'),
+    'vigenere-cipher': () => import('@/tools/VigenereCipher/index'),
+    'atbash-cipher': () => import('@/tools/AtbashCipher/index'),
+    'morse-code-converter': () => import('@/tools/MorseCodeConverter/index'),
+    'polybius-square': () => import('@/tools/PolybiusSquare/index'),
+    'rail-fence-cipher': () => import('@/tools/RailFenceCipher/index'),
+    'affine-cipher': () => import('@/tools/AffineCipher/index'),
+    'bacon-cipher': () => import('@/tools/BaconCipher/index'),
+    'rot47-cipher': () => import('@/tools/Rot47Cipher/index'),
+    'xor-cipher': () => import('@/tools/XorCipher/index'),
+    'nginx-config-builder': () =>
+      import('@/tools/NginxConfigBuilder/index'),
+    'systemd-service-generator': () =>
+      import('@/tools/SystemdServiceGenerator/index'),
+    'k8s-manifest-builder': () =>
+      import('@/tools/K8sManifestBuilder/index'),
+    'env-file-manager': () =>
+      import('@/tools/EnvFileManager/index'),
+    'dns-record-lookup': () =>
+      import('@/tools/DnsRecordLookup/index'),
+    'cron-expression-validator': () =>
+      import('@/tools/CronExpressionValidator/index'),
+    'log-formatter': () =>
+      import('@/tools/LogFormatter/index'),
+    'port-forwarding-builder': () =>
+      import('@/tools/PortForwardingBuilder/index'),
+    'dockerfile-linter': () =>
+      import('@/tools/DockerfileLinter/index'),
+    'curl-command-builder': () =>
+      import('@/tools/CurlCommandBuilder/index'),
+    'http-request-tester': () =>
+      import('@/tools/HttpRequestTester/index'),
+    'openapi-spec-formatter': () =>
+      import('@/tools/OpenApiFormatter/index'),
+    'graphql-query-formatter': () =>
+      import('@/tools/GraphqlFormatter/index'),
+    'webhook-payload-inspector': () =>
+      import('@/tools/WebhookPayloadInspector/index'),
+    'mock-response-generator': () =>
+      import('@/tools/MockResponseGenerator/index'),
+    'http-methods-reference': () =>
+      import('@/tools/HttpMethodsReference/index'),
+    'content-type-negotiator': () =>
+      import('@/tools/ContentTypeNegotiator/index'),
+    'api-key-generator': () =>
+      import('@/tools/ApiKeyGenerator/index'),
+    'json-schema-validator': () =>
+      import('@/tools/JsonSchemaValidator/index'),
+    'icu-message-format-builder': () =>
+      import('@/tools/IcuMessageFormatBuilder/index'),
+    'locale-formatter': () =>
+      import('@/tools/LocaleFormatter/index'),
+    'plural-rules-explorer': () =>
+      import('@/tools/PluralRulesExplorer/index'),
+    'language-code-lookup': () =>
+      import('@/tools/LanguageCodeLookup/index'),
+    'timezone-database': () =>
+      import('@/tools/TimezoneDatabase/index'),
+    'currency-code-lookup': () =>
+      import('@/tools/CurrencyCodeLookup/index'),
+    'country-code-lookup': () =>
+      import('@/tools/CountryCodeLookup/index'),
+    'collation-comparator': () =>
+      import('@/tools/CollationComparator/index'),
+    'unicode-property-explorer': () =>
+      import('@/tools/UnicodePropertyExplorer/index'),
+    'bidi-text-checker': () =>
+      import('@/tools/BidiTextChecker/index'),
+    'loan-calculator': () =>
+      import('@/tools/LoanCalculator/index'),
+    'compound-interest-calculator': () =>
+      import('@/tools/CompoundInterestCalculator/index'),
+    'currency-converter': () =>
+      import('@/tools/CurrencyConverter/index'),
+    'vat-calculator': () =>
+      import('@/tools/VatCalculator/index'),
+    'income-tax-calculator': () =>
+      import('@/tools/IncomeTaxCalculator/index'),
+    'invoice-generator': () =>
+      import('@/tools/InvoiceGenerator/index'),
+    'tip-calculator': () =>
+      import('@/tools/TipCalculator/index'),
+    'roi-calculator': () =>
+      import('@/tools/RoiCalculator/index'),
+    'depreciation-calculator': () =>
+      import('@/tools/DepreciationCalculator/index'),
+    'break-even-calculator': () =>
+      import('@/tools/BreakEvenCalculator/index'),
+    'coordinate-converter': () =>
+      import('@/tools/CoordinateConverter/index'),
+    'geohash-encoder': () =>
+      import('@/tools/GeohashEncoder/index'),
+    'plus-code-encoder': () =>
+      import('@/tools/PlusCodeEncoder/index'),
+    'distance-calculator': () =>
+      import('@/tools/DistanceCalculator/index'),
+    'timezone-from-coordinates': () =>
+      import('@/tools/TimezoneFromCoordinates/index'),
+    'bounding-box-calculator': () =>
+      import('@/tools/BoundingBoxCalculator/index'),
+    'coordinate-normalizer': () =>
+      import('@/tools/CoordinateNormalizer/index'),
+    'whatxword-encoder': () =>
+      import('@/tools/WhatXWord/index'),
+    'color-contrast-checker': () =>
+      import('@/tools/ColorContrastChecker/index'),
+    'aria-label-generator': () =>
+      import('@/tools/AriaLabelGenerator/index'),
+    'alt-text-builder': () =>
+      import('@/tools/AltTextBuilder/index'),
+    'tab-order-visualizer': () =>
+      import('@/tools/TabOrderVisualizer/index'),
+    'wcag-reference': () =>
+      import('@/tools/WcagReference/index'),
+    'heading-structure-analyzer': () =>
+      import('@/tools/HeadingStructureAnalyzer/index'),
+    'screen-reader-text-generator': () =>
+      import('@/tools/ScreenReaderTextGenerator/index'),
+    'terraform-resource-builder': () =>
+      import('@/tools/TerraformResourceBuilder/index'),
+    'terraform-module-builder': () =>
+      import('@/tools/TerraformModuleBuilder/index'),
+    'terraform-import-builder': () =>
+      import('@/tools/TerraformImportBuilder/index'),
+    'proxmox-vm-builder': () =>
+      import('@/tools/ProxmoxVmBuilder/index'),
+    'proxmox-cloud-init-builder': () =>
+      import('@/tools/ProxmoxCloudInitBuilder/index'),
+    'proxmox-lxc-builder': () =>
+      import('@/tools/ProxmoxLxcBuilder/index'),
+    'ansible-playbook-builder': () =>
+      import('@/tools/AnsiblePlaybookBuilder/index'),
+    'wireguard-config-builder': () =>
+      import('@/tools/WireGuardConfigBuilder/index'),
+    'ufw-rule-builder': () =>
+      import('@/tools/UfwRuleBuilder/index'),
+    'haproxy-config-builder': () =>
+      import('@/tools/HaProxyConfigBuilder/index'),
+    'makefile-generator': () =>
+      import('@/tools/MakefileGenerator/index'),
+    'helm-values-builder': () =>
+      import('@/tools/HelmValuesBuilder/index'),
+    'force-converter': () =>
+      import('@/tools/ForceConverter/index'),
+    'power-converter': () =>
+      import('@/tools/PowerConverter/index'),
+    'torque-converter': () =>
+      import('@/tools/TorqueConverter/index'),
+    'density-converter': () =>
+      import('@/tools/DensityConverter/index'),
+    'acceleration-converter': () =>
+      import('@/tools/AccelerationConverter/index'),
+    'flow-rate-converter': () =>
+      import('@/tools/FlowRateConverter/index'),
+    'viscosity-converter': () =>
+      import('@/tools/ViscosityConverter/index'),
+    'radiation-converter': () =>
+      import('@/tools/RadiationConverter/index'),
+    'illuminance-converter': () =>
+      import('@/tools/IlluminanceConverter/index'),
+    'typography-converter': () =>
+      import('@/tools/TypographyConverter/index'),
+    'cooking-converter': () =>
+      import('@/tools/CookingConverter/index'),
+    'data-rate-converter': () =>
+      import('@/tools/DataRateConverter/index'),
+    'paper-size-converter': () =>
+      import('@/tools/PaperSizeConverter/index'),
+    'clothing-size-converter': () =>
+      import('@/tools/ClothingSizeConverter/index'),
+    'calendar-converter': () =>
+      import('@/tools/CalendarConverter/index'),
+    'ohms-law-calculator': () =>
+      import('@/tools/OhmsLawCalculator/index'),
     // ...added in M1+ milestones
   };
   const loader = modules[slug];
@@ -164,7 +461,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
 
 <template>
   <div class="embed-view">
-    <component :is="ToolComponent" v-if="tool" :slug="resolvedSlug" />
+    <component :is="ToolComponent" v-if="tool" :key="resolvedSlug" :slug="resolvedSlug" />
     <ToolPlaceholder v-else :slug="resolvedSlug" />
   </div>
 </template>

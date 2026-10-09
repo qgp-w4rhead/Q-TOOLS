@@ -1,5 +1,5 @@
 /**
- * useToolSearch — global tool search composable.
+ * useToolSearch - global tool search composable.
  *
  * Provides ranked search across all registered tools (name, description,
  * keywords, category label), recent-search persistence in LocalStorage,
@@ -25,6 +25,12 @@ import {
   getCategoryById,
   type ToolMetadata,
 } from '@/data/tools';
+import {
+  categoryLabel as localizedCategoryLabel,
+  localizedToolDescription,
+  localizedToolKeywords,
+  localizedToolName,
+} from '@/i18n/localized';
 
 /* -------------------------------------------------------------------------- */
 /* Types                                                                       */
@@ -82,7 +88,7 @@ const SUGGESTED_SLUGS: readonly string[] = [
  * Split a raw query into normalised search terms.
  *
  * Terms are lowercased, trimmed, deduped (first-seen order), and empty
- * strings are dropped. Whitespace is the only delimiter — quoted phrases are
+ * strings are dropped. Whitespace is the only delimiter - quoted phrases are
  * not specially handled because tool names/keywords are short.
  */
 export function tokenizeQuery(query: string): string[] {
@@ -124,26 +130,35 @@ function scoreTerm(
   tool: ToolMetadata,
   categoryLabel: string,
 ): { score: number; field: MatchField | null } {
-  const name = tool.name.toLowerCase();
-  const description = tool.description.toLowerCase();
+  // Localized fields (fall back to English when untranslated) are scored
+  // alongside the English originals, so English keywords/names stay
+  // searchable in every locale.
+  const name = localizedToolName(tool).toLowerCase();
+  const nameEn = tool.name.toLowerCase();
+  const description = localizedToolDescription(tool).toLowerCase();
+  const descriptionEn = tool.description.toLowerCase();
+  const keywords = [...localizedToolKeywords(tool), ...tool.keywords];
   const category = tool.category.toLowerCase();
   const catLabel = categoryLabel.toLowerCase();
+  const catLabelEn = (
+    getCategoryById(tool.category)?.label ?? tool.category
+  ).toLowerCase();
 
   let best = 0;
   let bestField: MatchField | null = null;
 
-  if (name === term) {
+  if (name === term || nameEn === term) {
     return { score: 100, field: 'name' };
   }
-  if (name.startsWith(term)) {
+  if (name.startsWith(term) || nameEn.startsWith(term)) {
     best = 60;
     bestField = 'name';
-  } else if (contains(name, term)) {
+  } else if (contains(name, term) || contains(nameEn, term)) {
     best = 30;
     bestField = 'name';
   }
 
-  for (const kw of tool.keywords) {
+  for (const kw of keywords) {
     const k = kw.toLowerCase();
     if (k === term) {
       if (50 > best) {
@@ -165,14 +180,14 @@ function scoreTerm(
     }
   }
 
-  if (contains(description, term)) {
+  if (contains(description, term) || contains(descriptionEn, term)) {
     if (10 > best) {
       best = 10;
       bestField = 'description';
     }
   }
 
-  if (contains(catLabel, term)) {
+  if (contains(catLabel, term) || contains(catLabelEn, term)) {
     if (8 > best) {
       best = 8;
       bestField = 'category';
@@ -202,17 +217,21 @@ export function rankedSearch(
 ): SearchResult[] {
   const terms = tokenizeQuery(query);
   if (terms.length === 0) {
-    return tools.map((tool) => ({
-      tool,
-      score: 0,
-      matchedFields: [],
-      categoryLabel: getCategoryById(tool.category)?.label ?? tool.category,
-    }));
+    return tools.map((tool) => {
+      const cat = getCategoryById(tool.category);
+      return {
+        tool,
+        score: 0,
+        matchedFields: [],
+        categoryLabel: cat ? localizedCategoryLabel(cat) : tool.category,
+      };
+    });
   }
 
   const results: SearchResult[] = [];
   for (const tool of tools) {
-    const categoryLabel = getCategoryById(tool.category)?.label ?? tool.category;
+    const cat = getCategoryById(tool.category);
+    const categoryLabel = cat ? localizedCategoryLabel(cat) : tool.category;
     let total = 0;
     const fields = new Set<MatchField>();
     for (const term of terms) {
@@ -348,7 +367,7 @@ export interface UseToolSearchReturn {
   query: Ref<string>;
   /** Ranked search results (capped at `maxResults`). */
   results: ComputedRef<SearchResult[]>;
-  /** Total number of matches (before capping) — for "N tools matched" UI. */
+  /** Total number of matches (before capping) - for "N tools matched" UI. */
   totalMatches: ComputedRef<number>;
   /** Recent searches loaded from LocalStorage. */
   recent: Ref<RecentSearchEntry[]>;

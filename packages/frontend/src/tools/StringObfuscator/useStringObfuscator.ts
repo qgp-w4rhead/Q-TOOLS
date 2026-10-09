@@ -1,5 +1,5 @@
 /**
- * useStringObfuscator — composable + pure logic for the String obfuscator tool.
+ * useStringObfuscator - composable + pure logic for the String obfuscator tool.
  *
  * Obfuscates text by replacing ASCII characters with visually-similar Unicode
  * lookalikes (homoglyphs) and/or inserting zero-width characters between
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 export type ObfuscationMethod = 'homoglyph' | 'zero-width' | 'mixed';
@@ -32,7 +32,7 @@ export interface ObfuscatorOptions {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Constants — bundled homoglyph + zero-width tables (no external dependency)  */
+/* Constants - bundled homoglyph + zero-width tables (no external dependency)  */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -117,7 +117,7 @@ const INTENSITY_ZW_COUNT: Record<Intensity, number> = {
 };
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -202,9 +202,9 @@ export function obfuscateZeroWidth(text: string, intensity: Intensity): string {
 /**
  * Obfuscate text using the configured method and intensity.
  *
- * - `homoglyph`   — substitute ASCII chars with Unicode lookalikes.
- * - `zero-width`  — insert zero-width characters between visible chars.
- * - `mixed`       — apply homoglyph substitution first, then zero-width
+ * - `homoglyph`   - substitute ASCII chars with Unicode lookalikes.
+ * - `zero-width`  - insert zero-width characters between visible chars.
+ * - `mixed`       - apply homoglyph substitution first, then zero-width
  *                   insertion.
  */
 export function obfuscate(text: string, options: ObfuscatorOptions): string {
@@ -232,7 +232,7 @@ export function deobfuscate(text: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface UseStringObfuscatorReturn {

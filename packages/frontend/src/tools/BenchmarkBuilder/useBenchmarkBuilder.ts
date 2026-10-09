@@ -1,5 +1,5 @@
 /**
- * useBenchmarkBuilder — composable + pure logic for the benchmark builder tool.
+ * useBenchmarkBuilder - composable + pure logic for the benchmark builder tool.
  *
  * Measures the execution time of a user-provided JavaScript code snippet across
  * a configurable number of iterations. Uses `performance.now()` for
@@ -8,13 +8,13 @@
  *
  * Execution model:
  *
- *   1. **Setup** (optional) — a separate `setupCode` string is compiled into a
+ *   1. **Setup** (optional) - a separate `setupCode` string is compiled into a
  *      function and invoked once with a shared `ctx` object. The setup function
  *      can populate `ctx` with data the benchmark code operates on (e.g.
  *      `ctx.arr = [1, 2, 3]`).
- *   2. **Warmup** — the benchmark code is run `warmup` times without timing so
+ *   2. **Warmup** - the benchmark code is run `warmup` times without timing so
  *      the JIT can optimise the hot path.
- *   3. **Timed** — the benchmark code is run `iterations` times, each iteration
+ *   3. **Timed** - the benchmark code is run `iterations` times, each iteration
  *      timed individually with `performance.now()`. Per-iteration samples are
  *      collected for statistical analysis.
  *
@@ -25,19 +25,19 @@
  * **Why `new Function()`?** The acceptance criteria require "Define a code
  * snippet to benchmark" and "No external dependencies". The only built-in way
  * to execute arbitrary user-provided JavaScript without a dependency is
- * `new Function()`. This is a developer tool — the user explicitly types their
+ * `new Function()`. This is a developer tool - the user explicitly types their
  * own code to benchmark. The code is never rendered in the DOM or treated as
  * untrusted input; it is a sandboxed execution context for performance
  * measurement, the standard pattern for any online JS benchmark tool.
  *
- * No external dependencies — `performance.now()` + `new Function()` only.
+ * No external dependencies - `performance.now()` + `new Function()` only.
  */
-import { ref, watch, type Ref } from 'vue';
-import { useEmbed } from '@/composables/useEmbed';
+import { ref, type Ref } from 'vue';
+import { useToolEmbed } from '@/composables/useToolEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 /** Inputs to `runBenchmark`. */
@@ -109,7 +109,7 @@ export type BenchmarkStage = 'compile' | 'setup' | 'warmup' | 'timed';
 export type BenchmarkOutcome = BenchmarkResult | BenchmarkError;
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Iterations per chunk before yielding to the event loop. */
@@ -153,10 +153,10 @@ export function parsePositiveInt(
  *   - `45.6` → `45.6 ms`
  *   - `1234` → `1.234 s`
  *   - `0` → `0 ms`
- *   - non-finite → `—`
+ *   - non-finite → `-`
  */
 export function formatDuration(ms: number): string {
-  if (!Number.isFinite(ms)) return '—';
+  if (!Number.isFinite(ms)) return '-';
   if (ms === 0) return '0 ms';
   const abs = Math.abs(ms);
   if (abs < 0.001) return `${(ms * 1_000_000).toFixed(0)} ns`;
@@ -167,10 +167,10 @@ export function formatDuration(ms: number): string {
 
 /**
  * Format a number with thousands separators and up to 2 decimal places,
- * trimming trailing zeros. Returns `—` for non-finite values.
+ * trimming trailing zeros. Returns `-` for non-finite values.
  */
 export function formatNumber(n: number): string {
-  if (!Number.isFinite(n)) return '—';
+  if (!Number.isFinite(n)) return '-';
   if (Number.isInteger(n)) {
     return n.toLocaleString('en-US');
   }
@@ -210,7 +210,7 @@ export function percentile(sorted: readonly number[], p: number): number {
 
 /**
  * Compute statistical summary from an array of per-iteration samples (in ms).
- * The samples array is sorted in place — pass a copy if you need the original
+ * The samples array is sorted in place - pass a copy if you need the original
  * order preserved.
  */
 export function computeStats(samples: number[]): BenchmarkStats {
@@ -279,7 +279,7 @@ function yieldToEventLoop(): Promise<void> {
  * `CHUNK_SIZE` iterations the function awaits `yieldToEventLoop()` so the UI
  * stays responsive and `shouldCancel` can be checked.
  *
- * Returns a `BenchmarkOutcome` — either a `BenchmarkResult` with stats or a
+ * Returns a `BenchmarkOutcome` - either a `BenchmarkResult` with stats or a
  * `BenchmarkError` with a stage tag. Never throws for user-code errors.
  */
 export async function runBenchmark(
@@ -504,7 +504,7 @@ export const PRESETS: readonly BenchmarkPreset[] = [
 ] as const;
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseBenchmarkBuilderReturn {
@@ -596,7 +596,7 @@ export function useBenchmarkBuilder(): UseBenchmarkBuilderReturn {
     progress.value = 0;
   }
 
-  const { isEmbed, input: embedInput, sendOutput } = useEmbed({
+  const { isEmbed, input: embedInput } = useToolEmbed({
     onInput: (payload) => {
       if (!payload || typeof payload !== 'object') return;
       const p = payload as Record<string, unknown>;
@@ -635,23 +635,12 @@ export function useBenchmarkBuilder(): UseBenchmarkBuilderReturn {
         reset();
       }
     },
-  });
-
-  watch(outcome, (o) => {
-    if (isEmbed.value) {
-      sendOutput(o ?? {});
-    }
-  });
-
-  // Also send live progress / running state in embed mode.
-  watch([running, progress], () => {
-    if (isEmbed.value) {
-      sendOutput({
-        running: running.value,
-        progress: progress.value,
-        ...(outcome.value ?? {}),
-      });
-    }
+    output: [outcome, running, progress],
+    toOutput: () => ({
+      running: running.value,
+      progress: progress.value,
+      ...(outcome.value ?? {}),
+    }),
   });
 
   return {

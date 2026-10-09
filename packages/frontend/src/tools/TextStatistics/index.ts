@@ -1,5 +1,5 @@
 /**
- * TextStatistics tool module — exports the lazy-loaded component plus its
+ * TextStatistics tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
@@ -7,7 +7,7 @@
  * spaces), word/sentence/paragraph/line counts, average word and sentence
  * length, and estimated reading + speaking times.
  *
- * No external dependencies — pure string arithmetic.
+ * No external dependencies - pure string arithmetic.
  */
 import { defineAsyncComponent } from 'vue';
 import type { ToolMetadata } from '@q-tools/shared';

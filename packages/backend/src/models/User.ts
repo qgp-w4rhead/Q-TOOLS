@@ -3,7 +3,7 @@
  *
  * Stores account credentials (bcrypt-hashed passwords) and profile data.
  * Email and username are unique indexed. Passwords are never stored in
- * plaintext — only the bcrypt hash is persisted.
+ * plaintext - only the bcrypt hash is persisted.
  */
 import bcrypt from 'bcrypt';
 import { Schema, model, type Document, type Model, type Types } from 'mongoose';

@@ -1,24 +1,28 @@
 <script setup lang="ts">
 /**
- * Ipv4AddressConverter — IPv4 address converter.
+ * Ipv4AddressConverter - IPv4 address converter.
  *
  * Takes an IPv4 dotted-decimal address (e.g. `192.168.1.10`) and converts it
  * into eight numeric representations: decimal (32-bit unsigned), hex, binary,
  * octal, dotted decimal, dotted hex, dotted binary, and dotted octal. Also
  * reports the IP class (A-E) and private/loopback/link-local scope.
  *
- * No external dependencies — all arithmetic uses 32-bit unsigned integers.
+ * No external dependencies - all arithmetic uses 32-bit unsigned integers.
  *
  * Works in embed mode: receives `ip`/`address`/`input`/`value` PostMessages
  * to pre-fill the IP field; sends `output` PostMessages with all eight
  * representations whenever the result changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, Globe, Lock, Network as NetworkIcon } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
 import CopyButton from '@/components/CopyButton.vue';
 import { useIpv4AddressConverter } from './useIpv4AddressConverter';
+
+const { t, locale } = useI18n();
+const U = 'tools.ipv4-address-converter.ui.';
 
 const { ipInput, result, error } = useIpv4AddressConverter();
 
@@ -49,31 +53,32 @@ const resultRows = computed(() => {
   const r = result.value;
   if (!r) return [];
   return [
-    { label: 'Dotted decimal', value: r.dottedDecimal, mono: true },
-    { label: 'Decimal', value: r.decimal.toLocaleString(), mono: true },
-    { label: 'Hexadecimal', value: r.hex, mono: true },
-    { label: 'Octal', value: r.octal, mono: true },
-    { label: 'Binary', value: r.binary, mono: true },
-    { label: 'Dotted hex', value: r.dottedHex, mono: true },
-    { label: 'Dotted octal', value: r.dottedOctal, mono: true },
-    { label: 'Dotted binary', value: r.dottedBinary, mono: true },
+    { label: t(U + 'rowDottedDecimal'), value: r.dottedDecimal, mono: true },
+    { label: t(U + 'rowDecimal'), value: r.decimal.toLocaleString(locale.value), mono: true },
+    { label: t(U + 'rowHex'), value: r.hex, mono: true },
+    { label: t(U + 'rowOctal'), value: r.octal, mono: true },
+    { label: t(U + 'rowBinary'), value: r.binary, mono: true },
+    { label: t(U + 'rowDottedHex'), value: r.dottedHex, mono: true },
+    { label: t(U + 'rowDottedOctal'), value: r.dottedOctal, mono: true },
+    { label: t(U + 'rowDottedBinary'), value: r.dottedBinary, mono: true },
   ];
 });
 </script>
 
 <template>
-  <div class="converter">
+  <div class="qt-tool">
     <ToolInput
-      title="IPv4 address"
-      description="Enter an IPv4 dotted-decimal address (e.g. 192.168.1.10) to convert it into decimal, hex, binary, octal, and dotted variants."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
-      <div class="converter__field">
-        <label class="converter__field-label" for="ipv4-input">IP address</label>
+      <div class="qt-field" style="gap:4px">
+        <label class="qt-stat-head" for="ipv4-input">{{ t(U + 'ipLabel') }}</label>
         <input
           id="ipv4-input"
-          class="converter__input"
+          class="qt-input qt-input--mono"
+          style="font-size:13.5px"
           type="text"
-          placeholder="192.168.1.10"
+          :placeholder="t(U + 'phIp')"
           :value="ipInput"
           spellcheck="false"
           autocomplete="off"
@@ -83,14 +88,15 @@ const resultRows = computed(() => {
       </div>
 
       <!-- Presets -->
-      <div class="converter__presets">
-        <span class="converter__presets-label">Examples:</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:6px;margin-top:10px">
+        <span class="qt-label" style="margin-right:2px">{{ t(U + 'examples') }}</span>
         <button
           v-for="p in PRESETS"
           :key="p.ip"
           type="button"
-          class="converter__preset"
-          :class="{ 'converter__preset--active': ipInput.trim() === p.ip }"
+          class="qt-chip qt-chip--filled"
+          style="font-family:var(--qt-font-mono)"
+          :class="{ 'qt-chip--active': ipInput.trim() === p.ip }"
           @click="applyPreset(p.ip)"
         >
           {{ p.label }}
@@ -99,49 +105,50 @@ const resultRows = computed(() => {
     </ToolInput>
 
     <ToolOutput
-      title="Conversions"
-      :description="result ? `Converted ${result.dottedDecimal}` : 'Enter an IPv4 address to see all conversions.'"
+      :title="t(U + 'outTitle')"
+      :description="result ? t(U + 'descDone', { ip: result.dottedDecimal }) : t(U + 'descEmpty')"
       :copy-text="result ? result.dottedDecimal : ''"
-      copy-label="Copy dotted decimal"
+      :copy-label="t(U + 'copyDotted')"
     >
       <template v-if="!hasInput">
-        <p class="converter__empty">Enter an IPv4 address above to convert it.</p>
+        <p class="qt-alert qt-alert--empty">{{ t(U + 'alertEmpty') }}</p>
       </template>
       <template v-else-if="error">
-        <p class="converter__error">
+        <p class="qt-banner qt-banner--error" style="margin:0">
           <AlertCircle :size="14" />
           <span>{{ error }}</span>
         </p>
       </template>
       <template v-else-if="result">
         <!-- Scope + class badges -->
-        <div class="converter__badges">
+        <div class="qt-row" style="--qt-row-gap:8px;margin-bottom:12px">
           <span
-            class="converter__badge"
-            :class="result.isPrivate ? 'converter__badge--private' : 'converter__badge--public'"
+            class="qt-badge"
+            style="text-transform:uppercase;font-weight:700"
+            :class="result.isPrivate ? 'qt-badge--warn' : 'qt-badge--success'"
           >
             <component :is="result.isPrivate ? Lock : Globe" :size="13" />
             <span>{{ result.scope }}</span>
           </span>
-          <span class="converter__badge converter__badge--class">
+          <span class="qt-badge qt-badge--info" style="text-transform:uppercase;font-weight:700">
             <NetworkIcon :size="13" />
-            <span>Class {{ result.ipClass }}</span>
+            <span>{{ t(U + 'classBadge', { c: result.ipClass }) }}</span>
           </span>
         </div>
 
         <!-- Conversion grid -->
-        <div class="converter__grid">
+        <div class="qt-stack" style="--qt-stack-gap:6px">
           <div
             v-for="row in resultRows"
             :key="row.label"
-            class="converter__row"
+            class="qt-result-row converter__row"
           >
-            <span class="converter__row-label">{{ row.label }}</span>
+            <span class="qt-label converter__row-label">{{ row.label }}</span>
             <code
-              class="converter__row-value"
-              :class="{ 'converter__row-value--mono': row.mono }"
+              style="flex:1;font-size:13.5px;color:var(--qt-text);word-break:break-all"
+              :style="row.mono ? 'font-family:var(--qt-font-mono);font-weight:700;font-variant-numeric:tabular-nums' : 'font-family:inherit'"
             >{{ row.value }}</code>
-            <CopyButton :text="row.value" icon-only label="Copy" />
+            <CopyButton :text="row.value" icon-only :label="t('common.copy')" />
           </div>
         </div>
       </template>
@@ -150,182 +157,12 @@ const resultRows = computed(() => {
 </template>
 
 <style scoped>
-.converter {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
 
-/* Inputs */
-.converter__field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.converter__field-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--qt-muted);
-}
-.converter__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 13.5px;
-  padding: 8px 10px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.converter__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-
-/* Presets */
-.converter__presets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-}
-.converter__presets-label {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  font-weight: 600;
-  margin-right: 2px;
-}
-.converter__preset {
-  padding: 4px 10px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-text);
-  font: inherit;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.converter__preset:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.converter__preset--active {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 90% c h / 0.12);
-}
-
-/* Empty / error */
-.converter__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.converter__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: oklch(from var(--qt-danger) 35% c h / 0.18);
-  border: 1px solid oklch(from var(--qt-danger) 60% c h / 0.5);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-size: 13.5px;
-  margin: 0;
-}
-.converter__error svg {
-  color: var(--qt-danger);
-  flex-shrink: 0;
-}
-
-/* Badges */
-.converter__badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.converter__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border: 1px solid transparent;
-}
-.converter__badge--private {
-  background: oklch(from var(--qt-warning) 35% c h / 0.2);
-  border-color: oklch(from var(--qt-warning) 60% c h / 0.55);
-  color: var(--qt-warning);
-}
-.converter__badge--public {
-  background: oklch(from var(--qt-success) 35% c h / 0.2);
-  border-color: oklch(from var(--qt-success) 60% c h / 0.55);
-  color: var(--qt-success);
-}
-.converter__badge--class {
-  background: oklch(from var(--qt-accent) 35% c h / 0.18);
-  border-color: oklch(from var(--qt-accent) 60% c h / 0.5);
-  color: var(--qt-accent);
-}
-
-/* Conversion grid */
-.converter__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-}
-.converter__row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-}
+/* Result-row label — fixed column width; wraps full-width on narrow. */
 .converter__row-label {
   flex: 0 0 140px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
 }
-.converter__row-value {
-  flex: 1 1 auto;
-  font-size: 13.5px;
-  color: var(--qt-text);
-  word-break: break-all;
-}
-.converter__row-value--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 13.5px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
 @media (max-width: 560px) {
   .converter__row {
     flex-wrap: wrap;

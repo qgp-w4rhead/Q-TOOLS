@@ -1,5 +1,5 @@
 /**
- * useSvgPlaceholderGenerator — composable + pure logic for the SVG placeholder
+ * useSvgPlaceholderGenerator - composable + pure logic for the SVG placeholder
  * generator tool.
  *
  * Builds a self-contained SVG placeholder image string from a set of options:
@@ -9,7 +9,7 @@
  *   - text color (hex)
  *   - font size (px)
  *
- * The SVG is generated entirely by hand-rolled string assembly — no external
+ * The SVG is generated entirely by hand-rolled string assembly - no external
  * dependencies. A PNG rasterisation helper (`svgToPngDataUrl`) is provided for
  * the download convenience button; it uses the browser's `Image` + `<canvas>`
  * APIs and is only invoked from the component (browser-only).
@@ -62,7 +62,7 @@ export const DEFAULT_PLACEHOLDER_OPTIONS: SvgPlaceholderOptions = {
 };
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -129,7 +129,7 @@ export function defaultPlaceholderText(width: number, height: number): string {
  *   - uses the `xMidYMid` text-anchor / dominant-baseline combo for
  *     consistent centring across renderers.
  *
- * Returns the SVG markup as a string (no XML declaration — inline SVG / data
+ * Returns the SVG markup as a string (no XML declaration - inline SVG / data
  * URI friendly).
  */
 export function buildSvgPlaceholder(opts: SvgPlaceholderOptions): string {
@@ -166,7 +166,7 @@ export function buildSvgPlaceholder(opts: SvgPlaceholderOptions): string {
 /**
  * Rasterise an SVG string to a PNG data URL (`data:image/png;base64,…`) using
  * the browser's `Image` + `<canvas>` APIs. Returns a Promise that resolves
- * with the data URL. Browser-only — must not be called during SSR.
+ * with the data URL. Browser-only - must not be called during SSR.
  *
  * The SVG is fed to the `Image` via a `data:image/svg+xml;charset=utf-8,…`
  * URL (URL-encoded, not base64, for maximum renderer compatibility). The
@@ -210,7 +210,7 @@ export function svgToPngDataUrl(svg: string, width: number, height: number): Pro
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseSvgPlaceholderGeneratorReturn {
@@ -255,7 +255,7 @@ export function useSvgPlaceholderGenerator(): UseSvgPlaceholderGeneratorReturn {
     }
   }
 
-  // SVG generation is synchronous and cheap — no debounce needed, but we still
+  // SVG generation is synchronous and cheap - no debounce needed, but we still
   // watch all inputs so the preview stays live.
   watch(
     [width, height, background, text, textColor, fontSize],

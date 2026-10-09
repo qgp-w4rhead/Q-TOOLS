@@ -1,17 +1,17 @@
 /**
- * useEscapeHtml — composable + pure logic for the HTML entity escape/unescape
+ * useEscapeHtml - composable + pure logic for the HTML entity escape/unescape
  * tool.
  *
  * Bidirectional converter:
  *
- * - **escape** — replaces the five HTML-significant characters
+ * - **escape** - replaces the five HTML-significant characters
  *   (`&` `<` `>` `"` `'`) with their entity references. Two modes:
- *   - **named** — `&amp;` `&lt;` `&gt;` `&quot;` `&#39;` (the apostrophe uses
+ *   - **named** - `&amp;` `&lt;` `&gt;` `&quot;` `&#39;` (the apostrophe uses
  *     the numeric form `&#39;` because `&apos;` is not recognised in HTML4 and
- *     is unreliable in legacy contexts — `&#39;` works everywhere).
- *   - **numeric** — decimal numeric character references
+ *     is unreliable in legacy contexts - `&#39;` works everywhere).
+ *   - **numeric** - decimal numeric character references
  *     `&#38;` `&#60;` `&#62;` `&#34;` `&#39;`.
- * - **unescape** — decodes both named and numeric (decimal `&#NN;` and hex
+ * - **unescape** - decodes both named and numeric (decimal `&#NN;` and hex
  *   `&#xHH;`) character references back to their literal characters. A small
  *   built-in named-entity map covers the five HTML-significant entities plus
  *   the common ones (`&nbsp;` `&copy;` …). Unknown named entities are left
@@ -22,7 +22,7 @@
  * composable wraps them in reactive state and wires up the embed PostMessage
  * protocol.
  *
- * No external dependencies — the entity map and the regex decoder are
+ * No external dependencies - the entity map and the regex decoder are
  * hand-rolled. We deliberately avoid the DOM `innerHTML` trick (assigning to
  * an element and reading `textContent`) because (a) it requires a DOM, (b) it
  * silently drops unknown entities, and (c) it is a known XSS sink when fed
@@ -33,7 +33,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Conversion direction. */
@@ -149,7 +149,7 @@ export function escapeHtml(text: string, mode: HtmlEntityMode = 'named'): string
  *
  * Handles:
  * - The five HTML-significant named entities plus the common ones in
- *   `NAMED_ENTITY_MAP` (case-sensitive — `&copy;` and `&COPY;` are different
+ *   `NAMED_ENTITY_MAP` (case-sensitive - `&copy;` and `&COPY;` are different
  *   entities; we follow the HTML spec which only defines lowercase names).
  * - Decimal numeric character references: `&#NN;`
  * - Hexadecimal numeric character references: `&#xHH;` / `&#XHH;`
@@ -200,7 +200,7 @@ function codePointToString(cp: number): string | null {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface EscapeHtmlOutputs {

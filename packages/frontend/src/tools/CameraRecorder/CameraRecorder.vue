@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * CameraRecorder — record video from the webcam via `getUserMedia` +
+ * CameraRecorder - record video from the webcam via `getUserMedia` +
  * `MediaRecorder`, preview the recording, and download it as WebM (or MP4
  * where the browser supports it).
  *
@@ -12,7 +12,7 @@
  *   - Preview the recorded clip
  *   - Download + clear
  *
- * No external dependencies — uses native browser APIs only. Requires a
+ * No external dependencies - uses native browser APIs only. Requires a
  * secure context (HTTPS or localhost); in an iframe the parent must set
  * `allow="camera; microphone"`.
  *
@@ -21,6 +21,7 @@
  * `durationSeconds`, `recordedSizeBytes`, `recordedMime`, `error`).
  */
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   Video,
   VideoOff,
@@ -64,7 +65,7 @@ const {
   clearRecording,
 } = useCameraRecorder();
 
-// Template refs — owned by the component so vue-tsc sees them used in script.
+// Template refs - owned by the component so vue-tsc sees them used in script.
 const videoElement = ref<HTMLVideoElement | null>(null);
 const previewElement = ref<HTMLVideoElement | null>(null);
 
@@ -106,6 +107,9 @@ watch(recordedBlobUrl, (url) => {
     }
   }
 });
+
+const { t } = useI18n();
+const U = 'tools.camera-recorder.ui.';
 
 const resolutionOptions = Object.keys(RESOLUTION_PRESETS) as (keyof typeof RESOLUTION_PRESETS)[];
 
@@ -152,27 +156,28 @@ function resetOptions(): void {
 </script>
 
 <template>
-  <div class="camrec">
+  <div class="qt-tool">
     <ToolInput
-      title="Input"
-      description="Pick a resolution and codec, then start the camera and record."
+      :title="t('common.input')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="camrec__reset-btn"
-          title="Reset options to defaults"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
+          :title="t(U + 'resetTitle')"
           @click="resetOptions"
         >
-          Reset
+          {{ t('common.reset') }}
         </button>
       </template>
 
-      <div class="camrec__opts">
-        <label class="camrec__field">
-          <span class="camrec__label">Resolution</span>
+      <div class="qt-grid" style="--qt-grid-min:200px;--qt-grid-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'resolution') }}</span>
           <select
-            class="camrec__select"
+            class="qt-input qt-input--mono"
+            style="font-size:12px"
             :value="resolution"
             @change="onResolution"
           >
@@ -180,10 +185,11 @@ function resetOptions(): void {
           </select>
         </label>
 
-        <label class="camrec__field">
-          <span class="camrec__label">MIME type</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'mimeType') }}</span>
           <select
-            class="camrec__select"
+            class="qt-input qt-input--mono"
+            style="font-size:12px"
             :value="mimeType"
             @change="onMime"
           >
@@ -192,51 +198,51 @@ function resetOptions(): void {
         </label>
       </div>
 
-      <div class="camrec__notice">
+      <div class="qt-banner qt-banner--warn camrec__notice" style="font-size:12px;align-items:center">
         <ShieldAlert :size="14" />
         <span>
-          Requires HTTPS (or localhost). In an iframe the parent must set
+          {{ t(U + 'httpsNotice') }}
           <code>allow="camera; microphone"</code>.
         </span>
       </div>
     </ToolInput>
 
     <ToolOutput
-      title="Camera"
-      :description="isRecording ? `Recording · ${durationLabel}` : (isCameraOn ? 'Camera live' : 'Camera off')"
+      :title="t(U + 'outputCamera')"
+      :description="isRecording ? t(U + 'descRecording', { duration: durationLabel }) : (isCameraOn ? t(U + 'descLive') : t(U + 'descOff'))"
       hide-copy
     >
       <template #actions>
         <button
           type="button"
-          class="camrec__btn camrec__btn--toggle"
+          class="qt-btn qt-btn--ghost qt-btn--sm camrec__btn--toggle"
           :class="{ 'camrec__btn--on': isCameraOn }"
           :disabled="isRecording"
-          :title="isCameraOn ? 'Stop camera' : 'Start camera'"
+          :title="isCameraOn ? t(U + 'stopCamera') : t(U + 'startCamera')"
           @click="toggleCamera"
         >
           <component :is="isCameraOn ? VideoOff : Video" :size="14" />
-          {{ isCameraOn ? 'Stop camera' : 'Start camera' }}
+          {{ isCameraOn ? t(U + 'stopCamera') : t(U + 'startCamera') }}
         </button>
         <button
           type="button"
-          class="camrec__btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :class="isRecording ? 'camrec__btn--recording' : 'camrec__btn--record'"
           :disabled="!isCameraOn"
-          :title="isRecording ? 'Stop recording' : 'Start recording'"
+          :title="isRecording ? t(U + 'stopRecording') : t(U + 'startRecording')"
           @click="toggleRecord"
         >
           <component :is="isRecording ? Square : Circle" :size="14" />
-          {{ isRecording ? 'Stop' : 'Record' }}
+          {{ isRecording ? t(U + 'stop') : t(U + 'record') }}
         </button>
       </template>
 
-      <div v-if="error" class="camrec__error">
+      <div v-if="error" class="qt-banner qt-banner--warn">
         <AlertTriangle :size="16" />
         <span>{{ error }}</span>
       </div>
 
-      <div class="camrec__stage">
+      <div class="qt-stack" style="--qt-stack-gap:8px">
         <div class="camrec__live">
           <video
             ref="videoElement"
@@ -247,142 +253,78 @@ function resetOptions(): void {
           />
           <div v-if="!isCameraOn" class="camrec__overlay">
             <Video :size="40" class="camrec__overlay-icon" />
-            <span>Camera is off. Press “Start camera” to begin.</span>
+            <span>{{ t(U + 'cameraOffOverlay') }}</span>
           </div>
           <div v-if="isRecording" class="camrec__rec-badge">
-            <span class="camrec__rec-dot" /> REC · {{ durationLabel }}
+            <span class="camrec__rec-dot" /> {{ t(U + 'recBadge', { duration: durationLabel }) }}
           </div>
         </div>
       </div>
     </ToolOutput>
 
     <ToolOutput
-      title="Recording"
-      :description="hasRecording ? `${sizeLabel} · ${fileExt.toUpperCase()} · ${durationLabel}` : 'No recording yet.'"
+      :title="t(U + 'outputRecording')"
+      :description="hasRecording ? t(U + 'descRecordingMeta', { size: sizeLabel, ext: fileExt.toUpperCase(), duration: durationLabel }) : t(U + 'descNoRecording')"
       hide-copy
     >
       <template #actions>
         <button
           type="button"
-          class="camrec__btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :disabled="!hasRecording"
-          title="Download recording"
+          :title="t(U + 'downloadRecording')"
           @click="downloadRecording"
         >
-          <Download :size="14" /> Download
+          <Download :size="14" /> {{ t('common.download') }}
         </button>
         <button
           type="button"
-          class="camrec__btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :disabled="!hasRecording"
-          title="Clear recording"
+          :title="t(U + 'clearRecording')"
           @click="clearRecording"
         >
-          <Trash2 :size="14" /> Clear
+          <Trash2 :size="14" /> {{ t('common.clear') }}
         </button>
       </template>
 
-      <div v-if="hasRecording" class="camrec__preview">
+      <div v-if="hasRecording" class="qt-stack" style="--qt-stack-gap:10px">
         <video
           ref="previewElement"
           class="camrec__video camrec__video--preview"
           controls
           playsinline
         />
-        <div class="camrec__preview-meta">
-          <span class="camrec__pill"><Play :size="11" /> {{ durationLabel }}</span>
-          <span class="camrec__pill">{{ sizeLabel }}</span>
-          <span class="camrec__pill">{{ recordedMime }}</span>
+        <div class="qt-row" style="--qt-row-gap:6px">
+          <span class="qt-badge"><Play :size="11" /> {{ durationLabel }}</span>
+          <span class="qt-badge">{{ sizeLabel }}</span>
+          <span class="qt-badge">{{ recordedMime }}</span>
         </div>
       </div>
       <div v-else class="camrec__placeholder">
         <Video :size="40" class="camrec__placeholder-icon" />
-        <span>Start the camera, then press Record to capture a clip.</span>
+        <span>{{ t(U + 'emptyRecording') }}</span>
       </div>
     </ToolOutput>
   </div>
 </template>
 
 <style scoped>
-.camrec {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-}
-.camrec__opts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.camrec__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.camrec__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.camrec__select {
-  width: 100%;
-  padding: 8px 10px;
-  font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  font-size: 12px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
-  cursor: pointer;
-}
-.camrec__select:focus {
-  border-color: var(--qt-accent);
-}
-.camrec__notice {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: var(--qt-radius);
-  background: oklch(from var(--qt-warning, #f59e0b) 25% c h / 10%);
-  color: var(--qt-warning, #f59e0b);
-  font-size: 12px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Inline code chip inside the warn banner. */
 .camrec__notice code {
   font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   background: oklch(from var(--qt-warning, #f59e0b) 30% c h / 18%);
   padding: 1px 5px;
   border-radius: 4px;
 }
-.camrec__reset-btn,
-.camrec__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-}
-.camrec__reset-btn:hover,
-.camrec__btn:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.camrec__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* Camera toggle (base via .qt-btn--ghost) — danger outline while live. */
 .camrec__btn--toggle.camrec__btn--on {
   border-color: var(--qt-danger, #ef4444);
   color: var(--qt-danger, #ef4444);
 }
+/* Record button (base via .qt-btn--ghost) — danger outline / fill. */
 .camrec__btn--record {
   border-color: var(--qt-danger, #ef4444);
   color: var(--qt-danger, #ef4444);
@@ -399,21 +341,7 @@ function resetOptions(): void {
   color: #fff;
   opacity: 0.9;
 }
-.camrec__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: var(--qt-radius);
-  background: oklch(from var(--qt-warning, #f59e0b) 25% c h / 12%);
-  color: var(--qt-warning, #f59e0b);
-  font-size: 13px;
-}
-.camrec__stage {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* Live stage — black 16:9 frame holding the camera video + overlays. */
 .camrec__live {
   position: relative;
   width: 100%;
@@ -433,6 +361,7 @@ function resetOptions(): void {
 .camrec__video--preview {
   border-radius: var(--qt-radius);
 }
+/* Camera-off overlay — centered prompt over the black stage. */
 .camrec__overlay {
   position: absolute;
   inset: 0;
@@ -450,6 +379,7 @@ function resetOptions(): void {
 .camrec__overlay-icon {
   opacity: 0.5;
 }
+/* REC badge — floating pill + pulsing dot. */
 .camrec__rec-badge {
   position: absolute;
   top: 10px;
@@ -476,28 +406,7 @@ function resetOptions(): void {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
-.camrec__preview {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.camrec__preview-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.camrec__pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-  font-variant-numeric: tabular-nums;
-}
+/* Centered empty state — big icon + prompt. */
 .camrec__placeholder {
   display: flex;
   flex-direction: column;

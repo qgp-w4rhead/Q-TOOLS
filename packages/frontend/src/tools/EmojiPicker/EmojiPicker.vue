@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
- * EmojiPicker — browse, search, and copy emojis.
+ * EmojiPicker - browse, search, and copy emojis.
  *
  * Features:
  *   - Search input with live filtering (debounced)
  *   - Category chips (9 categories with counts) + "All"
  *   - Skin tone selector (5 tones + default)
- *   - Responsive emoji grid — click to copy
+ *   - Responsive emoji grid - click to copy
  *   - Copy mode toggle (copy emoji vs shortcode `:shortcode:`)
  *   - Last-copied indicator
  *
@@ -16,13 +16,13 @@
  * skinTone/copyMode and sends `output` PostMessages with the search results.
  */
 import { ref, computed, onBeforeUnmount } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Search, Loader2 } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
 import { useEmojiPicker, type CopyMode } from './useEmojiPicker';
 import {
   EMOJI_CATEGORIES,
-  CATEGORY_LABELS,
   SKIN_TONES,
 } from './emojiData';
 import type { EmojiCategory } from './emojiData';
@@ -42,6 +42,36 @@ const {
   copyEmoji,
   reset,
 } = useEmojiPicker();
+
+const { t } = useI18n();
+const U = 'tools.emoji-picker.ui.';
+
+const CAT_KEYS: Record<EmojiCategory, string> = {
+  smileys: 'catSmileys',
+  people: 'catPeople',
+  animals: 'catAnimals',
+  food: 'catFood',
+  activities: 'catActivities',
+  travel: 'catTravel',
+  objects: 'catObjects',
+  symbols: 'catSymbols',
+  flags: 'catFlags',
+};
+function catLabel(c: EmojiCategory): string {
+  return t(U + CAT_KEYS[c]);
+}
+const TONE_KEYS: Record<string, string> = {
+  none: 'toneNone',
+  light: 'toneLight',
+  'medium-light': 'toneMediumLight',
+  medium: 'toneMedium',
+  'medium-dark': 'toneMediumDark',
+  dark: 'toneDark',
+};
+function toneLabel(id: string): string {
+  const k = TONE_KEYS[id];
+  return k ? t(U + k) : id;
+}
 
 // Debounce the search input.
 const draft = ref<string>(query.value);
@@ -104,78 +134,80 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="ep">
+  <div class="qt-tool">
     <ToolInput
-      title="Emoji picker"
-      description="Search and copy emojis. Click any emoji to copy it to your clipboard."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="ep__btn ep__btn--ghost"
-          title="Reset"
+          class="qt-btn qt-btn--ghost"
+          :title="t(U + 'resetTitle')"
           @click="onReset"
         >
-          Reset
+          {{ t('common.reset') }}
         </button>
       </template>
 
       <!-- Search bar -->
-      <div class="ep__search-row">
-        <div class="ep__search-wrap">
-          <Search :size="16" class="ep__search-icon" />
+      <div style="margin-bottom:12px">
+        <div class="qt-input-wrap">
+          <Search :size="16" style="position:absolute;left:12px;color:var(--qt-muted);pointer-events:none" />
           <input
             type="text"
-            class="ep__search"
+            class="qt-input"
+            style="padding:10px 36px 10px 38px"
             :value="draft"
-            placeholder="Search emojis by name, shortcode, or keyword…"
+            :placeholder="t(U + 'searchPlaceholder')"
             @input="onSearch"
-            aria-label="Search emojis"
+            :aria-label="t(U + 'ariaSearch')"
           />
           <Loader2
             v-if="loading"
             :size="16"
-            class="ep__spinner"
+            class="qt-spin"
+            style="position:absolute;right:12px;color:var(--qt-muted)"
           />
         </div>
       </div>
 
       <!-- Category chips -->
-      <div class="ep__chips" v-if="!loading && data">
+      <div class="qt-row" style="--qt-row-gap:6px;margin-bottom:12px" v-if="!loading && data">
         <button
           type="button"
-          class="ep__chip"
-          :class="{ 'ep__chip--active': category === 'all' }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': category === 'all' }"
           @click="onCategoryChip('all')"
         >
-          All <span class="ep__chip-count">{{ totalCount }}</span>
+          {{ t(U + 'all') }} <span style="font-size:11px;opacity:0.75;font-variant-numeric:tabular-nums">{{ totalCount }}</span>
         </button>
         <button
           v-for="cat in EMOJI_CATEGORIES"
           :key="cat"
           type="button"
-          class="ep__chip"
-          :class="{ 'ep__chip--active': category === cat }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': category === cat }"
           @click="onCategoryChip(cat)"
         >
-          {{ CATEGORY_LABELS[cat] }}
-          <span class="ep__chip-count">{{ categoryCounts[cat] ?? 0 }}</span>
+          {{ catLabel(cat) }}
+          <span style="font-size:11px;opacity:0.75;font-variant-numeric:tabular-nums">{{ categoryCounts[cat] ?? 0 }}</span>
         </button>
       </div>
 
       <!-- Skin tone + copy mode controls -->
-      <div class="ep__controls" v-if="!loading && data">
-        <div class="ep__control-group">
-          <span class="ep__control-label">Skin tone</span>
-          <div class="ep__tones">
+      <div class="qt-row qt-row--center" style="--qt-row-gap:16px" v-if="!loading && data">
+        <div class="qt-row qt-row--center" style="--qt-row-gap:8px;flex-wrap:nowrap">
+          <span class="qt-label">{{ t(U + 'skinTone') }}</span>
+          <div class="qt-row" style="--qt-row-gap:4px;flex-wrap:nowrap">
             <button
               v-for="tone in SKIN_TONES"
               :key="tone.id"
               type="button"
               class="ep__tone"
               :class="{ 'ep__tone--active': skinTone === tone.id }"
-              :title="tone.label"
-              :aria-label="tone.label"
+              :title="toneLabel(tone.id)"
+              :aria-label="toneLabel(tone.id)"
               @click="onSkinTone(tone)"
             >
               {{ tone.swatch }}
@@ -183,16 +215,16 @@ onBeforeUnmount(() => {
           </div>
         </div>
 
-        <div class="ep__control-group">
-          <span class="ep__control-label">Copy as</span>
-          <div class="ep__modes">
+        <div class="qt-row qt-row--center" style="--qt-row-gap:8px;flex-wrap:nowrap">
+          <span class="qt-label">{{ t(U + 'copyAs') }}</span>
+          <div class="qt-row" style="--qt-row-gap:4px;flex-wrap:nowrap">
             <button
               type="button"
               class="ep__mode"
               :class="{ 'ep__mode--active': copyMode === 'emoji' }"
               @click="onCopyMode('emoji')"
             >
-              Emoji
+              {{ t(U + 'copyEmoji') }}
             </button>
             <button
               type="button"
@@ -200,7 +232,7 @@ onBeforeUnmount(() => {
               :class="{ 'ep__mode--active': copyMode === 'shortcode' }"
               @click="onCopyMode('shortcode')"
             >
-              :shortcode:
+              {{ t(U + 'copyShortcode') }}
             </button>
           </div>
         </div>
@@ -208,28 +240,28 @@ onBeforeUnmount(() => {
     </ToolInput>
 
     <ToolOutput
-      :title="query ? 'Search results' : (category === 'all' ? 'All emojis' : CATEGORY_LABELS[category as EmojiCategory])"
-      :description="`${resultCount} emojis${lastCopied ? ' · copied: ' + lastCopied : ''}`"
+      :title="query ? t(U + 'titleSearchResults') : (category === 'all' ? t(U + 'titleAll') : catLabel(category as EmojiCategory))"
+      :description="t(U + 'descCount', resultCount) + (lastCopied ? t(U + 'descCopied', { v: lastCopied }) : '')"
     >
       <!-- Loading state -->
       <div v-if="loading" class="ep__loading">
-        <Loader2 :size="24" class="ep__spinner--lg" />
-        <span>Loading emoji dataset…</span>
+        <Loader2 :size="24" class="qt-spin" />
+        <span>{{ t(U + 'loading') }}</span>
       </div>
 
       <!-- Empty state -->
       <div v-else-if="resultCount === 0" class="ep__empty">
-        <span>No emojis found for "{{ query }}".</span>
+        <span>{{ t(U + 'empty', { q: query }) }}</span>
       </div>
 
       <!-- Emoji grid -->
-      <div v-else class="ep__grid">
+      <div v-else class="qt-grid" style="--qt-grid-min:40px;--qt-grid-gap:2px;padding:4px">
         <button
           v-for="item in displayResults"
           :key="item.entry.e + item.category"
           type="button"
           class="ep__emoji-btn"
-          :title="`${item.entry.n} — :${item.entry.s[0] ?? ''}:`"
+          :title="`${item.entry.n} - :${item.entry.s[0] ?? ''}:`"
           @click="handleCopy(item.entry)"
         >
           <span class="ep__emoji-glyph">{{ item.entry.e }}</span>
@@ -237,126 +269,17 @@ onBeforeUnmount(() => {
       </div>
 
       <!-- Last copied indicator -->
-      <div v-if="lastCopied" class="ep__copied">
-        Copied: <code class="ep__copied-code">{{ lastCopied }}</code>
+      <div v-if="lastCopied" style="margin-top:10px;font-size:13px;color:var(--qt-muted)">
+        {{ t(U + 'copied') }} <code class="qt-kbd">{{ lastCopied }}</code>
       </div>
     </ToolOutput>
   </div>
 </template>
 
 <style scoped>
-.ep {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
 
-/* Search bar */
-.ep__search-row {
-  margin-bottom: 12px;
-}
-.ep__search-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.ep__search-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--qt-muted);
-  pointer-events: none;
-}
-.ep__search {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 36px 10px 38px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.ep__search:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.ep__spinner {
-  position: absolute;
-  right: 12px;
-  color: var(--qt-muted);
-  animation: ep-spin 1s linear infinite;
-}
-@keyframes ep-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Category chips */
-.ep__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-.ep__chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 5px 12px;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.ep__chip:hover {
-  border-color: var(--qt-accent-soft);
-  color: var(--qt-text);
-}
-.ep__chip--active {
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-  color: var(--qt-accent-contrast, #fff);
-}
-.ep__chip-count {
-  font-size: 11px;
-  opacity: 0.75;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Controls (skin tone + copy mode) */
-.ep__controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
-}
-.ep__control-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.ep__control-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.ep__tones {
-  display: flex;
-  gap: 4px;
-}
+/* Skin-tone swatch — square emoji button with a 2px active ring. */
 .ep__tone {
   display: inline-flex;
   align-items: center;
@@ -381,10 +304,8 @@ onBeforeUnmount(() => {
   border-width: 2px;
   box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
 }
-.ep__modes {
-  display: flex;
-  gap: 4px;
-}
+
+/* Copy-mode chip — rounded-sm toggle chip with solid-accent active. */
 .ep__mode {
   display: inline-flex;
   align-items: center;
@@ -412,37 +333,7 @@ onBeforeUnmount(() => {
   color: var(--qt-accent-contrast, #fff);
 }
 
-/* Buttons */
-.ep__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: var(--qt-radius-sm);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.ep__btn--ghost {
-  background: transparent;
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-}
-.ep__btn--ghost:hover {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.ep__btn--ghost:active {
-  transform: translateY(1px);
-}
-
-/* Loading + empty states */
+/* Centered loading / empty states. */
 .ep__loading {
   display: flex;
   align-items: center;
@@ -451,9 +342,6 @@ onBeforeUnmount(() => {
   padding: 40px 16px;
   color: var(--qt-muted);
   font-size: 14px;
-}
-.ep__spinner--lg {
-  animation: ep-spin 1s linear infinite;
 }
 .ep__empty {
   display: flex;
@@ -464,13 +352,7 @@ onBeforeUnmount(() => {
   font-size: 14px;
 }
 
-/* Emoji grid */
-.ep__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-  gap: 2px;
-  padding: 4px;
-}
+/* Emoji grid button — square cell that scales on hover/press. */
 .ep__emoji-btn {
   display: flex;
   align-items: center;
@@ -500,21 +382,5 @@ onBeforeUnmount(() => {
   font-size: 22px;
   line-height: 1;
   font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-}
-
-/* Last copied indicator */
-.ep__copied {
-  margin-top: 10px;
-  font-size: 13px;
-  color: var(--qt-muted);
-}
-.ep__copied-code {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 2px 6px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 12.5px;
-  color: var(--qt-text);
 }
 </style>

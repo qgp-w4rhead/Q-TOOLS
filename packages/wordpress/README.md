@@ -1,4 +1,4 @@
-# Q-Tools Embed — WordPress Plugin
+# Q-Tools Embed - WordPress Plugin
 
 Embed any [Q-Tools](https://github.com/cognition-ai/q-tools) developer utility
 in WordPress posts and pages via the `[q_tools]` shortcode. The plugin
@@ -32,7 +32,7 @@ participates in the PostMessage protocol (auto-resize, input/output relay).
 
 ### Composer (Bedrock / WPackagist)
 
-Not yet published — use the manual method for now.
+Not yet published - use the manual method for now.
 
 ## Configuration
 
@@ -60,10 +60,10 @@ Add the shortcode to any post or page:
 
 | Attribute | Required | Default  | Description                                                          |
 | --------- | -------- | -------- | -------------------------------------------------------------------- |
-| `tool`    | yes      | —        | Tool slug (e.g. `hash-text`, `uuid-generator`, `qr-code-generator`). |
-| `input`   | no       | —        | JSON-encoded initial input payload sent to the tool on load.         |
+| `tool`    | yes      | -        | Tool slug (e.g. `hash-text`, `uuid-generator`, `qr-code-generator`). |
+| `input`   | no       | -        | JSON-encoded initial input payload sent to the tool on load.         |
 | `width`   | no       | `100%`   | iframe width (CSS value).                                            |
-| `height`  | no       | `auto`   | iframe height — overridden by resize messages from the tool.         |
+| `height`  | no       | `auto`   | iframe height - overridden by resize messages from the tool.         |
 | `allow`   | no       | auto     | iframe `allow` attribute (Permissions Policy). See table below.      |
 | `target`  | no       | auto     | CSS selector for a custom mount element (default: generated div).    |
 

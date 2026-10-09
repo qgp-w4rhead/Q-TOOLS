@@ -1,5 +1,5 @@
 /**
- * useQrCodeGenerator — composable + pure logic for the QR Code generator tool.
+ * useQrCodeGenerator - composable + pure logic for the QR Code generator tool.
  *
  * Renders arbitrary text/URLs as QR codes in two formats:
  *   - PNG (canvas → data URL) for raster use and `.png` download
@@ -75,7 +75,7 @@ export const DEFAULT_QR_OPTIONS: QrRenderOptions = {
 };
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -129,7 +129,7 @@ export async function generateQrDataUrl(
 ): Promise<string> {
   const data = text ?? '';
   if (data.length === 0) {
-    throw new Error('Input text is empty — nothing to encode.');
+    throw new Error('Input text is empty - nothing to encode.');
   }
   return QRCode.toDataURL(data, buildQrOptions(opts));
 }
@@ -145,7 +145,7 @@ export async function generateQrSvg(
 ): Promise<string> {
   const data = text ?? '';
   if (data.length === 0) {
-    throw new Error('Input text is empty — nothing to encode.');
+    throw new Error('Input text is empty - nothing to encode.');
   }
   return QRCode.toString(data, {
     ...buildQrOptions(opts),
@@ -166,13 +166,13 @@ export async function generateQrCanvas(
   if (!canvas) return;
   const data = text ?? '';
   if (data.length === 0) {
-    throw new Error('Input text is empty — nothing to encode.');
+    throw new Error('Input text is empty - nothing to encode.');
   }
   await QRCode.toCanvas(canvas, data, buildQrOptions(opts));
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseQrCodeGeneratorReturn {

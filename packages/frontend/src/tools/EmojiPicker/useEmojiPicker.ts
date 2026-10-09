@@ -1,14 +1,14 @@
 /**
- * useEmojiPicker — composable + pure logic for the Emoji picker tool.
+ * useEmojiPicker - composable + pure logic for the Emoji picker tool.
  *
  * Provides:
- *   - `applySkinTone(emoji, tone)` — insert a Fitzpatrick modifier after the
+ *   - `applySkinTone(emoji, tone)` - insert a Fitzpatrick modifier after the
  *     first code point of a single-codepoint people emoji.
- *   - `normalizeQuery(s)` — lowercased, trimmed, ASCII-folded search string.
- *   - `searchEmojis(data, query, category, limit)` — ranked search across
+ *   - `normalizeQuery(s)` - lowercased, trimmed, ASCII-folded search string.
+ *   - `searchEmojis(data, query, category, limit)` - ranked search across
  *     name + shortcodes + keywords (exact / prefix / substring scoring).
- *   - `flattenCategory(data, category)` — all entries for a category.
- *   - `useEmojiPicker()` composable — reactive state (query, category,
+ *   - `flattenCategory(data, category)` - all entries for a category.
+ *   - `useEmojiPicker()` composable - reactive state (query, category,
  *     skinTone, results, loading, lastCopied) + dynamic import of the emoji
  *     dataset + embed PostMessage integration.
  *
@@ -27,7 +27,7 @@ import type {
 } from './emojiData';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 export type CopyMode = 'emoji' | 'shortcode';
@@ -57,7 +57,7 @@ export interface UseEmojiPickerReturn {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -66,7 +66,7 @@ export interface UseEmojiPickerReturn {
  * This works for single-codepoint people emojis (e.g. 👋 → 👋🏻).
  *
  * Multi-codepoint emoji sequences (e.g. ZWJ sequences with joins) are returned
- * unchanged — only simple single-glyph people emojis support tone modifiers.
+ * unchanged - only simple single-glyph people emojis support tone modifiers.
  *
  * When `tone` is `'none'` or the modifier is empty, the emoji is returned as-is.
  */
@@ -217,7 +217,7 @@ export function categoryCount(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export function useEmojiPicker(): UseEmojiPickerReturn {

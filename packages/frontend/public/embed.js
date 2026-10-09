@@ -1,5 +1,5 @@
 /*!
- * Q-Tools embed.js — iframe embed loader with PostMessage-based auto-resize.
+ * Q-Tools embed.js - iframe embed loader with PostMessage-based auto-resize.
  *
  * Provides four embed methods:
  *
@@ -7,13 +7,14 @@
  *        <script src="https://domain/embed.js" data-tool="hash-text" async>
  *        The script replaces itself with an iframe pointing to
  *        /embed/tools/<tool>. Optional attributes:
- *          data-target="#selector"  — mount the iframe inside this element
+ *          data-target="#selector"  - mount the iframe inside this element
  *                                      (default: replace the script tag)
- *          data-width="100%"        — iframe width (default 100%)
- *          data-height="auto"       — initial iframe height (default auto;
+ *          data-width="100%"        - iframe width (default 100%)
+ *          data-height="auto"       - initial iframe height (default auto;
  *                                      overridden by resize messages)
- *          data-allow="clipboard"   — iframe `allow` attribute
- *          data-input='{"text":"hi"}' — initial input payload sent on load
+ *          data-allow="clipboard"   - iframe `allow` attribute
+ *          data-locale="es"         - UI locale (en/es/fr), appended as ?lang=
+ *          data-input='{"text":"hi"}' - initial input payload sent on load
  *
  *   2. **Programmatic** (JS API):
  *        const embed = QTools.embed('hash-text', containerEl, {
@@ -43,7 +44,7 @@
  * When the consumer does not pass an explicit `allow` attribute, embed.js
  * consults a built-in `TOOL_IFRAME_REQUIREMENTS` map (tools that declare
  * iframeRequirements in their metadata) and applies the correct Permissions
- * Policy automatically — e.g. `camera; microphone` for the camera recorder,
+ * Policy automatically - e.g. `camera; microphone` for the camera recorder,
  * `clipboard-write` for the WYSIWYG editor.
  *
  * Protocol messages (see @q-tools/shared types/embed.ts):
@@ -131,7 +132,13 @@
   function createIframe(slug, options) {
     options = options || {};
     var iframe = document.createElement('iframe');
-    iframe.setAttribute('src', BASE_URL + '/embed/tools/' + encodeURIComponent(slug));
+    var src = BASE_URL + '/embed/tools/' + encodeURIComponent(slug);
+    // Optional UI locale for the embedded tool (en/es/fr). Applied by the
+    // app as a non-persisting override via the `lang` query param.
+    if (options.locale) {
+      src += '?lang=' + encodeURIComponent(options.locale);
+    }
+    iframe.setAttribute('src', src);
     iframe.setAttribute('width', options.width || '100%');
     iframe.setAttribute('height', options.height || 'auto');
     iframe.setAttribute('frameborder', '0');
@@ -159,6 +166,7 @@
    * @param {string} [options.width]  iframe width (default "100%").
    * @param {string} [options.height] iframe height (default "auto").
    * @param {string} [options.allow]  iframe `allow` attribute.
+   * @param {string} [options.locale] UI locale for the tool (en/es/fr).
    * @returns {object} embed handle with setInput() and destroy() methods.
    */
   function embed(slug, container, options) {
@@ -336,6 +344,7 @@
         width: s.dataset.width,
         height: s.dataset.height,
         allow: s.dataset.allow,
+        locale: s.dataset.locale,
       });
     }
   }

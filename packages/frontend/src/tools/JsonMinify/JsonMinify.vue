@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * JsonMinify — minify JSON by removing all whitespace.
+ * JsonMinify - minify JSON by removing all whitespace.
  *
  * Parses JSON with `JSON.parse` and re-serializes it with `JSON.stringify`
  * (no indent argument) → single-line, whitespace-free output. Reports byte
@@ -10,6 +10,7 @@
  * and sends `output` PostMessages whenever the minified result changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, Minimize2 } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -18,20 +19,23 @@ import { useJsonMinify } from './useJsonMinify';
 
 const { input, outputs, error, recompute } = useJsonMinify();
 
+const { t } = useI18n();
+const U = 'tools.json-minify.ui.';
+
 const metaLine = computed(() => {
   if (!outputs.value) return '';
   const o = outputs.value;
   const parts = [
-    `${o.outputBytes} bytes`,
-    `${o.keyCount} key${o.keyCount === 1 ? '' : 's'}`,
-    `depth ${o.maxDepth}`,
+    t(U + 'metaBytes', { n: o.outputBytes }),
+    t(o.keyCount === 1 ? U + 'metaKeysOne' : U + 'metaKeys', { n: o.keyCount }),
+    t(U + 'metaDepth', { n: o.maxDepth }),
   ];
   if (o.inputBytes > o.outputBytes) {
     const saved = o.inputBytes - o.outputBytes;
     const pct = o.inputBytes > 0 ? Math.round((saved / o.inputBytes) * 100) : 0;
-    parts.push(`saved ${saved} B (${pct}%)`);
+    parts.push(t(U + 'metaSaved', { n: saved, pct }));
   } else if (o.inputBytes === o.outputBytes) {
-    parts.push('no savings');
+    parts.push(t(U + 'metaNoSavings'));
   }
   return parts.join(' · ');
 });
@@ -40,9 +44,9 @@ const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
   if (e.line != null && e.column != null) {
-    return `Line ${e.line}, column ${e.column}`;
+    return t(U + 'errLineCol', { line: e.line, col: e.column });
   }
-  if (e.line != null) return `Line ${e.line}`;
+  if (e.line != null) return t(U + 'errLine', { line: e.line });
   return '';
 });
 
@@ -52,28 +56,29 @@ function onTextInput(e: Event): void {
 </script>
 
 <template>
-  <div class="jm">
+  <div class="qt-tool">
     <ToolInput
-      title="JSON input"
-      description="Paste pretty-printed or messy JSON. It is parsed and re-serialized with no whitespace."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="jm__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Minify</span>
+          <span>{{ t(U + 'minify') }}</span>
         </button>
       </template>
 
-      <label class="jm__field">
-        <span class="jm__label">JSON</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'jsonLabel') }}</span>
         <textarea
-          class="jm__textarea jm__textarea--mono"
-          placeholder='Paste JSON here…  e.g.  {\n  "a": 1,\n  "b": [2, 3, true, null]\n}'
+          class="qt-input qt-input--mono"
+          style="min-height:180px"
+          :placeholder="t(U + 'phJson')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -84,36 +89,36 @@ function onTextInput(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="Minified JSON"
-      :description="outputs ? metaLine : 'Paste JSON above to minify.'"
+      :title="t(U + 'outTitle')"
+      :description="outputs ? metaLine : t(U + 'descEmpty')"
       :copy-text="outputs?.json ?? ''"
-      copy-label="Copy JSON"
+      :copy-label="t(U + 'copyJson')"
     >
-      <p v-if="error" class="jm__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
-          <strong v-if="errorLocation">{{ errorLocation }}:</strong>
+          <strong v-if="errorLocation" style="margin-right:4px">{{ errorLocation }}:</strong>
           {{ error.message }}
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="jm__empty">
-          Paste JSON above to minify.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'descEmpty') }}
         </p>
-        <div v-if="outputs" class="jm__result">
-          <div class="jm__result-head">
-            <span class="jm__result-label">
+        <div v-if="outputs" class="qt-panel qt-stack" style="--qt-stack-gap:6px;padding:8px 10px">
+          <div class="qt-row qt-row--center" style="--qt-row-gap:8px">
+            <span class="qt-label" style="color:var(--qt-text);flex:1">
               <Minimize2 :size="13" />
-              <span>Minified</span>
+              <span>{{ t(U + 'minifiedLabel') }}</span>
             </span>
-            <CopyButton :text="outputs.json" label="Copy" icon-only />
+            <CopyButton :text="outputs.json" :label="t('common.copy')" icon-only />
           </div>
           <pre
             v-if="outputs.json"
             class="jm__code"
           ><code>{{ outputs.json }}</code></pre>
-          <p v-else class="jm__empty">JSON parsed to an empty result.</p>
-          <div class="jm__meta">
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center" style="--qt-row-gap:6px;font-size:12px;color:var(--qt-muted)">
             <span>{{ metaLine }}</span>
           </div>
         </div>
@@ -123,117 +128,11 @@ function onTextInput(e: Event): void {
 </template>
 
 <style scoped>
-.jm {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.jm__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.jm__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.jm__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.jm__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.jm__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.jm__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.jm__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.jm__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.jm__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.jm__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.jm__error strong {
-  margin-right: 4px;
-}
-.jm__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.jm__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.jm__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.jm__result-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Minified output — bare code inside the result panel (no border/padding). */
 .jm__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -246,13 +145,5 @@ function onTextInput(e: Event): void {
 .jm__code code {
   font: inherit;
   white-space: pre-wrap;
-}
-.jm__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
 }
 </style>

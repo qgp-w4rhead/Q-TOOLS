@@ -1,5 +1,5 @@
 /**
- * useRegexTester — composable + pure logic for the Regex tester tool.
+ * useRegexTester - composable + pure logic for the Regex tester tool.
  *
  * Compiles a user-supplied regex pattern with chosen flags against a test
  * string and reports every match (with its capture groups, named groups,
@@ -13,14 +13,14 @@
  * reuse. The `useRegexTester()` composable wraps them in reactive state and
  * wires up the embed PostMessage protocol.
  *
- * No external dependencies — only the built-in `RegExp`.
+ * No external dependencies - only the built-in `RegExp`.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Individual flags supported by the tester, with description + label. */
@@ -74,7 +74,7 @@ export interface CompiledRegex {
   error: string | null;
 }
 
-/** A run of text in the segmented test string — either matched or plain. */
+/** A run of text in the segmented test string - either matched or plain. */
 export interface Segment {
   /** Whether this segment is a match. */
   isMatch: boolean;
@@ -132,7 +132,7 @@ export function runRegex(regex: RegExp, testString: string): RegexMatch[] {
 
   const global = regex.global || regex.sticky;
   // Count capture groups by counting unescaped `(` that are not `(?:` / `(?<`
-  // etc. A simple heuristic — sufficient for display purposes.
+  // etc. A simple heuristic - sufficient for display purposes.
   const groupCount = countCaptureGroups(regex.source);
 
   if (!global) {
@@ -142,7 +142,7 @@ export function runRegex(regex: RegExp, testString: string): RegexMatch[] {
     return matches;
   }
 
-  // Global / sticky — iterate via exec, guarding against zero-width loops.
+  // Global / sticky - iterate via exec, guarding against zero-width loops.
   let lastEnd = -1;
   let matchIndex = 0;
   // eslint-disable-next-line no-constant-condition
@@ -154,7 +154,7 @@ export function runRegex(regex: RegExp, testString: string): RegexMatch[] {
     matches.push(buildMatch(matchIndex, m, groupCount));
     matchIndex++;
     if (m[0].length === 0) {
-      // Zero-width match — advance by one to avoid an infinite loop.
+      // Zero-width match - advance by one to avoid an infinite loop.
       if (end === lastEnd) {
         regex.lastIndex = end + 1;
       }
@@ -179,13 +179,13 @@ function buildMatch(
   for (let i = 1; i <= groupCount; i++) {
     let name: string | null = null;
     if (namedGroups) {
-      // Find the named-group key whose value matches m[i] — but multiple groups
+      // Find the named-group key whose value matches m[i] - but multiple groups
       // can share a value, so we look up by index using a reverse map built on
       // the fly. The native `groups` object does not expose index→name, so we
       // scan entries.
       for (const [k, v] of Object.entries(namedGroups)) {
         if (v === m[i] && k !== undefined) {
-          // First matching key wins — good enough for display.
+          // First matching key wins - good enough for display.
           name = k;
           break;
         }
@@ -238,20 +238,20 @@ export function countCaptureGroups(source: string): number {
       if (next === '?') {
         const after = source[i + 2];
         // (?:  (?=  (?!  (?<=  (?<!  (?<name>  are non-capturing or named.
-        // Named groups (?<name>...) ARE capturing — detect `?<` followed by a
+        // Named groups (?<name>...) ARE capturing - detect `?<` followed by a
         // name char (not `=` or `!`).
         if (after === ':') continue;
         if (after === '=') continue;
         if (after === '!') continue;
-        // (?< — could be (?<name> (capturing) or (?<= / (?<! (lookbehind).
+        // (?< - could be (?<name> (capturing) or (?<= / (?<! (lookbehind).
         if (after === '<') {
           const after2 = source[i + 3];
           if (after2 === '=' || after2 === '!') continue;
-          // Otherwise it's a named capture group — count it.
+          // Otherwise it's a named capture group - count it.
           count++;
           continue;
         }
-        // Unknown `(?` form — treat as non-capturing.
+        // Unknown `(?` form - treat as non-capturing.
         continue;
       }
       count++;
@@ -288,7 +288,7 @@ export function segmentMatches(testString: string, matches: RegexMatch[]): Segme
 /**
  * Escape a string for safe HTML interpolation.
  *
- * Used only by the copy-as-HTML export — the live highlight view renders
+ * Used only by the copy-as-HTML export - the live highlight view renders
  * segments through Vue's text interpolation, which escapes automatically.
  */
 export function escapeHtml(s: string): string {
@@ -373,9 +373,9 @@ export const REGEX_REFERENCE: ReadonlyArray<RegexReferenceSection> = [
   {
     title: 'Lookaround',
     entries: [
-      { token: '(?=abc)', description: 'Lookahead — must match ahead.', example: '\\d(?=px)', matches: '9 in 9px' },
+      { token: '(?=abc)', description: 'Lookahead - must match ahead.', example: '\\d(?=px)', matches: '9 in 9px' },
       { token: '(?!abc)', description: 'Negative lookahead.', example: '\\d(?!px)', matches: '9 in 9em' },
-      { token: '(?<=abc)', description: 'Lookbehind — must match before.', example: '(?<=\\$)\\d+', matches: '50 in $50' },
+      { token: '(?<=abc)', description: 'Lookbehind - must match before.', example: '(?<=\\$)\\d+', matches: '50 in $50' },
       { token: '(?<!abc)', description: 'Negative lookbehind.', example: '(?<!\\$)\\d+', matches: '50 in 50px' },
     ],
   },
@@ -393,7 +393,7 @@ export const REGEX_REFERENCE: ReadonlyArray<RegexReferenceSection> = [
 ];
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseRegexTesterReturn {

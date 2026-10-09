@@ -1,5 +1,5 @@
 /**
- * usePdfSignature — composable + pure logic for the PDF signature checker tool.
+ * usePdfSignature - composable + pure logic for the PDF signature checker tool.
  *
  * Extracts and verifies digital signatures embedded in PDF files.
  *
@@ -8,7 +8,7 @@
  * for PKCS#7 signature dictionaries (`/Type /Sig` / `/SubFilter
  * /adbe.pkcs7.detached`). Each signature's PKCS#7 SignedData is parsed with
  * `node-forge` (lazy-loaded) to extract the signer certificate, subject /
- * issuer names, validity window, and serial number — enough to display
+ * issuer names, validity window, and serial number - enough to display
  * signature metadata without a backend round-trip.
  *
  * **Server-side** (`/api/pdf/verify`): the raw PDF bytes are POSTed to the
@@ -22,7 +22,7 @@
  * dependency and can be imported standalone. The `usePdfSignature()` composable
  * wraps them in reactive state and wires up the embed PostMessage protocol.
  *
- * Dependencies: `pdfjs-dist` + `node-forge` (both lazy-loaded) — listed in
+ * Dependencies: `pdfjs-dist` + `node-forge` (both lazy-loaded) - listed in
  * tech-stack.md.
  */
 import { ref, shallowRef, watch, type Ref } from 'vue';
@@ -65,7 +65,7 @@ export interface CertificateInfo {
   isValidAtSigningTime: boolean;
 }
 
-/** A fully parsed signature (metadata only — no cryptographic verification). */
+/** A fully parsed signature (metadata only - no cryptographic verification). */
 export interface SignatureInfo {
   index: number;
   signerName: string;
@@ -105,10 +105,10 @@ export interface VerifyResponse {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
-/** Maximum PDF size accepted (32 MiB — matches the backend route limit). */
+/** Maximum PDF size accepted (32 MiB - matches the backend route limit). */
 export const MAX_PDF_SIZE = 32 * 1024 * 1024;
 
 /** PKCS#7 sub-filters recognised as digital signatures. */
@@ -127,7 +127,7 @@ const SIG_SUB_FILTERS = new Set([
  */
 export function bytesToLatin1(bytes: Uint8Array): string {
   let out = '';
-  const CHUNK = 0x8000; // 32 KiB — avoid String.fromCharCode call-stack limits
+  const CHUNK = 0x8000; // 32 KiB - avoid String.fromCharCode call-stack limits
   for (let i = 0; i < bytes.length; i += CHUNK) {
     out += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
   }
@@ -161,7 +161,7 @@ function stripTrailingZeroPadding(hex: string): string {
  */
 export function parsePdfDate(raw: string): string | null {
   if (!raw) return null;
-  // PDF date: D:YYYYMMDDHHmmSS[OHH'mm'] — prefix `D:` is optional.
+  // PDF date: D:YYYYMMDDHHmmSS[OHH'mm'] - prefix `D:` is optional.
   const match = raw.match(
     /^(?:D:)?(\d{4})(\d{2})?(\d{2})?(\d{2})?(\d{2})?(\d{2})?([Z+-])?(\d{2})?'?(\d{2})?'?/,
   );
@@ -173,7 +173,7 @@ export function parsePdfDate(raw: string): string | null {
   } else if (tzSign === '+' || tzSign === '-') {
     offset = `${tzSign}${tzH.padStart(2, '0')}:${tzM.padStart(2, '0')}`;
   } else {
-    // No timezone — treat as local (return as-is without offset).
+    // No timezone - treat as local (return as-is without offset).
     offset = '';
   }
   const iso = `${y}-${mo}-${d}T${h}:${mi}:${s}${offset}`;
@@ -192,7 +192,7 @@ export function parsePdfDate(raw: string): string | null {
 export function extractSignatures(bytes: Uint8Array): RawSignature[] {
   const text = bytesToLatin1(bytes);
   const results: RawSignature[] = [];
-  // Match /Contents <hexstring> — the hex string may contain whitespace.
+  // Match /Contents <hexstring> - the hex string may contain whitespace.
   const contentsRe = /\/Contents\s*<([0-9A-Fa-f\s]*)>/g;
   let match: RegExpExecArray | null;
   let idx = 0;
@@ -246,7 +246,7 @@ export function extractSignatures(bytes: Uint8Array): RawSignature[] {
 
 /**
  * Extract the bytes covered by a signature's `/ByteRange`. The byte range is
- * `[start1, length1, start2, length2]` — the signed content is the
+ * `[start1, length1, start2, length2]` - the signed content is the
  * concatenation of bytes `[start1, start1+length1)` and
  * `[start2, start2+length2)`.
  */
@@ -305,7 +305,7 @@ function cnFromAttributes(attrs: { name?: string; shortName?: string; value?: un
  * Returns `null` if the PKCS#7 cannot be parsed or no signer certificate is
  * found.
  *
- * @param signingTimeISO — used to check certificate validity at signing time.
+ * @param signingTimeISO - used to check certificate validity at signing time.
  */
 export async function parsePkcs7Metadata(
   pkcs7Hex: string,
@@ -474,7 +474,7 @@ export async function verifyWithBackend(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface UsePdfSignatureReturn {
@@ -577,7 +577,7 @@ export function usePdfSignature(): UsePdfSignatureReturn {
       const result = await verifyWithBackend(bytes, fileName.value || 'document.pdf');
       if (result === null) {
         backendAvailable.value = false;
-        warning.value = 'Backend verification unavailable — showing metadata only.';
+        warning.value = 'Backend verification unavailable - showing metadata only.';
       } else {
         backendAvailable.value = !result.error;
         verification.value = result;

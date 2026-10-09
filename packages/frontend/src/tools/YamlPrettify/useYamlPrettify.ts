@@ -1,5 +1,5 @@
 /**
- * useYamlPrettify — composable + pure logic for the YAML prettify & format tool.
+ * useYamlPrettify - composable + pure logic for the YAML prettify & format tool.
  *
  * Parses YAML text (single document or multi-document `---` streams) via the
  * `yaml` package's `parseAllDocuments` and re-serializes each document via
@@ -9,11 +9,11 @@
  * streams, and key order all survive the parse → stringify cycle.
  *
  * A small hand-rolled, XSS-safe tokenizer (`highlightYaml`) produces a
- * syntax-highlighted HTML rendering of the formatted YAML — no external deps,
+ * syntax-highlighted HTML rendering of the formatted YAML - no external deps,
  * no DOM, every token is HTML-escaped before insertion.
  *
  * The `yaml` package is part of the initial bundle per `tech-stack.md`, so it
- * is statically imported here — no dynamic import, no separate Vite chunk.
+ * is statically imported here - no dynamic import, no separate Vite chunk.
  *
  * Pure helpers (`parseYamlDocuments`, `prettifyYaml`, `highlightYaml`,
  * `analyzeYaml`) have no Vue dependency and can be imported standalone for
@@ -28,7 +28,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation mode for the prettified YAML output. */
@@ -214,7 +214,7 @@ export function analyzeYaml(value: unknown): {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Syntax highlighting — hand-rolled tokenizer, XSS-safe                       */
+/* Syntax highlighting - hand-rolled tokenizer, XSS-safe                       */
 /* -------------------------------------------------------------------------- */
 
 /** CSS class names emitted by `highlightYaml`. Keep in sync with the .vue. */
@@ -376,7 +376,7 @@ function highlightValue(text: string, _allowKey: boolean): string {
     return out.join('');
   }
 
-  // No key — treat the rest as a scalar value.
+  // No key - treat the rest as a scalar value.
   out.push(highlightScalar(text.slice(i)));
   return out.join('');
 }
@@ -551,7 +551,7 @@ function highlightScalar(text: string): string {
     }
   }
 
-  // Flow collections `{ ... }` / `[ ... ]` — highlight as punct + scalars.
+  // Flow collections `{ ... }` / `[ ... ]` - highlight as punct + scalars.
   if (i < n && (text.charCodeAt(i) === 0x7b /* { */ || text.charCodeAt(i) === 0x5b /* [ */)) {
     out.push(highlightFlow(text));
     return out.join('');
@@ -576,7 +576,7 @@ function highlightScalar(text: string): string {
     return out.join('');
   }
 
-  // Plain scalar — may be number/boolean/null or a plain string, possibly
+  // Plain scalar - may be number/boolean/null or a plain string, possibly
   // followed by a ` # comment`.
   let j = i;
   while (j < n && text.charCodeAt(j) !== 0x23 /* # */) j += 1;
@@ -608,7 +608,7 @@ function highlightFlow(text: string): string {
   while (i < n) {
     const ch = text.charCodeAt(i);
 
-    // Whitespace — preserve.
+    // Whitespace - preserve.
     if (ch === 0x20 || ch === 0x09 || ch === 0x2c /* , */ || ch === 0x3a /* : */) {
       if (ch === 0x2c || ch === 0x3a) {
         pushSpan(out, 'punct', text[i]!);
@@ -643,7 +643,7 @@ function highlightFlow(text: string): string {
     if (ch === 0x22 /* " */) {
       const end = scanDoubleQuoted(text, i);
       if (end > 0) {
-        // Could be a key if followed by `:` — peek ahead.
+        // Could be a key if followed by `:` - peek ahead.
         let k = end;
         while (k < n && (text.charCodeAt(k) === 0x20 || text.charCodeAt(k) === 0x09)) k += 1;
         const isKey = k < n && text.charCodeAt(k) === 0x3a;
@@ -681,7 +681,7 @@ function highlightFlow(text: string): string {
       continue;
     }
 
-    // Plain token — read until a delimiter.
+    // Plain token - read until a delimiter.
     let j = i;
     while (j < n) {
       const c = text.charCodeAt(j);
@@ -694,7 +694,7 @@ function highlightFlow(text: string): string {
       j += 1;
     }
     if (j === i) {
-      // Single unknown char — emit escaped.
+      // Single unknown char - emit escaped.
       out.push(escapeHtml(text[i]!));
       i += 1;
       continue;
@@ -780,7 +780,7 @@ function toYamlError(err: unknown): YamlPrettifyError {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface YamlPrettifyOutputs {

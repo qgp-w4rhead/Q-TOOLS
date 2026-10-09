@@ -1,9 +1,9 @@
 /**
- * useNumeronymGenerator — composable + pure logic for the Numeronym generator
+ * useNumeronymGenerator - composable + pure logic for the Numeronym generator
  * tool.
  *
  * A numeronym is a word abbreviated by keeping the first and last letters and
- * replacing the middle with the count of omitted letters — e.g.
+ * replacing the middle with the count of omitted letters - e.g.
  * "internationalization" → "i18n" (20 letters, 20 − 2 = 18 middle letters).
  *
  * Supports multi-word phrases: each word (a run of letters/digits) is
@@ -12,14 +12,14 @@
  * optional `preserveCase` toggle controls whether the first/last letters keep
  * their original case or are lowercased.
  *
- * No external dependencies — pure string arithmetic.
+ * No external dependencies - pure string arithmetic.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 export interface NumeronymOptions {
@@ -59,13 +59,13 @@ export const MIN_LENGTH_CEIL = 20;
 /**
  * Word-token regex: a run of Unicode letters or digits. The `u` flag enables
  * Unicode property escapes (`\p{L}` letters, `\p{N}` numbers); `g` is added by
- * the caller via `split` (which ignores `g` anyway) — we use it with `match`
+ * the caller via `split` (which ignores `g` anyway) - we use it with `match`
  * for tokenisation.
  */
 const WORD_RE = /[\p{L}\p{N}]+/gu;
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -87,7 +87,7 @@ export function clampInt(value: unknown, min: number, max: number): number {
  * `first + (length − 2) + last`. When `preserveCase` is false the first and
  * last letters are lowercased.
  *
- * Note: this function does NOT consult `minLength` — callers decide whether a
+ * Note: this function does NOT consult `minLength` - callers decide whether a
  * word is long enough to abbreviate. It only guards against the degenerate
  * sub-3-char case.
  */
@@ -139,7 +139,7 @@ export function generateNumeronyms(
 
 /**
  * Tokenise the input phrase into per-word `NumeronymToken` records (separators
- * are not included — only the word runs). Useful for the breakdown table.
+ * are not included - only the word runs). Useful for the breakdown table.
  */
 export function tokenizeNumeronyms(
   text: string,
@@ -171,7 +171,7 @@ export function tokenizeNumeronyms(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface UseNumeronymGeneratorReturn {

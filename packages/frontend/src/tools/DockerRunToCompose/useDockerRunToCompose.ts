@@ -1,12 +1,12 @@
 /**
- * useDockerRunToCompose — composable + pure logic for the Docker run →
+ * useDockerRunToCompose - composable + pure logic for the Docker run →
  * Docker Compose converter tool.
  *
  * Parses one or more `docker run` command strings (typically pasted from a
  * shell script or docs) and emits a `docker-compose.yml` whose `services:`
  * map contains one service per `docker run` invocation.
  *
- * The parser is a hand-rolled shell-like tokenizer + flag walker — no
+ * The parser is a hand-rolled shell-like tokenizer + flag walker - no
  * external shell parsing library. The structured `ComposeFile` object is
  * serialised to YAML with the `yaml` package (part of the initial bundle
  * per `tech-stack.md`, so no new dependency is introduced).
@@ -25,7 +25,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 /** A single docker-compose service definition (only spec'd keys emitted). */
@@ -84,7 +84,7 @@ export interface ConvertResult {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Tokenizer — shell-like, no external deps                                    */
+/* Tokenizer - shell-like, no external deps                                    */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -102,7 +102,7 @@ export interface ConvertResult {
  *     own single-char tokens so callers can split a multi-command pipeline
  *     or `&&`/`;`-joined script into segments.
  *
- * The tokenizer never throws — malformed quoting simply terminates the
+ * The tokenizer never throws - malformed quoting simply terminates the
  * current token gracefully (the parser surfaces a clear error).
  */
 export function tokenize(input: string): string[] {
@@ -271,7 +271,7 @@ const SHORT_VALUE_FLAGS = new Set(['p', 'v', 'e', 'h', 'u', 'w', 'l']);
 
 /**
  * Long flags that consume a value. Mapped to the compose key they populate
- * (`null` means "recognised but not emitted by this tool" — consumed and
+ * (`null` means "recognised but not emitted by this tool" - consumed and
  * warned).
  */
 const LONG_VALUE_FLAGS: Record<string, string | null> = {
@@ -287,7 +287,7 @@ const LONG_VALUE_FLAGS: Record<string, string | null> = {
   '--user': 'user',
   '--workdir': 'working_dir',
   '--entrypoint': 'entrypoint',
-  // Common docker run value flags that compose models differently — we
+  // Common docker run value flags that compose models differently - we
   // consume their value and emit a warning rather than silently dropping it
   // (which would risk eating the image as the value).
   '--memory': null,
@@ -419,7 +419,7 @@ export function parseDockerRun(segment: string[]): ParsedService | null {
     const tok = args[i]!;
 
     // Once the image has been seen, every remaining token is part of the
-    // container command — docker passes them through verbatim, so we must
+    // container command - docker passes them through verbatim, so we must
     // NOT interpret them as flags (e.g. `nginx -g "daemon off;"`).
     if (image !== null) {
       commandParts.push(tok);
@@ -445,13 +445,13 @@ export function parseDockerRun(segment: string[]): ParsedService | null {
         if (inlineValue !== null) {
           value = inlineValue;
         } else if (i + 1 < args.length) {
-          // Docker consumes the next token as the value unconditionally —
+          // Docker consumes the next token as the value unconditionally -
           // the value may itself start with `-` (e.g. `--entrypoint -c`).
           value = args[i + 1]!;
           i += 1; // advance onto the value token; the trailing `i += 1`
           // below then moves past it.
         } else {
-          warnings.push(`flag ${flagName} expects a value but none was given — ignored.`);
+          warnings.push(`flag ${flagName} expects a value but none was given - ignored.`);
           i += 1;
           continue;
         }
@@ -461,19 +461,19 @@ export function parseDockerRun(segment: string[]): ParsedService | null {
       }
 
       // Unknown long flag. Best-effort: consume a value if one is inline or
-      // the next token does not look like a flag (conservative — we don't
+      // the next token does not look like a flag (conservative - we don't
       // want to eat the image as a value for an unknown flag).
       if (inlineValue !== null) {
-        warnings.push(`unsupported flag ${flagName}=${inlineValue} — ignored.`);
+        warnings.push(`unsupported flag ${flagName}=${inlineValue} - ignored.`);
         i += 1;
         continue;
       }
       if (i + 1 < args.length && !args[i + 1]!.startsWith('-')) {
-        warnings.push(`unsupported flag ${flagName} ${args[i + 1]} — ignored.`);
+        warnings.push(`unsupported flag ${flagName} ${args[i + 1]} - ignored.`);
         i += 2;
         continue;
       }
-      warnings.push(`unsupported flag ${flagName} — ignored.`);
+      warnings.push(`unsupported flag ${flagName} - ignored.`);
       i += 1;
       continue;
     }
@@ -505,28 +505,28 @@ export function parseDockerRun(segment: string[]): ParsedService | null {
             i += 1;
             j = tok.length;
           } else {
-            warnings.push(`flag -${c} expects a value but none was given — ignored.`);
+            warnings.push(`flag -${c} expects a value but none was given - ignored.`);
             j += 1;
             continue;
           }
           applyValueFlag(service, composeKey, value, entrypointParts, warnings, `-${c}`);
           break;
         }
-        // Unknown short flag — treat as boolean and warn.
-        warnings.push(`unsupported flag -${c} — ignored.`);
+        // Unknown short flag - treat as boolean and warn.
+        warnings.push(`unsupported flag -${c} - ignored.`);
         j += 1;
       }
       i += 1;
       continue;
     }
 
-    // Bare `-` (stdin) — ignore.
+    // Bare `-` (stdin) - ignore.
     if (tok === '-') {
       i += 1;
       continue;
     }
 
-    // First positional argument is the image (image is still null here —
+    // First positional argument is the image (image is still null here -
     // once it is set, the top-of-loop guard pushes the rest to command).
     image = tok;
     i += 1;
@@ -627,7 +627,7 @@ function applyValueFlag(
         const k = value.slice(0, eqIdx);
         const v = value.slice(eqIdx + 1);
         if (k.length === 0) {
-          warnings.push(`flag ${flagLabel} has an empty env name "${value}" — ignored.`);
+          warnings.push(`flag ${flagLabel} has an empty env name "${value}" - ignored.`);
           break;
         }
         (service.environment ??= {})[k] = v;
@@ -642,7 +642,7 @@ function applyValueFlag(
         const k = value.slice(0, eqIdx);
         const v = value.slice(eqIdx + 1);
         if (k.length === 0) {
-          warnings.push(`flag ${flagLabel} has an empty label name "${value}" — ignored.`);
+          warnings.push(`flag ${flagLabel} has an empty label name "${value}" - ignored.`);
           break;
         }
         (service.labels ??= {})[k] = v;
@@ -657,7 +657,7 @@ function applyValueFlag(
       // was consumed by the caller so it doesn't get mistaken for the image
       // or command; warn so the user knows it was dropped from the output.
       warnings.push(
-        `flag ${flagLabel} is recognised by docker but not emitted in the compose output — ignored.`,
+        `flag ${flagLabel} is recognised by docker but not emitted in the compose output - ignored.`,
       );
       break;
   }
@@ -729,7 +729,7 @@ export function parseInput(input: string): ParseResult {
 
   for (const seg of segments) {
     const parsed = parseDockerRun(seg);
-    if (!parsed) continue; // not a docker run — skip silently
+    if (!parsed) continue; // not a docker run - skip silently
     const name = uniqueName(parsed.name, taken);
     services.push({ ...parsed, name });
     if (parsed.warnings.length > 0) {
@@ -798,7 +798,7 @@ export function convertDockerRun(input: string): ConvertResult {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseDockerRunToComposeReturn {

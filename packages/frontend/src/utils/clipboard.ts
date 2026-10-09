@@ -6,7 +6,7 @@
  * older browsers and insecure (non-HTTPS) contexts where the async API is
  * unavailable.
  *
- * Returns `true` on success, `false` on failure — callers can show feedback
+ * Returns `true` on success, `false` on failure - callers can show feedback
  * accordingly.
  */
 

@@ -1,10 +1,10 @@
 /**
- * useJsonPrettify — composable + pure logic for the JSON prettify & format tool.
+ * useJsonPrettify - composable + pure logic for the JSON prettify & format tool.
  *
  * Parses JSON text with `JSON.parse` and re-serializes it with `JSON.stringify`
  * using a configurable indent (2 spaces, 4 spaces, or a tab). Also produces a
  * syntax-highlighted HTML rendering of the prettified JSON via a small
- * hand-rolled tokenizer — no external dependencies, no `eval`, no DOM.
+ * hand-rolled tokenizer - no external dependencies, no `eval`, no DOM.
  *
  * Pure helpers (`parseJsonInput`, `prettifyJson`, `highlightJson`,
  * `analyzeJson`) have no Vue dependency and can be imported standalone for
@@ -18,7 +18,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation mode for the prettified output. */
@@ -151,7 +151,7 @@ export function analyzeJson(value: unknown): {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Syntax highlighting — hand-rolled tokenizer, XSS-safe                       */
+/* Syntax highlighting - hand-rolled tokenizer, XSS-safe                       */
 /* -------------------------------------------------------------------------- */
 
 /** CSS class names emitted by `highlightJson`. Keep in sync with the .vue. */
@@ -193,7 +193,7 @@ export function highlightJson(json: string): string {
   while (i < n) {
     const ch = json.charCodeAt(i);
 
-    // Whitespace and newlines — preserve verbatim (already HTML-safe).
+    // Whitespace and newlines - preserve verbatim (already HTML-safe).
     if (ch === 0x20 /* space */ || ch === 0x09 /* tab */ || ch === 0x0a /* \n */ || ch === 0x0d /* \r */) {
       out.push(json[i]!);
       i += 1;
@@ -211,7 +211,7 @@ export function highlightJson(json: string): string {
       continue;
     }
 
-    // String literal — could be a key (followed by optional ws then ':') or a
+    // String literal - could be a key (followed by optional ws then ':') or a
     // plain string value.
     if (ch === 0x22 /* " */) {
       const start = i;
@@ -286,7 +286,7 @@ export function highlightJson(json: string): string {
       continue;
     }
 
-    // Unknown char — escape and emit as plain text so we never break the HTML
+    // Unknown char - escape and emit as plain text so we never break the HTML
     // structure even if the input wasn't strictly valid JSON.
     out.push(escapeHtml(json[i]!));
     i += 1;
@@ -358,7 +358,7 @@ function posToLineCol(source: string, pos: number): { line: number; column: numb
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface JsonPrettifyOutputs {

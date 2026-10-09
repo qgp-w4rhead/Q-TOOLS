@@ -1,8 +1,8 @@
 <script setup lang="ts">
 /**
- * JsonToToml — convert JSON to TOML.
+ * JsonToToml - convert JSON to TOML.
  *
- * Parses a JSON object (the TOML root is always a table — non-object roots
+ * Parses a JSON object (the TOML root is always a table - non-object roots
  * are rejected) and serializes it to TOML via `smol-toml`. The `smol-toml`
  * package is part of the initial bundle per `tech-stack.md`, so this tool
  * rides the app-shell bundle for its serializer.
@@ -11,6 +11,7 @@
  * and sends `output` PostMessages whenever the computed TOML changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, Hash } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -26,10 +27,11 @@ const {
   toggleNumbersAsFloat,
 } = useJsonToToml();
 
+const { t } = useI18n();
+const U = 'tools.json-to-toml.ui.';
+
 const description = computed(() =>
-  numbersAsFloat.value
-    ? 'Parse a JSON object and emit TOML. Numbers render as floats (1.0).'
-    : 'Parse a JSON object and emit TOML. Integer-valued floats render as integers.',
+  numbersAsFloat.value ? t(U + 'descFloat') : t(U + 'descInt'),
 );
 
 const errorLocation = computed(() => {
@@ -37,9 +39,9 @@ const errorLocation = computed(() => {
   const e = error.value;
   const stageLabel = e.stage === 'json' ? 'JSON' : 'TOML';
   if (e.line != null && e.column != null) {
-    return `${stageLabel} · Line ${e.line}, column ${e.column}`;
+    return t(U + 'errStageLineCol', { stage: stageLabel, line: e.line, col: e.column });
   }
-  if (e.line != null) return `${stageLabel} · Line ${e.line}`;
+  if (e.line != null) return t(U + 'errStageLine', { stage: stageLabel, line: e.line });
   return stageLabel;
 });
 
@@ -49,39 +51,39 @@ function onTextInput(e: Event): void {
 </script>
 
 <template>
-  <div class="j2t">
-    <ToolInput title="JSON input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'inputTitle')" :description="description">
       <template #actions>
         <button
-          class="j2t__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="j2t__opts">
+      <div class="qt-row qt-row--end" style="--qt-row-gap:12px">
         <button
           type="button"
-          class="j2t__toggle"
-          :class="{ 'j2t__toggle--active': numbersAsFloat }"
+          class="qt-chip qt-chip--filled"
+          :class="{ 'qt-chip--solid': numbersAsFloat }"
           :aria-pressed="numbersAsFloat"
-          title="Render every number with a decimal part (1.0 instead of 1)"
+          :title="t(U + 'numbersAsFloatTitle')"
           @click="toggleNumbersAsFloat"
         >
           <Hash :size="13" />
-          <span>Numbers as floats</span>
+          <span>{{ t(U + 'numbersAsFloat') }}</span>
         </button>
       </div>
 
-      <label class="j2t__field">
-        <span class="j2t__label">JSON</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'jsonLabel') }}</span>
         <textarea
-          class="j2t__textarea j2t__textarea--mono"
-          placeholder="Paste JSON here… (object root only)"
+          class="qt-input qt-input--mono j2t__textarea"
+          :placeholder="t(U + 'placeholder')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -92,12 +94,12 @@ function onTextInput(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="TOML output"
-      :description="outputs ? `${outputs.rootKeyCount} root key${outputs.rootKeyCount === 1 ? '' : 's'} · ${outputs.outputBytes} bytes` : 'Paste JSON above to convert.'"
+      :title="t(U + 'outputTitle')"
+      :description="outputs ? t(U + 'outputDesc', { keys: t(U + 'rootKeys', outputs.rootKeyCount), bytes: outputs.outputBytes }) : t(U + 'empty')"
       :copy-text="outputs?.toml ?? ''"
-      copy-label="Copy TOML"
+      :copy-label="t(U + 'copyToml')"
     >
-      <p v-if="error" class="j2t__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
           <strong v-if="errorLocation">{{ errorLocation }}:</strong>
@@ -105,22 +107,22 @@ function onTextInput(e: Event): void {
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="j2t__empty">
-          Paste JSON above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'empty') }}
         </p>
-        <div v-if="outputs" class="j2t__result">
-          <div class="j2t__result-head">
-            <span class="j2t__result-label">TOML</span>
-            <CopyButton :text="outputs.toml" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">TOML</span>
+            <CopyButton :text="outputs.toml" :label="t('common.copy')" icon-only />
           </div>
-          <pre v-if="outputs.toml" class="j2t__code">{{ outputs.toml }}</pre>
-          <p v-else class="j2t__empty">JSON parsed to an empty result.</p>
-          <div class="j2t__meta">
-            <span>{{ outputs.rootKeyCount }} root key{{ outputs.rootKeyCount === 1 ? '' : 's' }}</span>
+          <pre v-if="outputs.toml" class="qt-mono j2t__code">{{ outputs.toml }}</pre>
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px">
+            <span>{{ t(U + 'rootKeys', outputs.rootKeyCount) }}</span>
             <span class="j2t__dot">·</span>
-            <span>{{ outputs.inputBytes }} bytes in</span>
+            <span>{{ t(U + 'bytesIn', { n: outputs.inputBytes }) }}</span>
             <span class="j2t__dot">·</span>
-            <span>{{ outputs.outputBytes }} bytes out</span>
+            <span>{{ t(U + 'bytesOut', { n: outputs.outputBytes }) }}</span>
           </div>
         </div>
       </template>
@@ -129,144 +131,14 @@ function onTextInput(e: Event): void {
 </template>
 
 <style scoped>
-.j2t {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.j2t__opts {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.j2t__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2t__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.j2t__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
-}
-.j2t__toggle--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .j2t__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.j2t__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.j2t__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.j2t__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.j2t__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.j2t__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.j2t__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.j2t__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.j2t__error strong {
-  margin-right: 4px;
-}
-.j2t__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.j2t__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2t__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.j2t__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* TOML output block (font via .qt-mono) — scrollable, pre-wrapped. */
 .j2t__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -275,14 +147,7 @@ function onTextInput(e: Event): void {
   max-height: 60vh;
   overflow: auto;
 }
-.j2t__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
-}
+/* Meta separator dot. */
 .j2t__dot {
   opacity: 0.6;
 }

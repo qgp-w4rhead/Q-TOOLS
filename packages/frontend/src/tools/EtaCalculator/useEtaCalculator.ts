@@ -1,12 +1,12 @@
 /**
- * useEtaCalculator — composable + pure logic for the ETA calculator tool.
+ * useEtaCalculator - composable + pure logic for the ETA calculator tool.
  *
  * Estimates the remaining time and completion time for a task given its
  * progress and start time. Two input modes are supported:
  *
- *   - **count** — explicit `current` and `total` values (e.g. 250 of 1000
+ *   - **count** - explicit `current` and `total` values (e.g. 250 of 1000
  *     rows processed). Progress is `current / total`.
- *   - **percent** — a single `percentage` value in [0, 100]. Internally this
+ *   - **percent** - a single `percentage` value in [0, 100]. Internally this
  *     is treated as `current = percentage`, `total = 100`.
  *
  * The speed (units per second) is either supplied explicitly or derived from
@@ -19,14 +19,15 @@
  * The composable ticks once per second to refresh the elapsed/remaining/
  * completion values live, and wires up the embed PostMessage protocol.
  *
- * No external dependencies — pure arithmetic + `Date` only.
+ * No external dependencies - pure arithmetic + `Date` only.
  */
 import { onBeforeUnmount, ref, watch, type Ref } from 'vue';
-import { useEmbed } from '@/composables/useEmbed';
+import { useToolEmbed } from '@/composables/useToolEmbed';
+import { i18n } from '@/i18n';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 export type EtaMode = 'count' | 'percent';
@@ -68,7 +69,7 @@ export interface EtaResult {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -102,8 +103,8 @@ export function clampNumber(n: number, min: number, max: number): number {
  *   - `current >= total` → complete; remaining = 0, completion = now.
  *   - `nowMs < startMs` → error "Start time is in the future."
  *   - elapsed is 0 and no explicit speed → error "Not enough elapsed time to
- *     derive a speed — enter an explicit speed or wait."
- *   - derived speed is 0 (current is 0) → error "No progress yet — enter an
+ *     derive a speed - enter an explicit speed or wait."
+ *   - derived speed is 0 (current is 0) → error "No progress yet - enter an
  *     explicit speed or wait for progress."
  *   - explicit speed <= 0 → error "Speed must be greater than zero."
  */
@@ -154,14 +155,14 @@ export function computeEta(input: EtaInput): EtaResult {
     // Derive speed from progress / elapsed.
     if (current <= 0) {
       return failResult(
-        'No progress yet — enter an explicit speed or wait for progress.',
+        'No progress yet - enter an explicit speed or wait for progress.',
         nowMs,
         { elapsedMs, progress, progressPercent },
       );
     }
     if (elapsedMs <= 0) {
       return failResult(
-        'Not enough elapsed time to derive a speed — enter an explicit speed or wait.',
+        'Not enough elapsed time to derive a speed - enter an explicit speed or wait.',
         nowMs,
         { elapsedMs, progress, progressPercent },
       );
@@ -169,7 +170,7 @@ export function computeEta(input: EtaInput): EtaResult {
     speed = current / (elapsedMs / 1000);
     if (!Number.isFinite(speed) || speed <= 0) {
       return failResult(
-        'Derived speed is not valid — enter an explicit speed.',
+        'Derived speed is not valid - enter an explicit speed.',
         nowMs,
         { elapsedMs, progress, progressPercent },
       );
@@ -216,10 +217,10 @@ function failResult(
  * Format a duration in milliseconds as a compact human-readable string.
  *
  * Examples: `0s`, `45s`, `12m 34s`, `1h 23m`, `1d 4h 30m`.
- * Negative durations render as `—`.
+ * Negative durations render as `-`.
  */
 export function formatDuration(ms: number): string {
-  if (!Number.isFinite(ms) || ms < 0) return '—';
+  if (!Number.isFinite(ms) || ms < 0) return '-';
   const totalSec = Math.floor(ms / 1000);
   const days = Math.floor(totalSec / 86400);
   const hours = Math.floor((totalSec % 86400) / 3600);
@@ -234,29 +235,29 @@ export function formatDuration(ms: number): string {
 
 /**
  * Format a Unix epoch millisecond timestamp as a locale-aware date/time string.
- * Returns `—` for non-finite values.
+ * Returns `-` for non-finite values.
  */
 export function formatDateTime(ms: number): string {
-  if (!Number.isFinite(ms)) return '—';
+  if (!Number.isFinite(ms)) return '-';
   try {
-    return new Date(ms).toLocaleString();
+    return new Date(ms).toLocaleString(i18n.global.locale.value);
   } catch {
-    return '—';
+    return '-';
   }
 }
 
 /**
  * Format a speed (units per second) with up to 2 decimal places, trimming
- * trailing zeros. Returns `—` for non-finite or non-positive values.
+ * trailing zeros. Returns `-` for non-finite or non-positive values.
  */
 export function formatSpeed(unitsPerSec: number): string {
-  if (!Number.isFinite(unitsPerSec) || unitsPerSec <= 0) return '—';
+  if (!Number.isFinite(unitsPerSec) || unitsPerSec <= 0) return '-';
   const fixed = unitsPerSec.toFixed(2);
   return fixed.replace(/\.?0+$/, '');
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + live tick + embed integration                */
+/* Composable - reactive state + live tick + embed integration                */
 /* -------------------------------------------------------------------------- */
 
 export interface UseEtaCalculatorReturn {
@@ -391,7 +392,7 @@ export function useEtaCalculator(): UseEtaCalculatorReturn {
     if (tickTimer) clearInterval(tickTimer);
   });
 
-  const { isEmbed, input: embedInput, sendOutput } = useEmbed({
+  const { isEmbed, input: embedInput } = useToolEmbed({
     onInput: (payload) => {
       if (!payload || typeof payload !== 'object') return;
       const p = payload as Record<string, unknown>;
@@ -430,12 +431,8 @@ export function useEtaCalculator(): UseEtaCalculatorReturn {
         useExplicitSpeed.value = true;
       }
     },
-  });
-
-  watch(snapshot, (s) => {
-    if (isEmbed.value) {
-      sendOutput(s ?? {});
-    }
+    output: snapshot,
+    toOutput: () => ({ ...(snapshot.value ?? {}) }),
   });
 
   return {

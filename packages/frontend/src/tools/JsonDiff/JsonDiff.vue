@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * JsonDiff — compare two JSON documents and show a path-based visual diff.
+ * JsonDiff - compare two JSON documents and show a path-based visual diff.
  *
  * Uses a hand-rolled recursive walker (no external dependency) that produces
  * a flat list of `DiffEntry` records tagged added / removed / changed /
@@ -13,6 +13,7 @@
  * PostMessages whenever the computed diff changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   AlertCircle,
   RefreshCw,
@@ -50,16 +51,19 @@ const {
   swapInputs,
 } = useJsonDiff();
 
-const viewModeOptions: Array<{ value: DiffViewMode; label: string; icon: typeof List }> = [
-  { value: 'inline', label: 'Inline', icon: List },
-  { value: 'side-by-side', label: 'Side-by-side', icon: Columns2 },
+const { t } = useI18n();
+const U = 'tools.json-diff.ui.';
+
+const viewModeOptions: Array<{ value: DiffViewMode; labelKey: string; icon: typeof List }> = [
+  { value: 'inline', labelKey: 'viewInline', icon: List },
+  { value: 'side-by-side', labelKey: 'viewSideBySide', icon: Columns2 },
 ];
 
-const typeMeta: Record<DiffType, { label: string; icon: typeof Plus; cls: string }> = {
-  added: { label: 'Added', icon: Plus, cls: 'jd__type--added' },
-  removed: { label: 'Removed', icon: Minus, cls: 'jd__type--removed' },
-  changed: { label: 'Changed', icon: Pencil, cls: 'jd__type--changed' },
-  unchanged: { label: 'Unchanged', icon: Equal, cls: 'jd__type--unchanged' },
+const typeMeta: Record<DiffType, { labelKey: string; icon: typeof Plus; cls: string }> = {
+  added: { labelKey: 'typeAdded', icon: Plus, cls: 'jd__type--added' },
+  removed: { labelKey: 'typeRemoved', icon: Minus, cls: 'jd__type--removed' },
+  changed: { labelKey: 'typeChanged', icon: Pencil, cls: 'jd__type--changed' },
+  unchanged: { labelKey: 'typeUnchanged', icon: Equal, cls: 'jd__type--unchanged' },
 };
 
 const visibleEntries = computed<DiffEntry[]>(() => {
@@ -72,11 +76,11 @@ const summary = computed(() => {
   if (!outputs.value) return '';
   const c = outputs.value.counts;
   const parts: string[] = [];
-  if (c.added) parts.push(`${c.added} added`);
-  if (c.removed) parts.push(`${c.removed} removed`);
-  if (c.changed) parts.push(`${c.changed} changed`);
-  if (c.unchanged) parts.push(`${c.unchanged} unchanged`);
-  if (parts.length === 0) return 'Documents are identical.';
+  if (c.added) parts.push(t(U + 'countAdded', c.added));
+  if (c.removed) parts.push(t(U + 'countRemoved', c.removed));
+  if (c.changed) parts.push(t(U + 'countChanged', c.changed));
+  if (c.unchanged) parts.push(t(U + 'countUnchanged', c.unchanged));
+  if (parts.length === 0) return t(U + 'identicalSummary');
   return parts.join(' · ');
 });
 
@@ -87,11 +91,12 @@ const isIdentical = computed(
 const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
+  const side = e.side === 'left' ? t(U + 'sideLeft') : t(U + 'sideRight');
   if (e.line != null && e.column != null) {
-    return `${e.side === 'left' ? 'Left' : 'Right'} · Line ${e.line}, column ${e.column}`;
+    return t(U + 'errSideLineCol', { side, line: e.line, col: e.column });
   }
-  if (e.line != null) return `${e.side === 'left' ? 'Left' : 'Right'} · Line ${e.line}`;
-  return e.side === 'left' ? 'Left' : 'Right';
+  if (e.line != null) return t(U + 'errSideLine', { side, line: e.line });
+  return side;
 });
 
 function onLeftInput(e: Event): void {
@@ -115,63 +120,63 @@ function entryCopyText(e: DiffEntry): string {
 </script>
 
 <template>
-  <div class="jd">
-    <ToolInput title="JSON inputs" description="Paste two JSON documents to compare them.">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'inputTitle')" :description="t(U + 'desc')">
       <template #actions>
         <button
-          class="jd__btn jd__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
           :disabled="leftInput.trim().length === 0 && rightInput.trim().length === 0"
-          title="Swap left and right inputs"
+          :title="t(U + 'swapTitle')"
           @click="swapInputs"
         >
           <ArrowLeftRight :size="14" />
-          <span>Swap</span>
+          <span>{{ t('common.swap') }}</span>
         </button>
         <button
-          class="jd__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="leftInput.trim().length === 0 && rightInput.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Compare</span>
+          <span>{{ t(U + 'compare') }}</span>
         </button>
       </template>
 
-      <div class="jd__opts">
-        <div class="jd__seg" role="group" aria-label="View mode">
+      <div class="qt-row qt-row--center" style="--qt-row-gap:12px">
+        <div class="qt-seg" role="group" :aria-label="t(U + 'viewMode')">
           <button
             v-for="o in viewModeOptions"
             :key="o.value"
             type="button"
-            class="jd__seg-btn"
-            :class="{ 'jd__seg-btn--active': viewMode === o.value }"
+            class="qt-seg__btn"
+            :class="{ 'qt-seg__btn--active': viewMode === o.value }"
             :aria-pressed="viewMode === o.value"
             @click="setViewMode(o.value)"
           >
             <component :is="o.icon" :size="13" />
-            <span>{{ o.label }}</span>
+            <span>{{ t(U + o.labelKey) }}</span>
           </button>
         </div>
         <button
           type="button"
-          class="jd__toggle"
-          :class="{ 'jd__toggle--active': showUnchanged }"
+          class="qt-chip"
+          :class="{ 'qt-chip--solid': showUnchanged }"
           :aria-pressed="showUnchanged"
-          title="Show or hide unchanged entries"
+          :title="t(U + 'showUnchangedTitle')"
           @click="toggleShowUnchanged"
         >
           <component :is="showUnchanged ? Eye : EyeOff" :size="13" />
-          <span>{{ showUnchanged ? 'Hide unchanged' : 'Show unchanged' }}</span>
+          <span>{{ showUnchanged ? t(U + 'hideUnchanged') : t(U + 'showUnchanged') }}</span>
         </button>
       </div>
 
-      <div class="jd__inputs" :class="{ 'jd__inputs--stack': viewMode === 'inline' }">
-        <label class="jd__field">
-          <span class="jd__label">Left JSON</span>
+      <div class="qt-grid" style="--qt-grid-min:280px;--qt-grid-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'leftJson') }}</span>
           <textarea
-            class="jd__textarea jd__textarea--mono"
+            class="qt-input qt-input--mono jd__textarea"
             placeholder='{"name":"alice","age":30}'
             :value="leftInput"
             rows="10"
@@ -180,10 +185,10 @@ function entryCopyText(e: DiffEntry): string {
             @input="onLeftInput"
           />
         </label>
-        <label class="jd__field">
-          <span class="jd__label">Right JSON</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'rightJson') }}</span>
           <textarea
-            class="jd__textarea jd__textarea--mono"
+            class="qt-input qt-input--mono jd__textarea"
             placeholder='{"name":"alice","age":31}'
             :value="rightInput"
             rows="10"
@@ -196,10 +201,10 @@ function entryCopyText(e: DiffEntry): string {
     </ToolInput>
 
     <ToolOutput
-      title="Diff output"
-      :description="outputs ? summary : 'Paste two JSON documents above to compare.'"
+      :title="t(U + 'outputTitle')"
+      :description="outputs ? summary : t(U + 'descEmpty')"
     >
-      <p v-if="error" class="jd__error">
+      <p v-if="error" class="qt-alert qt-alert--error jd__error">
         <AlertCircle :size="14" />
         <span>
           <strong v-if="errorLocation">{{ errorLocation }}:</strong>
@@ -207,57 +212,57 @@ function entryCopyText(e: DiffEntry): string {
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="jd__empty">Paste two JSON documents above to compare.</p>
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">{{ t(U + 'empty') }}</p>
         <template v-else>
           <!-- Side-by-side: pretty-printed panes -->
-          <div v-if="viewMode === 'side-by-side'" class="jd__sbs">
-            <div class="jd__sbs-pane">
-              <div class="jd__sbs-head">
-                <span class="jd__sbs-label">Left</span>
-                <CopyButton :text="outputs.leftPretty" label="Copy" icon-only />
+          <div v-if="viewMode === 'side-by-side'" class="qt-grid" style="--qt-grid-min:280px;--qt-grid-gap:12px;margin-bottom:12px">
+            <div class="qt-result jd__sbs-pane">
+              <div class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
+                <span class="qt-label" style="flex:1;color:var(--qt-text)">{{ t(U + 'sideLeft') }}</span>
+                <CopyButton :text="outputs.leftPretty" icon-only />
               </div>
-              <pre v-if="outputs.leftPretty" class="jd__code">{{ outputs.leftPretty }}</pre>
-              <p v-else class="jd__empty">Empty document.</p>
+              <pre v-if="outputs.leftPretty" class="qt-mono jd__code">{{ outputs.leftPretty }}</pre>
+              <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyDoc') }}</p>
             </div>
-            <div class="jd__sbs-pane">
-              <div class="jd__sbs-head">
-                <span class="jd__sbs-label">Right</span>
-                <CopyButton :text="outputs.rightPretty" label="Copy" icon-only />
+            <div class="qt-result jd__sbs-pane">
+              <div class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
+                <span class="qt-label" style="flex:1;color:var(--qt-text)">{{ t(U + 'sideRight') }}</span>
+                <CopyButton :text="outputs.rightPretty" icon-only />
               </div>
-              <pre v-if="outputs.rightPretty" class="jd__code">{{ outputs.rightPretty }}</pre>
-              <p v-else class="jd__empty">Empty document.</p>
+              <pre v-if="outputs.rightPretty" class="qt-mono jd__code">{{ outputs.rightPretty }}</pre>
+              <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyDoc') }}</p>
             </div>
           </div>
 
           <!-- Diff list -->
-          <div class="jd__list">
-            <div class="jd__list-head">
-              <span class="jd__list-title">Path-based diff</span>
-              <div class="jd__legend">
-                <span v-for="t in (['added','removed','changed','unchanged'] as DiffType[])" :key="t" class="jd__chip" :class="typeMeta[t].cls">
-                  <component :is="typeMeta[t].icon" :size="11" />
-                  {{ typeMeta[t].label }} · {{ outputs.counts[t] }}
+          <div class="qt-result jd__list">
+            <div class="qt-row qt-row--center qt-row--between" style="--qt-row-gap:12px">
+              <span class="qt-label" style="color:var(--qt-text)">{{ t(U + 'pathDiff') }}</span>
+              <div class="qt-row qt-row--center" style="--qt-row-gap:6px">
+                <span v-for="dt in (['added','removed','changed','unchanged'] as DiffType[])" :key="dt" class="jd__chip" :class="typeMeta[dt].cls">
+                  <component :is="typeMeta[dt].icon" :size="11" />
+                  {{ t(U + typeMeta[dt].labelKey) }} · {{ outputs.counts[dt] }}
                 </span>
               </div>
             </div>
 
-            <p v-if="isIdentical" class="jd__empty jd__identical">
-              <Equal :size="14" /> The two documents are identical.
+            <p v-if="isIdentical" class="qt-alert qt-alert--empty jd__identical">
+              <Equal :size="14" /> {{ t(U + 'identical') }}
             </p>
-            <p v-else-if="visibleEntries.length === 0" class="jd__empty">
-              No differences. Toggle "Show unchanged" to see all entries.
+            <p v-else-if="visibleEntries.length === 0" class="qt-alert qt-alert--empty">
+              {{ t(U + 'noDifferences') }}
             </p>
-            <ul v-else class="jd__rows">
+            <ul v-else class="qt-list qt-stack" style="--qt-stack-gap:6px">
               <li v-for="(e, i) in visibleEntries" :key="i" class="jd__row" :class="typeMeta[e.type].cls">
-                <div class="jd__row-head">
+                <div class="qt-row qt-row--center" style="--qt-row-gap:8px">
                   <span class="jd__badge" :class="typeMeta[e.type].cls">
                     <component :is="typeMeta[e.type].icon" :size="11" />
-                    {{ typeMeta[e.type].label }}
+                    {{ t(U + typeMeta[e.type].labelKey) }}
                   </span>
-                  <code class="jd__path">{{ e.path }}</code>
-                  <CopyButton :text="entryCopyText(e)" label="Copy" icon-only />
+                  <code class="qt-mono jd__path">{{ e.path }}</code>
+                  <CopyButton :text="entryCopyText(e)" icon-only />
                 </div>
-                <div class="jd__row-body">
+                <div class="qt-stack" style="--qt-stack-gap:4px">
                   <template v-if="e.type === 'added'">
                     <pre class="jd__val jd__val--new">{{ formatDiffValue(e.newValue) }}</pre>
                   </template>
@@ -266,13 +271,13 @@ function entryCopyText(e: DiffEntry): string {
                   </template>
                   <template v-else-if="e.type === 'changed'">
                     <div class="jd__changed">
-                      <div class="jd__changed-side">
-                        <span class="jd__changed-tag">old</span>
+                      <div class="qt-stack jd__changed-side" style="--qt-stack-gap:4px">
+                        <span class="qt-stat-head">{{ t(U + 'old') }}</span>
                         <pre class="jd__val jd__val--old">{{ formatDiffValue(e.oldValue) }}</pre>
                       </div>
                       <span class="jd__arrow">→</span>
-                      <div class="jd__changed-side">
-                        <span class="jd__changed-tag">new</span>
+                      <div class="qt-stack jd__changed-side" style="--qt-stack-gap:4px">
+                        <span class="qt-stat-head">{{ t(U + 'new') }}</span>
                         <pre class="jd__val jd__val--new">{{ formatDiffValue(e.newValue) }}</pre>
                       </div>
                     </div>
@@ -291,205 +296,29 @@ function entryCopyText(e: DiffEntry): string {
 </template>
 
 <style scoped>
-.jd {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.jd__opts {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.jd__seg {
-  display: inline-flex;
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  overflow: hidden;
-  background: var(--qt-bg);
-}
-.jd__seg-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: none;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 12px;
-  cursor: pointer;
-  transition: color 0.15s ease, background 0.15s ease;
-  will-change: color, background;
-}
-.jd__seg-btn--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-}
-.jd__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 11px;
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-  will-change: color, border-color;
-}
-.jd__toggle--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
-.jd__inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.jd__inputs--stack {
-  grid-template-columns: 1fr 1fr;
-}
-@media (max-width: 720px) {
-  .jd__inputs {
-    grid-template-columns: 1fr;
-  }
-}
-.jd__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.jd__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .jd__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 180px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.jd__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.jd__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.jd__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition: transform 0.1s ease, opacity 0.15s ease;
-  will-change: transform;
-}
-.jd__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.jd__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.jd__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.jd__btn--ghost {
-  background: var(--qt-bg);
-  color: var(--qt-muted);
-  border-color: var(--qt-border);
-}
-.jd__btn--ghost:hover:not(:disabled) {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.jd__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
+/* Error location prefix (alert via .qt-alert--error). */
 .jd__error strong {
   margin-right: 4px;
 }
-.jd__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
+/* Identical-documents note (alert via .qt-alert--empty) — success tint. */
 .jd__identical {
   color: var(--qt-success, var(--qt-accent));
   font-weight: 600;
 }
 
-/* Side-by-side panes */
-.jd__sbs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-@media (max-width: 720px) {
-  .jd__sbs {
-    grid-template-columns: 1fr;
-  }
-}
+/* Side-by-side pane (base via .qt-result) — tighter padding + gap. */
 .jd__sbs-pane {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
   gap: 6px;
+  padding: 8px 10px;
 }
-.jd__sbs-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.jd__sbs-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Pretty-printed pane code (font via .qt-mono) — capped, scrollable. */
 .jd__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -499,34 +328,12 @@ function entryCopyText(e: DiffEntry): string {
   overflow: auto;
 }
 
-/* Diff list */
+/* Diff list card (base via .qt-result) — roomier padding + gap. */
 .jd__list {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
   gap: 10px;
+  padding: 10px 12px;
 }
-.jd__list-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.jd__list-title {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-}
-.jd__legend {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
+/* Legend chip — count pill, colour-coded by diff type below. */
 .jd__chip {
   display: inline-flex;
   align-items: center;
@@ -538,14 +345,7 @@ function entryCopyText(e: DiffEntry): string {
   border: 1px solid var(--qt-border);
   color: var(--qt-muted);
 }
-.jd__rows {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* Diff entry row — left border colour-coded by type below. */
 .jd__row {
   border-left: 3px solid var(--qt-border);
   padding: 6px 8px 8px 10px;
@@ -555,12 +355,7 @@ function entryCopyText(e: DiffEntry): string {
   flex-direction: column;
   gap: 6px;
 }
-.jd__row-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+/* Type badge — solid pill, colour-coded by diff type below. */
 .jd__badge {
   display: inline-flex;
   align-items: center;
@@ -574,20 +369,15 @@ function entryCopyText(e: DiffEntry): string {
   color: var(--qt-bg);
   background: var(--qt-muted);
 }
+/* Entry path (font via .qt-mono) — grows to fill the row. */
 .jd__path {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 12.5px;
   color: var(--qt-text);
   flex: 1;
   word-break: break-all;
 }
-.jd__row-body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+/* Value block (font via .qt-mono) — bordered, capped, scrollable. */
 .jd__val {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 12.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -600,6 +390,7 @@ function entryCopyText(e: DiffEntry): string {
   max-height: 40vh;
   overflow: auto;
 }
+/* Changed entries — old → new 3-col grid. */
 .jd__changed {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -615,17 +406,7 @@ function entryCopyText(e: DiffEntry): string {
   }
 }
 .jd__changed-side {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   min-width: 0;
-}
-.jd__changed-tag {
-  font-size: 10.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--qt-muted);
 }
 .jd__arrow {
   align-self: center;

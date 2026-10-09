@@ -1,5 +1,5 @@
 /**
- * useDateTimeConverter — composable + pure logic for the date-time converter.
+ * useDateTimeConverter - composable + pure logic for the date-time converter.
  *
  * Converts between date-time formats using only the standard `Date` object and
  * the `Intl` API (no external dependencies).
@@ -24,14 +24,15 @@
  * reactive state, debounces recompute, and wires up the embed PostMessage
  * protocol.
  *
- * No external dependencies — uses only `Date` and the `Intl` API.
+ * No external dependencies - uses only `Date` and the `Intl` API.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
+import { i18n } from '@/i18n';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Input format modes. */
@@ -166,7 +167,7 @@ export function parseRfc2822(text: string): Date {
   return new Date(ms);
 }
 
-/** A parsed piece of a custom format string — either a token or a literal. */
+/** A parsed piece of a custom format string - either a token or a literal. */
 export type FormatPart =
   | { kind: 'token'; token: string }
   | { kind: 'literal'; text: string };
@@ -516,7 +517,7 @@ export function formatRelative(date: Date, now: Date = new Date()): string {
   const diffMs = date.getTime() - now.getTime();
   const abs = Math.abs(diffMs);
   const sign = diffMs < 0 ? -1 : 1;
-  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  const rtf = new Intl.RelativeTimeFormat(i18n.global.locale.value, { numeric: 'auto' });
 
   // Each entry is the threshold (in current units) below which we render in
   // that unit. We start in seconds and divide by each threshold as we go.
@@ -628,7 +629,7 @@ export function computeOutputs(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface DateTimeConverterConfig {

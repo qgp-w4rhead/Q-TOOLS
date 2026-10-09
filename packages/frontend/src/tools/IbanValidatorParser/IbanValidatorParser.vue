@@ -1,13 +1,13 @@
 <script setup lang="ts">
 /**
- * IbanValidatorParser — validate and parse an IBAN account number.
+ * IbanValidatorParser - validate and parse an IBAN account number.
  *
  * Validates the IBAN structure (country code, length, character classes) and
  * the mod-97 checksum, then breaks it down into country, bank code, branch
  * code, account number, national check digits, and the IBAN check digits.
  * The formatted IBAN (4-char groups) is also displayed.
  *
- * No external dependencies — the country spec table and mod-97 algorithm are
+ * No external dependencies - the country spec table and mod-97 algorithm are
  * hand-rolled.
  *
  * Works in embed mode: receives `iban`/`input`/`value`/`account`/`text`/
@@ -17,6 +17,7 @@
  * result changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   AlertTriangle,
   Building2,
@@ -34,6 +35,9 @@ import CopyButton from '@/components/CopyButton.vue';
 import { useIbanValidatorParser } from './useIbanValidatorParser';
 
 const { input, result } = useIbanValidatorParser();
+
+const { t } = useI18n();
+const U = 'tools.iban-validator-and-parser.ui.';
 
 const hasInput = computed(() => input.value.trim().length > 0);
 
@@ -56,27 +60,28 @@ const metaRows = computed<MetaRow[]>(() => {
   const r = result.value;
   if (!r) return [];
   return [
-    { label: 'Country', value: r.country, icon: Landmark },
-    { label: 'Country name', value: r.countryName, icon: Landmark },
-    { label: 'Bank code', value: r.bankCode, icon: Building2 },
-    { label: 'Branch code', value: r.branchCode, icon: GitBranch },
-    { label: 'Account number', value: r.accountNumber, icon: CreditCard },
-    { label: 'National check digits', value: r.nationalCheckDigits, icon: Hash },
-    { label: 'IBAN check digits', value: r.checksum, icon: ShieldCheck },
+    { label: t(U + 'metaCountry'), value: r.country, icon: Landmark },
+    { label: t(U + 'metaCountryName'), value: r.countryName, icon: Landmark },
+    { label: t(U + 'metaBankCode'), value: r.bankCode, icon: Building2 },
+    { label: t(U + 'metaBranchCode'), value: r.branchCode, icon: GitBranch },
+    { label: t(U + 'metaAccountNumber'), value: r.accountNumber, icon: CreditCard },
+    { label: t(U + 'metaNationalCheckDigits'), value: r.nationalCheckDigits, icon: Hash },
+    { label: t(U + 'metaChecksum'), value: r.checksum, icon: ShieldCheck },
   ];
 });
 </script>
 
 <template>
-  <div class="ivp">
+  <div class="qt-tool">
     <ToolInput
-      title="IBAN"
-      description="Enter an IBAN to validate and parse. Spaces, dashes, and dots are ignored. The IBAN is checked against its country-specific structure and the mod-97 checksum."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
-      <div class="ivp__field">
+      <div class="qt-input-wrap">
         <textarea
-          class="ivp__textarea"
-          placeholder="GB82 WEST 1234 5698 7654 32"
+          class="qt-input qt-input--mono"
+          style="padding:10px 36px 10px 12px;min-height:44px"
+          :placeholder="t(U + 'placeholder')"
           :value="input"
           spellcheck="false"
           autocomplete="off"
@@ -87,7 +92,7 @@ const metaRows = computed<MetaRow[]>(() => {
         <button
           v-if="hasInput"
           class="ivp__reset"
-          title="Clear input"
+          :title="t(U + 'clearTitle')"
           @click="reset"
         >
           <RotateCcw :size="14" />
@@ -96,65 +101,63 @@ const metaRows = computed<MetaRow[]>(() => {
     </ToolInput>
 
     <ToolOutput
-      title="Validation result"
+      :title="t(U + 'outputTitle')"
       :description="
         result
-          ? result.valid
-            ? 'The IBAN is valid.'
-            : 'The IBAN is invalid.'
-          : 'Enter an IBAN above to validate and parse it.'
+          ? (result.valid ? t(U + 'descValid') : t(U + 'descInvalid'))
+          : t(U + 'descEmpty')
       "
       :copy-text="result?.valid ? result.formatted : ''"
-      copy-label="Copy formatted"
+      :copy-label="t(U + 'copyFormatted')"
     >
       <template v-if="!hasInput">
-        <p class="ivp__empty">Enter an IBAN above to validate and parse it.</p>
+        <p class="qt-alert qt-alert--empty">{{ t(U + 'descEmpty') }}</p>
       </template>
       <template v-else-if="result">
         <!-- Validity badge -->
-        <div class="ivp__badges">
+        <div class="qt-row" style="--qt-row-gap:8px;margin-bottom:12px">
           <span
-            class="ivp__badge"
-            :class="result.valid ? 'ivp__badge--ok' : 'ivp__badge--bad'"
+            class="qt-badge"
+            :class="result.valid ? 'qt-badge--success' : 'qt-badge--error'"
           >
             <component
               :is="result.valid ? CheckCircle2 : AlertTriangle"
               :size="13"
             />
-            <span>{{ result.valid ? 'Valid' : 'Invalid' }}</span>
+            <span>{{ result.valid ? t(U + 'valid') : t(U + 'invalid') }}</span>
           </span>
-          <span v-if="result.country" class="ivp__badge ivp__badge--info">
+          <span v-if="result.country" class="qt-badge qt-badge--info">
             <Landmark :size="13" />
             <span>{{ result.country }}</span>
           </span>
         </div>
 
         <!-- Validation error -->
-        <p v-if="!result.valid && result.error" class="ivp__error">
+        <p v-if="!result.valid && result.error" class="qt-banner qt-banner--error" style="margin:0 0 12px">
           <AlertTriangle :size="13" />
           <span>{{ result.error }}</span>
         </p>
 
         <!-- Formatted IBAN -->
-        <div v-if="result.iban" class="ivp__formatted">
-          <div class="ivp__formatted-row">
-            <span class="ivp__formatted-label">Formatted</span>
-            <code class="ivp__formatted-value">{{ result.formatted || '—' }}</code>
+        <div v-if="result.iban" class="qt-stack" style="margin-bottom:12px">
+          <div class="qt-result-row">
+            <span class="qt-stat-head" style="min-width:80px;white-space:nowrap">{{ t(U + 'formatted') }}</span>
+            <code class="qt-mono" style="font-size:14px;word-break:break-all;flex:1">{{ result.formatted || '-' }}</code>
             <CopyButton
               v-if="result.formatted"
               :text="result.formatted"
               icon-only
-              class="ivp__formatted-copy"
+              style="flex-shrink:0"
             />
           </div>
-          <div class="ivp__formatted-row">
-            <span class="ivp__formatted-label">Normalised</span>
-            <code class="ivp__formatted-value">{{ result.iban }}</code>
+          <div class="qt-result-row">
+            <span class="qt-stat-head" style="min-width:80px;white-space:nowrap">{{ t(U + 'normalised') }}</span>
+            <code class="qt-mono" style="font-size:14px;word-break:break-all;flex:1">{{ result.iban }}</code>
             <CopyButton
               v-if="result.iban"
               :text="result.iban"
               icon-only
-              class="ivp__formatted-copy"
+              style="flex-shrink:0"
             />
           </div>
         </div>
@@ -164,13 +167,14 @@ const metaRows = computed<MetaRow[]>(() => {
           <div
             v-for="row in metaRows"
             :key="row.label"
-            class="ivp__cell"
+            class="qt-result"
+            style="min-width:0"
           >
-            <span class="ivp__cell-label">
+            <span class="qt-stat-head">
               <component :is="row.icon" :size="12" />
               <span>{{ row.label }}</span>
             </span>
-            <code class="ivp__cell-value">{{ row.value || '—' }}</code>
+            <code class="qt-mono" style="font-size:13px;word-break:break-all">{{ row.value || '-' }}</code>
           </div>
         </div>
       </template>
@@ -179,37 +183,9 @@ const metaRows = computed<MetaRow[]>(() => {
 </template>
 
 <style scoped>
-.ivp {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.ivp__field {
-  position: relative;
-}
-.ivp__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  padding: 10px 36px 10px 12px;
-  resize: vertical;
-  min-height: 44px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.ivp__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Top-right clear button inside the input wrap. */
 .ivp__reset {
   position: absolute;
   top: 8px;
@@ -230,127 +206,12 @@ const metaRows = computed<MetaRow[]>(() => {
   color: var(--qt-text);
   background: var(--qt-border);
 }
-.ivp__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.ivp__badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.ivp__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border: 1px solid transparent;
-}
-.ivp__badge--ok {
-  background: oklch(from var(--qt-success) 35% c h / 0.2);
-  border-color: oklch(from var(--qt-success) 60% c h / 0.55);
-  color: var(--qt-success);
-}
-.ivp__badge--bad {
-  background: oklch(from var(--qt-danger) 35% c h / 0.2);
-  border-color: oklch(from var(--qt-danger) 60% c h / 0.55);
-  color: var(--qt-danger);
-}
-.ivp__badge--info {
-  background: oklch(from var(--qt-accent) 35% c h / 0.18);
-  border-color: oklch(from var(--qt-accent) 60% c h / 0.5);
-  color: var(--qt-accent);
-}
-.ivp__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: oklch(from var(--qt-danger) 35% c h / 0.18);
-  border: 1px solid oklch(from var(--qt-danger) 60% c h / 0.5);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-size: 13.5px;
-  margin: 0 0 12px;
-}
-.ivp__error svg {
-  color: var(--qt-danger);
-  flex-shrink: 0;
-}
-.ivp__formatted {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.ivp__formatted-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-}
-.ivp__formatted-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--qt-muted);
-  white-space: nowrap;
-  min-width: 80px;
-}
-.ivp__formatted-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 14px;
-  color: var(--qt-text);
-  word-break: break-all;
-  flex: 1;
-}
-.ivp__formatted-copy {
-  flex-shrink: 0;
-}
+
+/* Fixed 2-col breakdown grid — collapses to stacked on narrow. */
 .ivp__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-}
-.ivp__cell {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  min-width: 0;
-}
-.ivp__cell-label {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--qt-muted);
-}
-.ivp__cell-label svg {
-  flex-shrink: 0;
-}
-.ivp__cell-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13px;
-  color: var(--qt-text);
-  word-break: break-all;
 }
 @media (max-width: 560px) {
   .ivp__grid {

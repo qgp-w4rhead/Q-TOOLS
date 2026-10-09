@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * AsciiArtTextGenerator — render text as ASCII art using figlet.
+ * AsciiArtTextGenerator - render text as ASCII art using figlet.
  *
  * The figlet core module and each font are lazy-loaded on demand (separate
  * Vite chunks). A curated set of 26 popular fonts is offered via a dropdown
@@ -11,6 +11,7 @@
  * and layout options, and sends `output` PostMessages with the rendered art.
  */
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RotateCcw, Search } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -81,43 +82,59 @@ const filteredGallery = () => {
   return gallery.value.filter((p) => p.name.toLowerCase().includes(q));
 };
 
+const { t } = useI18n();
+const U = 'tools.ascii-art-text-generator.ui.';
+
+const KERN_KEYS: Record<KerningMethod, string> = {
+  default: 'kernDefault',
+  full: 'kernFull',
+  fitted: 'kernFitted',
+  'controlled smushing': 'kernControlled',
+  'universal smushing': 'kernUniversal',
+};
+function kernLabel(m: KerningMethod): string {
+  return t(U + KERN_KEYS[m]);
+}
+
 const gallerySampleText = () =>
   input.value.length > 0 ? input.value : DEFAULT_SAMPLE;
 </script>
 
 <template>
-  <div class="aat">
+  <div class="qt-tool">
     <ToolInput
-      title="Input"
-      description="Type text to render as ASCII art. Renders live."
+      :title="t('common.input')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="aat__btn aat__btn--ghost"
-          title="Clear input"
+          class="qt-btn qt-btn--ghost"
+          :title="t(U + 'clearTitle')"
           @click="onReset"
         >
           <RotateCcw :size="14" />
-          <span>Clear</span>
+          <span>{{ t('common.clear') }}</span>
         </button>
       </template>
 
       <textarea
-        class="aat__input"
+        class="qt-input"
+        style="min-height:100px;line-height:1.6;padding:12px 14px"
         spellcheck="false"
-        placeholder="e.g. Hello World"
+        :placeholder="t(U + 'placeholder')"
         :value="draft"
         @input="onInput"
-        aria-label="Text to render as ASCII art"
+        :aria-label="t(U + 'ariaInput')"
       ></textarea>
 
-      <div class="aat__options">
-        <label class="aat__field">
-          <span class="aat__label">Font</span>
+      <div class="qt-row qt-row--bottom" style="--qt-row-gap:16px;margin-top:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'font') }}</span>
           <select
             id="aat-font-select"
-            class="aat__select"
+            class="qt-input"
+            style="min-width:200px"
             :value="font"
             @change="onFont"
           >
@@ -128,10 +145,10 @@ const gallerySampleText = () =>
         </label>
       </div>
 
-      <div class="aat__layouts">
-        <div class="aat__layout-group">
-          <span class="aat__layout-label">Horizontal</span>
-          <div class="aat__chips">
+      <div class="qt-stack" style="--qt-stack-gap:10px;margin-top:14px">
+        <div class="qt-row qt-row--center">
+          <span class="aat__layout-label">{{ t(U + 'horizontal') }}</span>
+          <div class="qt-row" style="--qt-row-gap:6px">
             <button
               v-for="mode in KERNING_METHODS"
               :key="`h-${mode}`"
@@ -140,13 +157,13 @@ const gallerySampleText = () =>
               :class="{ 'aat__chip--active': horizontalLayout === mode }"
               @click="onHorizontalLayout(mode)"
             >
-              {{ mode }}
+              {{ kernLabel(mode) }}
             </button>
           </div>
         </div>
-        <div class="aat__layout-group">
-          <span class="aat__layout-label">Vertical</span>
-          <div class="aat__chips">
+        <div class="qt-row qt-row--center">
+          <span class="aat__layout-label">{{ t(U + 'vertical') }}</span>
+          <div class="qt-row" style="--qt-row-gap:6px">
             <button
               v-for="mode in KERNING_METHODS"
               :key="`v-${mode}`"
@@ -155,7 +172,7 @@ const gallerySampleText = () =>
               :class="{ 'aat__chip--active': verticalLayout === mode }"
               @click="onVerticalLayout(mode)"
             >
-              {{ mode }}
+              {{ kernLabel(mode) }}
             </button>
           </div>
         </div>
@@ -163,14 +180,14 @@ const gallerySampleText = () =>
     </ToolInput>
 
     <ToolOutput
-      title="ASCII art"
-      :description="loading ? 'Rendering…' : (error ? error : 'Ready')"
+      :title="t(U + 'outputTitle')"
+      :description="loading ? t(U + 'descRendering') : (error ? error : t(U + 'descReady'))"
     >
       <template #actions>
         <CopyButton
           :text="output"
-          label="Copy"
-          class="aat__copy"
+          :label="t('common.copy')"
+          class="qt-copy-float"
         />
       </template>
 
@@ -178,50 +195,50 @@ const gallerySampleText = () =>
       <pre
         v-else
         class="aat__output"
-        aria-label="Rendered ASCII art"
-      >{{ output || (loading ? 'Rendering…' : 'Type something to render.') }}</pre>
+        :aria-label="t(U + 'ariaOutput')"
+      >{{ output || (loading ? t(U + 'descRendering') : t(U + 'emptyOutput')) }}</pre>
     </ToolOutput>
 
-    <section class="aat__gallery-section">
-      <header class="aat__gallery-header">
-        <h2 class="aat__gallery-title">Font preview gallery</h2>
+    <section style="margin-top:4px">
+      <header class="qt-row qt-row--center qt-row--between" style="--qt-row-gap:12px;margin-bottom:6px">
+        <h2 style="font-size:14px;font-weight:600;color:var(--qt-text);margin:0">{{ t(U + 'galleryTitle') }}</h2>
         <div class="aat__gallery-filter">
           <Search :size="14" />
           <input
             type="text"
             class="aat__filter-input"
-            placeholder="Filter fonts…"
+            :placeholder="t(U + 'filterPlaceholder')"
             v-model="galleryFilter"
-            aria-label="Filter fonts by name"
+            :aria-label="t(U + 'ariaFilter')"
           />
         </div>
       </header>
-      <p class="aat__gallery-sample">
-        Preview text: <code>{{ gallerySampleText() }}</code>
+      <p style="font-size:12.5px;color:var(--qt-muted);margin:0 0 12px 0">
+        {{ t(U + 'previewText') }} <code class="qt-kbd">{{ gallerySampleText() }}</code>
       </p>
 
-      <div class="aat__gallery">
+      <div class="qt-grid" style="--qt-grid-min:280px;--qt-grid-gap:12px">
         <button
           v-for="preview in filteredGallery()"
           :key="preview.name"
           type="button"
           class="aat__card"
           :class="{ 'aat__card--active': font === preview.name }"
-          :title="`Use font: ${preview.name}`"
+          :title="t(U + 'useFontTitle', { name: preview.name })"
           @click="selectFont(preview.name)"
         >
-          <div class="aat__card-name">{{ preview.name }}</div>
+          <div class="qt-stat-head">{{ preview.name }}</div>
           <pre
             v-if="preview.art && !preview.error"
             class="aat__card-art"
           >{{ preview.art }}</pre>
           <div v-else-if="preview.loading" class="aat__card-status">
-            Loading…
+            {{ t(U + 'loadingCard') }}
           </div>
           <div v-else-if="preview.error" class="aat__card-status aat__card-status--err">
-            Failed to load
+            {{ t(U + 'failedCard') }}
           </div>
-          <div v-else class="aat__card-status">—</div>
+          <div v-else class="aat__card-status">-</div>
         </button>
       </div>
     </section>
@@ -229,95 +246,17 @@ const gallerySampleText = () =>
 </template>
 
 <style scoped>
-.aat {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.aat__input {
-  width: 100%;
-  min-height: 100px;
-  resize: vertical;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  line-height: 1.6;
-  padding: 12px 14px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.aat__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.aat__options {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 16px;
-  margin-top: 12px;
-}
-.aat__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.aat__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.aat__select {
-  min-width: 200px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 8px 10px;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.aat__select:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.aat__layouts {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
-}
-.aat__layout-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Layout-group label — fixed min-width, shrinks on narrow. */
 .aat__layout-label {
   font-size: 12.5px;
   font-weight: 600;
   color: var(--qt-muted);
   min-width: 80px;
 }
-.aat__chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+
+/* Option chip — rounded-sm toggle chip with accent-text active. */
 .aat__chip {
   background: var(--qt-bg);
   border: 1px solid var(--qt-border);
@@ -342,44 +281,8 @@ const gallerySampleText = () =>
   border-color: var(--qt-accent);
   background: oklch(from var(--qt-accent) 95% c h / 0.12);
 }
-.aat__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: var(--qt-radius-sm);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.aat__btn--ghost {
-  background: transparent;
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-}
-.aat__btn--ghost:hover:not(:disabled) {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.aat__btn--ghost:active:not(:disabled) {
-  transform: translateY(1px);
-}
-.aat__btn--ghost:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.aat__copy {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-}
+
+/* Scrollable ASCII-art <pre> — tiny mono, no wrap. */
 .aat__output {
   width: 100%;
   min-height: 160px;
@@ -389,7 +292,7 @@ const gallerySampleText = () =>
   border: 1px solid var(--qt-border);
   border-radius: var(--qt-radius-sm);
   color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 11px;
   line-height: 1.2;
   padding: 12px 14px;
@@ -397,6 +300,8 @@ const gallerySampleText = () =>
   overflow-x: auto;
   margin: 0;
 }
+
+/* Warning block for render errors. */
 .aat__error {
   width: 100%;
   min-height: 80px;
@@ -409,23 +314,8 @@ const gallerySampleText = () =>
   white-space: pre-wrap;
   word-break: break-word;
 }
-.aat__gallery-section {
-  margin-top: 4px;
-}
-.aat__gallery-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 6px;
-}
-.aat__gallery-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--qt-text);
-  margin: 0;
-}
+
+/* Gallery search box — icon + borderless input in a bordered shell. */
 .aat__gallery-filter {
   display: inline-flex;
   align-items: center;
@@ -445,24 +335,8 @@ const gallerySampleText = () =>
   outline: none;
   width: 140px;
 }
-.aat__gallery-sample {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  margin: 0 0 12px 0;
-}
-.aat__gallery-sample code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 4px;
-  padding: 1px 6px;
-}
-.aat__gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-}
+
+/* Selectable font-preview card. */
 .aat__card {
   display: flex;
   flex-direction: column;
@@ -488,15 +362,8 @@ const gallerySampleText = () =>
   border-color: var(--qt-accent);
   box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
 }
-.aat__card-name {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
 .aat__card-art {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 7px;
   line-height: 1.05;
   color: var(--qt-text);

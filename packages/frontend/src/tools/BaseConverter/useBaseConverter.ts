@@ -1,5 +1,5 @@
 /**
- * useBaseConverter — composable + pure logic for the integer base converter.
+ * useBaseConverter - composable + pure logic for the integer base converter.
  *
  * Converts integers between bases 2-36 using only the built-in `BigInt` type
  * and `BigInt.prototype.toString(radix)`. No external dependencies.
@@ -26,14 +26,14 @@
  * unit testing or reuse. The `useBaseConverter()` composable wraps them in
  * reactive state and wires up the embed PostMessage protocol.
  *
- * No external dependencies — uses only `BigInt` + `BigInt.prototype.toString`.
+ * No external dependencies - uses only `BigInt` + `BigInt.prototype.toString`.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Lowest supported base (binary). */
@@ -41,7 +41,7 @@ export const MIN_BASE = 2;
 /** Highest supported base (base-36, 0-9 + a-z). */
 export const MAX_BASE = 36;
 
-/** Digit character table — index `i` maps to the digit for value `i`. */
+/** Digit character table - index `i` maps to the digit for value `i`. */
 export const DIGIT_CHARS = '0123456789abcdefghijklmnopqrstuvwxyz';
 
 /** Standard output bases with friendly labels. */
@@ -227,7 +227,7 @@ export function computeOutputs(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface BaseConverterConfig {

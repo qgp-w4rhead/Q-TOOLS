@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * ListConverter — convert lists between formats.
+ * ListConverter - convert lists between formats.
  *
  * Parses an input list in one of seven built-in formats (comma, newline,
  * JSON array, bullet list, numbered list, tab, pipe) or a custom delimiter,
@@ -14,6 +14,7 @@
  * whenever the converted list changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, ArrowLeftRight, Scissors, Copy } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -21,7 +22,6 @@ import CopyButton from '@/components/CopyButton.vue';
 import {
   useListConverter,
   LIST_FORMATS,
-  LIST_FORMAT_LABELS,
   type ListFormat,
 } from './useListConverter';
 
@@ -42,32 +42,48 @@ const {
   toggleRemoveDuplicates,
 } = useListConverter();
 
-const description = computed(() => {
-  const from = LIST_FORMAT_LABELS[fromFormat.value];
-  const to = LIST_FORMAT_LABELS[toFormat.value];
-  return `Convert a ${from} list into a ${to} list.`;
-});
+const { t } = useI18n();
+const U = 'tools.list-converter.ui.';
+
+/** Localized label for a list format (comma → fmtComma, …). */
+const FMT_KEYS: Record<ListFormat, string> = {
+  comma: 'fmtComma',
+  newline: 'fmtNewline',
+  json: 'fmtJson',
+  bullet: 'fmtBullet',
+  numbered: 'fmtNumbered',
+  tab: 'fmtTab',
+  pipe: 'fmtPipe',
+  custom: 'fmtCustom',
+};
+function fmtLabel(f: ListFormat): string {
+  return t(U + FMT_KEYS[f]);
+}
+
+const description = computed(() =>
+  t(U + 'desc', { from: fmtLabel(fromFormat.value), to: fmtLabel(toFormat.value) }),
+);
 
 const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
-  const stageLabel = e.stage === 'parse' ? 'Parse' : 'Format';
+  const stageLabel = e.stage === 'parse' ? t(U + 'stageParse') : t(U + 'stageFormat');
   if (e.line != null && e.column != null) {
-    return `${stageLabel} · Line ${e.line}, column ${e.column}`;
+    return t(U + 'errStageLineCol', { stage: stageLabel, line: e.line, col: e.column });
   }
-  if (e.line != null) return `${stageLabel} · Line ${e.line}`;
+  if (e.line != null) return t(U + 'errStageLine', { stage: stageLabel, line: e.line });
   return stageLabel;
 });
 
 const outputDescription = computed(() => {
-  if (error.value) return 'Conversion failed.';
-  if (!outputs.value) return 'Enter a list above to convert.';
+  if (error.value) return t(U + 'conversionFailed');
+  if (!outputs.value) return t(U + 'empty');
   const o = outputs.value;
-  const parts: string[] = [`${o.count} item${o.count === 1 ? '' : 's'}`];
+  const parts: string[] = [t(U + 'items', o.count)];
   if (o.duplicatesRemoved > 0) {
-    parts.push(`${o.duplicatesRemoved} duplicate${o.duplicatesRemoved === 1 ? '' : 's'} removed`);
+    parts.push(t(U + 'duplicatesRemoved', o.duplicatesRemoved));
   }
-  parts.push(`${o.outputBytes} bytes`);
+  parts.push(t(U + 'bytesCount', o.outputBytes));
   return parts.join(' · ');
 });
 
@@ -89,30 +105,30 @@ function onCustomDelimiter(e: Event): void {
 </script>
 
 <template>
-  <div class="lc">
-    <ToolInput title="Input list" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'inputTitle')" :description="description">
       <template #actions>
         <button
-          class="lc__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="lc__row">
-        <label class="lc__field">
-          <span class="lc__label">From</span>
+      <div class="qt-row qt-row--end" style="--qt-row-gap:10px">
+        <label class="qt-field lc__field">
+          <span class="qt-label">{{ t(U + 'from') }}</span>
           <select
-            class="lc__select"
+            class="qt-input"
             :value="fromFormat"
             @change="onFromChange"
           >
             <option v-for="f in LIST_FORMATS" :key="f" :value="f">
-              {{ LIST_FORMAT_LABELS[f] }}
+              {{ fmtLabel(f) }}
             </option>
           </select>
         </label>
@@ -120,67 +136,67 @@ function onCustomDelimiter(e: Event): void {
         <button
           type="button"
           class="lc__swap"
-          title="Swap from/to formats (and feed output back into input)"
+          :title="t(U + 'swapTitle')"
           @click="swapFormats"
         >
           <ArrowLeftRight :size="14" />
         </button>
 
-        <label class="lc__field">
-          <span class="lc__label">To</span>
+        <label class="qt-field lc__field">
+          <span class="qt-label">{{ t(U + 'to') }}</span>
           <select
-            class="lc__select"
+            class="qt-input"
             :value="toFormat"
             @change="onToChange"
           >
             <option v-for="f in LIST_FORMATS" :key="f" :value="f">
-              {{ LIST_FORMAT_LABELS[f] }}
+              {{ fmtLabel(f) }}
             </option>
           </select>
         </label>
       </div>
 
-      <label v-if="fromFormat === 'custom' || toFormat === 'custom'" class="lc__field lc__custom">
-        <span class="lc__label">Custom delimiter</span>
+      <label v-if="fromFormat === 'custom' || toFormat === 'custom'" class="qt-field lc__custom">
+        <span class="qt-label">{{ t(U + 'customDelimiter') }}</span>
         <input
           type="text"
-          class="lc__input"
+          class="qt-input"
           :value="customDelimiter"
-          placeholder="e.g. ; or  |  or  ::"
+          :placeholder="t(U + 'customDelimiterPlaceholder')"
           spellcheck="false"
           autocomplete="off"
           @input="onCustomDelimiter"
         />
       </label>
 
-      <div class="lc__opts">
+      <div class="qt-row qt-row--center" style="--qt-row-gap:8px">
         <button
           type="button"
-          class="lc__toggle"
-          :class="{ 'lc__toggle--active': trim }"
+          class="qt-chip qt-chip--filled"
+          :class="{ 'qt-chip--solid': trim }"
           :aria-pressed="trim"
-          title="Trim whitespace from each item"
+          :title="t(U + 'trimItemsTitle')"
           @click="toggleTrim"
         >
           <Scissors :size="13" />
-          <span>Trim items</span>
+          <span>{{ t(U + 'trimItems') }}</span>
         </button>
         <button
           type="button"
-          class="lc__toggle"
-          :class="{ 'lc__toggle--active': removeDuplicates }"
+          class="qt-chip qt-chip--filled"
+          :class="{ 'qt-chip--solid': removeDuplicates }"
           :aria-pressed="removeDuplicates"
-          title="Remove duplicate items (first-seen order preserved)"
+          :title="t(U + 'removeDuplicatesTitle')"
           @click="toggleRemoveDuplicates"
         >
           <Copy :size="13" />
-          <span>Remove duplicates</span>
+          <span>{{ t(U + 'removeDuplicates') }}</span>
         </button>
       </div>
 
       <textarea
-        class="lc__textarea lc__textarea--mono"
-        placeholder="Paste a list here… (e.g. apple, banana, cherry)"
+        class="qt-input qt-input--mono lc__textarea"
+        :placeholder="t(U + 'placeholder')"
         :value="input"
         rows="8"
         spellcheck="false"
@@ -190,12 +206,12 @@ function onCustomDelimiter(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="Output list"
+      :title="t(U + 'outputTitle')"
       :description="outputDescription"
       :copy-text="outputs?.output ?? ''"
-      copy-label="Copy output"
+      :copy-label="t(U + 'copyOutput')"
     >
-      <p v-if="error" class="lc__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
           <strong v-if="errorLocation">{{ errorLocation }}:</strong>
@@ -203,26 +219,26 @@ function onCustomDelimiter(e: Event): void {
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="lc__empty">
-          Enter a list above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'empty') }}
         </p>
-        <div v-if="outputs" class="lc__result">
-          <div class="lc__result-head">
-            <span class="lc__result-label">{{ LIST_FORMAT_LABELS[toFormat] }}</span>
-            <CopyButton :text="outputs.output" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">{{ fmtLabel(toFormat) }}</span>
+            <CopyButton :text="outputs.output" :label="t('common.copy')" icon-only />
           </div>
-          <pre v-if="outputs.output" class="lc__code">{{ outputs.output }}</pre>
-          <p v-else class="lc__empty">List parsed to an empty result.</p>
-          <div class="lc__meta">
-            <span>{{ outputs.count }} item{{ outputs.count === 1 ? '' : 's' }}</span>
+          <pre v-if="outputs.output" class="qt-mono lc__code">{{ outputs.output }}</pre>
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px">
+            <span>{{ t(U + 'items', outputs.count) }}</span>
             <template v-if="outputs.duplicatesRemoved > 0">
               <span class="lc__dot">·</span>
-              <span>{{ outputs.duplicatesRemoved }} duplicate{{ outputs.duplicatesRemoved === 1 ? '' : 's' }} removed</span>
+              <span>{{ t(U + 'duplicatesRemoved', outputs.duplicatesRemoved) }}</span>
             </template>
             <span class="lc__dot">·</span>
-            <span>{{ outputs.inputBytes }} bytes in</span>
+            <span>{{ t(U + 'bytesIn', { n: outputs.inputBytes }) }}</span>
             <span class="lc__dot">·</span>
-            <span>{{ outputs.outputBytes }} bytes out</span>
+            <span>{{ t(U + 'bytesOut', { n: outputs.outputBytes }) }}</span>
           </div>
         </div>
       </template>
@@ -231,55 +247,18 @@ function onCustomDelimiter(e: Event): void {
 </template>
 
 <style scoped>
-.lc {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.lc__row {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* From/to fields grow equally in the row (layout via .qt-field). */
 .lc__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   flex: 1;
   min-width: 140px;
 }
+/* Custom-delimiter field — fixed width. */
 .lc__custom {
   flex: 0 0 240px;
 }
-.lc__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.lc__select,
-.lc__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 8px 10px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.lc__select:focus,
-.lc__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
+/* Swap button — square icon button with a rotate-on-hover flourish. */
 .lc__swap {
   display: inline-flex;
   align-items: center;
@@ -295,134 +274,18 @@ function onCustomDelimiter(e: Event): void {
     color 0.15s ease,
     border-color 0.15s ease,
     transform 0.1s ease;
-  will-change: transform;
 }
 .lc__swap:hover {
   color: var(--qt-accent);
   border-color: var(--qt-accent);
   transform: rotate(180deg);
 }
-.lc__opts {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.lc__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
-}
-.lc__toggle--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .lc__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 160px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.lc__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.lc__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.lc__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.lc__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.lc__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.lc__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.lc__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.lc__error strong {
-  margin-right: 4px;
-}
-.lc__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.lc__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.lc__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.lc__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Output block (font via .qt-mono) — scrollable, pre-wrapped. */
 .lc__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -431,14 +294,7 @@ function onCustomDelimiter(e: Event): void {
   max-height: 60vh;
   overflow: auto;
 }
-.lc__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
-}
+/* Meta separator dot. */
 .lc__dot {
   opacity: 0.6;
 }

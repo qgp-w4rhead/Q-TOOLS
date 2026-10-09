@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Base64String — encode and decode Base64 strings.
+ * Base64String - encode and decode Base64 strings.
  *
  * Bidirectional: text → Base64 (encode) and Base64 → text (decode). UTF-8
  * safe via TextEncoder/TextDecoder, so any Unicode input (emoji, CJK,
@@ -14,6 +14,7 @@
  * PostMessages whenever the computed output changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, ArrowLeftRight, RefreshCw, Link2 } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -34,25 +35,28 @@ const {
   swap,
 } = useBase64String();
 
+const { t } = useI18n();
+const U = 'tools.base64-string.ui.';
+
 const placeholder = computed(() =>
   mode.value === 'encode'
-    ? 'Enter text to encode…'
+    ? t(U + 'placeholderEncode')
     : urlSafe.value
-      ? 'Enter URL-safe Base64…'
-      : 'Enter Base64 to decode…',
+      ? t(U + 'placeholderDecodeUrl')
+      : t(U + 'placeholderDecode'),
 );
 
-const inputLabel = computed(() => (mode.value === 'encode' ? 'Text' : 'Base64'));
-const outputLabel = computed(() => (mode.value === 'encode' ? 'Base64' : 'Text'));
+const inputLabel = computed(() => (mode.value === 'encode' ? t('common.text') : t('common.base64')));
+const outputLabel = computed(() => (mode.value === 'encode' ? t('common.base64') : t('common.text')));
 
 const description = computed(() =>
   mode.value === 'encode'
     ? urlSafe.value
-      ? 'Encode UTF-8 text to URL-safe Base64 (-_ alphabet, no padding).'
-      : 'Encode UTF-8 text to standard Base64 (+/ alphabet, = padding).'
+      ? t(U + 'descEncodeUrl')
+      : t(U + 'descEncodeStd')
     : urlSafe.value
-      ? 'Decode URL-safe Base64 (-_ alphabet) back to UTF-8 text.'
-      : 'Decode standard Base64 (+/ alphabet) back to UTF-8 text.',
+      ? t(U + 'descDecodeUrl')
+      : t(U + 'descDecodeStd'),
 );
 
 function onTextInput(e: Event): void {
@@ -69,31 +73,31 @@ function onUrlSafeToggle(): void {
 </script>
 
 <template>
-  <div class="b64">
-    <ToolInput title="Input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t('common.input')" :description="description">
       <template #actions>
         <button
-          class="b64__btn b64__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
-          title="Swap direction and feed the result back as input"
+          :title="t('common.swapTitle')"
           @click="swap"
         >
           <ArrowLeftRight :size="14" />
-          <span>Swap</span>
+          <span>{{ t('common.swap') }}</span>
         </button>
         <button
-          class="b64__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="b64__mode-row">
-        <span class="b64__label">Direction</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <span class="qt-label">{{ t('common.direction') }}</span>
         <div class="b64__mode-toggle">
           <button
             type="button"
@@ -102,7 +106,7 @@ function onUrlSafeToggle(): void {
             :aria-pressed="mode === 'encode'"
             @click="onModeChange('encode')"
           >
-            Encode
+            {{ t('common.encode') }}
           </button>
           <button
             type="button"
@@ -111,26 +115,26 @@ function onUrlSafeToggle(): void {
             :aria-pressed="mode === 'decode'"
             @click="onModeChange('decode')"
           >
-            Decode
+            {{ t('common.decode') }}
           </button>
         </div>
         <button
           type="button"
-          class="b64__urlsafe"
-          :class="{ 'b64__urlsafe--active': urlSafe }"
+          class="qt-chip qt-chip--filled"
+          :class="{ 'qt-chip--solid': urlSafe }"
           :aria-pressed="urlSafe"
-          title="Use URL-safe alphabet (-_ instead of +/, no padding)"
+          :title="t('common.urlSafeTitle')"
           @click="onUrlSafeToggle"
         >
           <Link2 :size="13" />
-          <span>URL-safe</span>
+          <span>{{ t('common.urlSafe') }}</span>
         </button>
       </div>
 
-      <label class="b64__field">
-        <span class="b64__label">{{ inputLabel }}</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ inputLabel }}</span>
         <textarea
-          class="b64__textarea b64__textarea--mono"
+          class="qt-input qt-input--mono b64__textarea"
           :placeholder="placeholder"
           :value="input"
           rows="6"
@@ -143,28 +147,28 @@ function onUrlSafeToggle(): void {
 
     <ToolOutput
       :title="outputLabel"
-      :description="outputs ? `Result (${outputs.outputBytes} bytes out)` : 'Enter a value above to convert.'"
+      :description="outputs ? t(U + 'outputDesc', { bytes: outputs.outputBytes }) : t('common.enterToConvert')"
       :copy-text="outputs?.output ?? ''"
-      copy-label="Copy result"
+      :copy-label="t('common.copyResult')"
     >
-      <p v-if="error" class="b64__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="b64__empty">
-          Enter a value above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t('common.enterToConvert') }}
         </p>
-        <div v-if="outputs" class="b64__result">
-          <div class="b64__result-head">
-            <span class="b64__result-label">{{ outputLabel }}</span>
-            <CopyButton :text="outputs.output" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">{{ outputLabel }}</span>
+            <CopyButton :text="outputs.output" :label="t('common.copy')" icon-only />
           </div>
-          <code class="b64__code">{{ outputs.output || '—' }}</code>
-          <div class="b64__meta">
-            <span>{{ outputs.inputBytes }} bytes in</span>
+          <code class="qt-mono b64__code">{{ outputs.output || '-' }}</code>
+          <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px">
+            <span>{{ t(U + 'bytesIn', { n: outputs.inputBytes }) }}</span>
             <span class="b64__dot">·</span>
-            <span>{{ outputs.outputBytes }} bytes out</span>
+            <span>{{ t(U + 'bytesOut', { n: outputs.outputBytes }) }}</span>
           </div>
         </div>
       </template>
@@ -173,53 +177,9 @@ function onUrlSafeToggle(): void {
 </template>
 
 <style scoped>
-.b64 {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.b64__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.b64__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.b64__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 120px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.b64__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.b64__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.b64__mode-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Direction pill segmented control (solid-accent active). */
 .b64__mode-toggle {
   display: inline-flex;
   background: var(--qt-bg);
@@ -240,120 +200,23 @@ function onUrlSafeToggle(): void {
   transition:
     color 0.15s ease,
     background 0.15s ease;
-  will-change: color, background;
 }
 .b64__mode-opt--active {
   color: var(--qt-bg);
   background: var(--qt-accent);
 }
-.b64__urlsafe {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 5px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
+/* Input textarea floor (control + mono via .qt-input--mono). */
+.b64__textarea {
+  min-height: 120px;
 }
-.b64__urlsafe--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
-.b64__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.b64__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.b64__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.b64__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.b64__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.b64__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.b64__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.b64__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.b64__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.b64__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.b64__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Output code (font via .qt-mono) — break-anywhere, pre-wrapped. */
 .b64__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 14px;
   color: var(--qt-text);
   word-break: break-all;
   white-space: pre-wrap;
 }
-.b64__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-}
+/* Meta separator dot. */
 .b64__dot {
   opacity: 0.6;
 }

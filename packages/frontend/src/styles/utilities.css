@@ -1,0 +1,725 @@
+/**
+ * Q-Tools utility layer — canonical classes for the per-tool BEM patterns that
+ * were copy-pasted across ~125 tool components (`.x__btn`, `.x__input`,
+ * `.x__error`, `.x__result`, …). One shared definition replaces each scoped
+ * block; tools apply the class and delete their local copy.
+ *
+ * Values are the dominant variant across surveyed tools (and the primitives
+ * that already encode them). Per-tool drift is normalized to these canonical
+ * styles — see refactor notes for the accepted visual deltas.
+ *
+ * Naming: `.qt-*` to match `.qt-container` / `.qt-muted` / `.qt-card`.
+ * Loaded AFTER global.css in main.ts so it can use the `--qt-*` tokens.
+ */
+
+:root {
+  /* Shared monospace stack (was repeated verbatim in every tool). */
+  --qt-font-mono: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo,
+    Consolas, monospace;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Layout                                                                      */
+/* -------------------------------------------------------------------------- */
+
+/* Tool root column — replaces `.x` / `.x__container` (flex col + max-width). */
+.qt-tool {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qt-gap);
+  max-width: var(--qt-max-content);
+  margin: 0 auto;
+}
+
+/* Horizontal control/action row — replaces `.x__row` / `.x__actions` /
+   `.x__controls` / `.x__toolbar` / `.x__group`. */
+.qt-row {
+  display: flex;
+  gap: var(--qt-row-gap, 10px);
+  flex-wrap: wrap;
+}
+.qt-row--center {
+  align-items: center;
+}
+.qt-row--bottom {
+  align-items: flex-end;
+}
+.qt-row--between {
+  justify-content: space-between;
+}
+.qt-row--end {
+  justify-content: flex-end;
+}
+.qt-row--nowrap {
+  flex-wrap: nowrap;
+}
+
+/* Vertical stack — replaces `.x__results` / `.x__list` / `.x__items`. */
+.qt-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--qt-stack-gap, 8px);
+}
+
+/* Auto-fill card grid — replaces `.x__grid` / `.x__cells` / `.x__stats`.
+   Tune per-tool by setting --qt-grid-min / --qt-grid-gap on the element. */
+.qt-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(var(--qt-grid-min, 160px), 1fr)
+  );
+  gap: var(--qt-grid-gap, 10px);
+}
+
+/* Compact surface card — replaces `.x__panel` / `.x__section` / `.x__box`.
+   (`.qt-card` in global.css is the larger radius/padding variant.) */
+.qt-panel {
+  background: var(--qt-surface);
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius-sm);
+  padding: 12px 14px;
+}
+
+/* Reset a <ul>/<ol> used as a layout grid — replaces `list-style:none` resets. */
+.qt-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Buttons — replaces `.x__btn` + variants (95 files)                          */
+/* -------------------------------------------------------------------------- */
+
+.qt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: var(--qt-radius-sm);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    opacity 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+.qt-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.qt-btn--ghost {
+  background: transparent;
+  border-color: var(--qt-border);
+  color: var(--qt-muted);
+}
+.qt-btn--ghost:hover:not(:disabled) {
+  color: var(--qt-text);
+  border-color: var(--qt-accent);
+}
+/* Secondary/outline button — filled surface + border (CopyButton look). */
+.qt-btn--outline {
+  background: var(--qt-bg);
+  border-color: var(--qt-border);
+  color: var(--qt-text);
+}
+.qt-btn--outline:hover:not(:disabled) {
+  border-color: var(--qt-accent-soft);
+  color: var(--qt-accent);
+}
+.qt-btn--primary {
+  background: var(--qt-accent);
+  border-color: var(--qt-accent);
+  color: var(--qt-bg);
+}
+.qt-btn--primary:hover:not(:disabled) {
+  opacity: 0.92;
+}
+.qt-btn--primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.qt-btn--danger {
+  background: var(--qt-danger);
+  border-color: var(--qt-danger);
+  color: var(--qt-bg);
+}
+.qt-btn--danger:hover:not(:disabled) {
+  opacity: 0.92;
+}
+.qt-btn--danger:active:not(:disabled) {
+  transform: translateY(1px);
+}
+/* Compact / icon-only button. */
+.qt-btn--sm {
+  padding: 4px 8px;
+  font-size: 12px;
+  gap: 4px;
+}
+.qt-btn--icon {
+  padding: 6px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Forms — replaces `.x__field` / `.x__label` / `.x__input` / `.x__select` /   */
+/* `.x__textarea` (69+ files)                                                  */
+/* -------------------------------------------------------------------------- */
+
+/* Labelled control wrapper — replaces `.x__field` / `.x__control`. */
+.qt-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.qt-field--grow {
+  flex: 1;
+  /* 0 default = correct flex shrinking; set --qt-field-min to floor it. */
+  min-width: var(--qt-field-min, 0);
+}
+
+/* Field / section label — replaces `.x__label`. inline-flex so it can hold
+   an optional leading icon (`.x__label` + `.x__stat-head` non-uppercase). */
+.qt-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--qt-muted);
+}
+
+/* Small helper/hint text under a control — replaces `.x__hint` / `.x__help`. */
+.qt-hint {
+  font-size: 11.5px;
+  color: var(--qt-muted);
+}
+.qt-hint--error {
+  color: var(--qt-danger);
+}
+
+/* Shared control style for <input>, <select>, <textarea>. */
+.qt-input {
+  width: 100%;
+  background: var(--qt-bg);
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius-sm);
+  color: var(--qt-text);
+  font: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.qt-input:focus {
+  border-color: var(--qt-accent);
+  outline: none;
+  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
+}
+textarea.qt-input {
+  resize: vertical;
+}
+/* <select> shares the control style + a custom chevron (native arrows render
+   poorly on the dark theme). */
+select.qt-input {
+  appearance: none;
+  cursor: pointer;
+  padding-right: 32px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--qt-muted) 50%),
+    linear-gradient(135deg, var(--qt-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+.qt-input--mono {
+  font-family: var(--qt-font-mono);
+}
+/* Invalid input — danger border + matching focus ring. */
+.qt-input--error {
+  border-color: var(--qt-danger);
+}
+.qt-input--error:focus {
+  border-color: var(--qt-danger);
+  box-shadow: 0 0 0 2px oklch(from var(--qt-danger) 90% c h / 0.25);
+}
+.qt-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Wrapper for an input with an inline suffix/unit — replaces `.x__input-wrap`. */
+.qt-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+/* Inline suffix inside .qt-input-wrap — replaces `.x__input-suffix`. */
+.qt-input-suffix {
+  position: absolute;
+  right: 10px;
+  color: var(--qt-muted);
+  font-size: 12px;
+  pointer-events: none;
+}
+/* Clickable icon button on the right of .qt-input-wrap — replaces
+   `.x__icon-btn` / `.x__peek` (password show/hide, clear, etc.). */
+.qt-input-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--qt-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--qt-radius-sm);
+  transition: color 0.15s ease;
+}
+.qt-input-btn:hover {
+  color: var(--qt-text);
+}
+/* Room for the button so input text doesn't run under it. */
+.qt-input-wrap:has(.qt-input-btn) .qt-input {
+  padding-right: 38px;
+}
+
+/* Range slider — replaces `.x__range`. Full-width, accent-colored thumb. */
+.qt-range {
+  width: 100%;
+  accent-color: var(--qt-accent);
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Alerts / hints — replaces `.x__error` / `.x__empty` / `.x__warn` /          */
+/* `.x__note` / `.x__hint` / `.x__success` (106+ files)                        */
+/* -------------------------------------------------------------------------- */
+
+.qt-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+.qt-alert--error {
+  color: var(--qt-danger);
+}
+.qt-alert--empty {
+  color: var(--qt-muted);
+}
+.qt-alert--warn {
+  color: var(--qt-warning);
+}
+.qt-alert--note {
+  color: var(--qt-muted);
+}
+.qt-alert--success {
+  color: var(--qt-success);
+}
+
+/* Tinted status banner — replaces `.x__verify` / `.x__status` / `.x__callout`.
+   A filled callout (bg + border + colored text + icon), more prominent than
+   the text-only .qt-alert. */
+.qt-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--qt-radius-sm);
+  padding: 12px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.qt-banner > svg {
+  flex: 0 0 auto;
+}
+.qt-banner--success {
+  background: oklch(from var(--qt-success) 95% c h / 0.15);
+  border-color: oklch(from var(--qt-success) 70% c h / 0.5);
+  color: var(--qt-success);
+}
+.qt-banner--error {
+  background: oklch(from var(--qt-danger) 95% c h / 0.15);
+  border-color: oklch(from var(--qt-danger) 70% c h / 0.5);
+  color: var(--qt-danger);
+}
+.qt-banner--warn {
+  background: oklch(from var(--qt-warning) 95% c h / 0.15);
+  border-color: oklch(from var(--qt-warning) 70% c h / 0.5);
+  color: var(--qt-warning);
+}
+.qt-banner--info {
+  background: oklch(from var(--qt-accent) 95% c h / 0.12);
+  border-color: oklch(from var(--qt-accent) 70% c h / 0.4);
+  color: var(--qt-accent);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Results / stats — replaces `.x__result` / `.x__stat` / `.x__result-row` /   */
+/* `.x__value` / `.x__cell` (82+ files)                                        */
+/* -------------------------------------------------------------------------- */
+
+/* Vertical stat/result card — replaces `.x__result` / `.x__stat` / `.x__cell`. */
+.qt-result {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius-sm);
+  background: var(--qt-bg);
+}
+
+/* Horizontal label→value row — replaces `.x__result-row`. */
+.qt-result-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius-sm);
+  background: var(--qt-bg);
+  transition: border-color 0.15s ease;
+}
+.qt-result-row--active {
+  border-color: var(--qt-accent);
+}
+
+/* Flexible label inside .qt-result-row — replaces `.x__result-unit`. */
+.qt-result-label {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--qt-muted);
+}
+
+/* Uppercase stat-card heading — replaces `.x__stat-head` / `.x__cell-head`. */
+.qt-stat-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--qt-muted);
+}
+
+/* Monospace result value — replaces `.x__value` / `.x__result-value` /
+   `.x__stat-value` / `.x__cell-value`. */
+.qt-value {
+  font-family: var(--qt-font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--qt-text);
+  word-break: break-word;
+}
+.qt-value--lg {
+  font-size: 24px;
+}
+.qt-value--md {
+  font-size: 18px;
+}
+.qt-value--sm {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Text helpers — replaces `.x__mono` / `.x__kbd` / `.x__chip` / `.x__badge`   */
+/* -------------------------------------------------------------------------- */
+
+.qt-mono {
+  font-family: var(--qt-font-mono);
+}
+
+.qt-kbd {
+  font-family: var(--qt-font-mono);
+  font-size: 12px;
+  background: var(--qt-surface);
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius-sm);
+  padding: 1px 6px;
+}
+
+/* Pill chip / preset / tag — replaces `.x__chip` / `.x__preset-chip` /
+   `.x__badge` / `.x__tag`. */
+.qt-chip {
+  background: transparent;
+  border: 1px solid var(--qt-border);
+  border-radius: 999px;
+  color: var(--qt-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.qt-chip:hover:not(:disabled) {
+  color: var(--qt-text);
+  border-color: var(--qt-accent);
+}
+.qt-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+/* Filled chip — surface bg + text (vs the default transparent ghost). */
+.qt-chip--filled {
+  background: var(--qt-bg);
+  color: var(--qt-text);
+}
+.qt-chip--active {
+  color: var(--qt-accent);
+  border-color: var(--qt-accent);
+  background: oklch(from var(--qt-accent) 95% c h / 0.12);
+}
+
+/* Checkbox/radio label row — replaces `.x__check` / `.x__option` /
+   `.x__checkbox`. Wraps an <input type=checkbox|radio> + <span> label. */
+.qt-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--qt-text);
+  cursor: pointer;
+}
+.qt-check input[type='checkbox'],
+.qt-check input[type='radio'] {
+  accent-color: var(--qt-accent);
+  cursor: pointer;
+}
+.qt-check input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.qt-check input:disabled + span {
+  color: var(--qt-muted);
+  opacity: 0.6;
+}
+
+/* Non-interactive badge (chip look, no pointer). */
+.qt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--qt-surface);
+  border: 1px solid var(--qt-border);
+  border-radius: 999px;
+  color: var(--qt-muted);
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Output block — replaces `.x__output-wrap` / `.x__output` / `.x__copy` /     */
+/* `.x__pre`                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/* Relative wrapper for a floating copy button. */
+.qt-output-wrap {
+  position: relative;
+}
+
+/* Readonly monospace output area. */
+.qt-output {
+  width: 100%;
+  resize: vertical;
+  background: var(--qt-bg);
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius-sm);
+  color: var(--qt-text);
+  font-family: var(--qt-font-mono);
+  font-size: 13.5px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.qt-output:focus {
+  border-color: var(--qt-accent);
+  outline: none;
+  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
+}
+
+/* Floating copy button inside .qt-output-wrap. */
+.qt-copy-float {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Progress bar — replaces `.x__progress` / `.x__progress-track` /             */
+/* `.x__progress-fill` / `.x__progress-pct`                                    */
+/* -------------------------------------------------------------------------- */
+
+.qt-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.qt-progress-track {
+  flex: 1;
+  height: 8px;
+  background: var(--qt-bg);
+  border: 1px solid var(--qt-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.qt-progress-fill {
+  height: 100%;
+  background: var(--qt-accent);
+  border-radius: 999px;
+  transition: width 0.15s ease;
+}
+.qt-progress-pct {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--qt-text);
+  min-width: 40px;
+  text-align: right;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Segmented control — replaces `.x__mode` / `.x__tabs` / `.x__seg` joined     */
+/* button groups.                                                              */
+/* -------------------------------------------------------------------------- */
+
+.qt-seg {
+  display: inline-flex;
+  border: 1px solid var(--qt-border);
+  border-radius: var(--qt-radius-sm);
+  overflow: hidden;
+  width: fit-content;
+  flex-wrap: wrap;
+}
+.qt-seg__btn {
+  background: transparent;
+  border: none;
+  border-right: 1px solid var(--qt-border);
+  color: var(--qt-muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+.qt-seg__btn:last-child {
+  border-right: none;
+}
+.qt-seg__btn:hover {
+  color: var(--qt-text);
+}
+.qt-seg__btn--active {
+  background: var(--qt-accent);
+  color: var(--qt-bg);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Misc                                                                        */
+/* -------------------------------------------------------------------------- */
+
+/* Spinning loader icon — apply to a lucide icon (Loader2, RefreshCw, …). */
+.qt-spin {
+  animation: qt-spin 0.8s linear infinite;
+}
+@keyframes qt-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* File-upload dropzone — replaces `.x__drop` / `.x__dropzone` / `.x__upload`.
+   Dashed-border click/drag target; `--over` is the drag-over state. */
+.qt-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 28px 16px;
+  border: 2px dashed var(--qt-border);
+  border-radius: var(--qt-radius);
+  background: var(--qt-bg);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+.qt-drop:hover,
+.qt-drop--over {
+  border-color: var(--qt-accent);
+  background: oklch(from var(--qt-accent) 95% c h / 0.06);
+}
+
+/* Status badge pill — replaces `.x__badge` / `.x__status` / `.x__tag`.
+   Small inline-flex pill with an optional leading icon + colored tint. */
+.qt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+.qt-badge--success {
+  color: var(--qt-success);
+  background: oklch(from var(--qt-success) 95% c h / 0.12);
+  border-color: oklch(from var(--qt-success) 60% c h / 0.4);
+}
+.qt-badge--warn {
+  color: var(--qt-warning);
+  background: oklch(from var(--qt-warning) 95% c h / 0.12);
+  border-color: oklch(from var(--qt-warning) 60% c h / 0.4);
+}
+.qt-badge--error {
+  color: var(--qt-danger);
+  background: oklch(from var(--qt-danger) 95% c h / 0.12);
+  border-color: oklch(from var(--qt-danger) 60% c h / 0.4);
+}
+.qt-badge--info {
+  color: var(--qt-accent);
+  background: oklch(from var(--qt-accent) 95% c h / 0.12);
+  border-color: oklch(from var(--qt-accent) 60% c h / 0.4);
+}
+/* Solid neutral badge — muted bg + contrast text (counts, "unchanged"). */
+.qt-badge--muted {
+  color: var(--qt-bg);
+  background: var(--qt-muted);
+}
+.qt-chip--active {
+  color: var(--qt-accent);
+  background: oklch(from var(--qt-accent) 95% c h / 0.15);
+  border-color: var(--qt-accent);
+}
+/* Solid-accent active — a "pressed" toggle (stronger than the --active tint). */
+.qt-chip--solid {
+  color: var(--qt-bg);
+  background: var(--qt-accent);
+  border-color: var(--qt-accent);
+}

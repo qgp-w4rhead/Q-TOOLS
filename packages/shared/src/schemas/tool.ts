@@ -3,7 +3,7 @@
  *
  * `GET /api/tools` returns the list of available tools (metadata only).
  * `POST /api/tools/:toolName` accepts an arbitrary JSON body and returns
- * a result — only certain tools are API-accessible (the rest are
+ * a result - only certain tools are API-accessible (the rest are
  * client-only). The backend decides which tools it exposes via the API.
  */
 import { z } from 'zod';
@@ -23,6 +23,15 @@ export const ToolCategoryEnum = z.enum([
   'measurement',
   'text',
   'data',
+  'security',
+  'cipher',
+  'devops',
+  'api',
+  'i18n',
+  'finance',
+  'geo',
+  'a11y',
+  'av',
 ]);
 
 export const ToolMetadataSchema = z.object({
@@ -45,7 +54,7 @@ export const ListToolsResponseSchema = z.array(ToolMetadataSchema);
 /* ------------------------------------------------------------------ */
 
 export const InvokeToolRequestSchema = z.object({
-  // Arbitrary JSON input for the tool — validated per-tool on the backend.
+  // Arbitrary JSON input for the tool - validated per-tool on the backend.
   input: z.record(z.string(), z.unknown()),
 });
 

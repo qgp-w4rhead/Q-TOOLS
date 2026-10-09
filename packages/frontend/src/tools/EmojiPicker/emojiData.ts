@@ -1,5 +1,5 @@
 /**
- * emojiData — bundled emoji dataset for the Emoji picker tool.
+ * emojiData - bundled emoji dataset for the Emoji picker tool.
  *
  * This module is dynamically imported by `useEmojiPicker` so Vite emits it as
  * a separate chunk (~180 KB), keeping it out of the initial app shell bundle.
@@ -16,7 +16,7 @@
  * Categories (in display order):
  *   smileys, people, animals, food, activities, travel, objects, symbols, flags
  *
- * No external dependencies — the dataset is hand-curated from the Unicode CLDR
+ * No external dependencies - the dataset is hand-curated from the Unicode CLDR
  * short names and common shortcode conventions.
  */
 
@@ -58,7 +58,7 @@ export interface EmojiCategoryData {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Skin tones — U+1F3FB (light) … U+1F3FF (dark)                              */
+/* Skin tones - U+1F3FB (light) … U+1F3FF (dark)                              */
 /* -------------------------------------------------------------------------- */
 
 export interface SkinTone {

@@ -1,12 +1,12 @@
 /**
- * Backend configuration — loaded from environment variables with safe
+ * Backend configuration - loaded from environment variables with safe
  * defaults for local development. `.env` is loaded via `dotenv` when
  * present; in production the environment provides the values directly.
  */
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-// Load .env if present (dev only — no-op in production where env is set).
+// Load .env if present (dev only - no-op in production where env is set).
 dotenv.config();
 
 /* ------------------------------------------------------------------ */
@@ -23,7 +23,7 @@ const ConfigSchema = z.object({
     .min(1)
     .default('mongodb://127.0.0.1:27017/qtools'),
 
-  // JWT secrets — in dev a fixed non-secret default is used so the server
+  // JWT secrets - in dev a fixed non-secret default is used so the server
   // starts without .env. Production MUST override these.
   jwtSecret: z.string().min(16).default('dev-insecure-jwt-secret-change-me'),
   jwtRefreshSecret: z.string().min(16).default('dev-insecure-refresh-secret-change-me'),
@@ -32,15 +32,15 @@ const ConfigSchema = z.object({
   accessTokenTtl: z.string().default('15m'),
   refreshTokenTtl: z.string().default('7d'),
 
-  // CORS — comma-separated list of allowed origins, or '*' for any.
+  // CORS - comma-separated list of allowed origins, or '*' for any.
   corsOrigins: z.string().default('*'),
 
-  // Rate limiting — max requests per time window per IP.
+  // Rate limiting - max requests per time window per IP.
   rateLimitMax: z.coerce.number().int().positive().default(100),
   rateLimitWindow: z.string().default('1 minute'),
 
   // Path to the built frontend SPA served by @fastify/static in production.
-  // Empty string disables static serving (dev mode — Vite serves the SPA).
+  // Empty string disables static serving (dev mode - Vite serves the SPA).
   staticRoot: z.string().default(''),
 });
 

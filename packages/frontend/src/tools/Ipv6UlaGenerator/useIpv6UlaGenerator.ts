@@ -1,5 +1,5 @@
 /**
- * useIpv6UlaGenerator — composable + pure logic for the IPv6 ULA generator.
+ * useIpv6UlaGenerator - composable + pure logic for the IPv6 ULA generator.
  *
  * Generates IPv6 Unique Local Addresses (ULA) per RFC 4193. The ULA prefix
  * lives in `fd00::/8` (the locally-assigned half of `fc00::/7`). A /48 ULA
@@ -20,14 +20,14 @@
  * `useIpv6UlaGenerator()` composable wraps them in reactive state and wires
  * up the embed PostMessage protocol.
  *
- * No external dependencies — only the Web Crypto API (`crypto.getRandomValues`).
+ * No external dependencies - only the Web Crypto API (`crypto.getRandomValues`).
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** A 48-bit ULA prefix as 6 bytes: [0]=0xfd, [1..5]=40-bit Global ID. */
@@ -112,12 +112,12 @@ export function generateSubnetId(): Uint8Array {
  *
  * Accepted forms:
  *  - `fd12:3456:7890`            (3 hextets, colon-separated)
- *  - `fd12:3456:7890::/48`       (CIDR notation — suffix stripped)
+ *  - `fd12:3456:7890::/48`       (CIDR notation - suffix stripped)
  *  - `fd12:3456:7890:0000:0:0:0:0` (full 8-hextet, first 3 used)
  *  - `fd1234567890`              (12 bare hex digits)
  *  - `fd:12:34:56:78:90`         (6 bytes, colon-separated)
- *  - `1234567890`                (10 bare hex digits — 40-bit Global ID, fd prepended)
- *  - `12:34:56:78:90`            (5 bytes — 40-bit Global ID, fd prepended)
+ *  - `1234567890`                (10 bare hex digits - 40-bit Global ID, fd prepended)
+ *  - `12:34:56:78:90`            (5 bytes - 40-bit Global ID, fd prepended)
  *
  * The first byte is always forced to `0xfd` so the result is a valid
  * locally-assigned ULA. Returns `null` if the input is empty or unparseable.
@@ -134,7 +134,7 @@ export function parsePrefixInput(input: string): UlaPrefixBytes | null {
   let bytes: number[] = [];
 
   if (raw.includes(':')) {
-    // Colon-separated — could be IPv6 hextets or colon-separated bytes.
+    // Colon-separated - could be IPv6 hextets or colon-separated bytes.
     // Heuristic: if every part is 1-2 hex digits AND there are 4-6 parts,
     // treat as bytes (e.g. `fd:12:34:56:78:90`, `12:34:56:78:90`).
     // Otherwise treat as hextets (covers 1-3 hextet prefixes, full 8-hextet
@@ -377,7 +377,7 @@ export function clampQuantity(n: number): number {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseIpv6UlaGeneratorReturn {
@@ -411,7 +411,7 @@ export function useIpv6UlaGenerator(): UseIpv6UlaGeneratorReturn {
       if (typeof p.prefix === 'string') {
         config.value.prefix = p.prefix;
       } else if (typeof p.globalId === 'string') {
-        // Accept a bare 40-bit global ID — prepend fd for the parser.
+        // Accept a bare 40-bit global ID - prepend fd for the parser.
         const g = (p.globalId as string).trim().replace(/^fd/i, '');
         config.value.prefix = g;
       }

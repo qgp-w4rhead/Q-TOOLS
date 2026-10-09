@@ -1,16 +1,16 @@
 /**
- * useHtmlWysiwygEditor — composable + pure logic for the HTML WYSIWYG editor.
+ * useHtmlWysiwygEditor - composable + pure logic for the HTML WYSIWYG editor.
  *
  * Provides a Tiptap-based rich text editor (`@tiptap/vue-3` +
  * `@tiptap/starter-kit`, both lazy-loaded per `tech-stack.md` so Vite emits
  * them as separate chunks loaded only when the user opens this tool). The
  * editor supports bold, italic, underline, strikethrough, inline code, code
  * blocks, headings (H1–H3), bullet/ordered lists, blockquotes, links, and
- * horizontal rules — everything `StarterKit` ships.
+ * horizontal rules - everything `StarterKit` ships.
  *
  * Outputs:
- *  - **HTML** — `editor.getHTML()` (Tiptap's canonical serialisation).
- *  - **Markdown** — a hand-rolled DOM-based HTML→Markdown converter
+ *  - **HTML** - `editor.getHTML()` (Tiptap's canonical serialisation).
+ *  - **Markdown** - a hand-rolled DOM-based HTML→Markdown converter
  *    (`htmlToMarkdown`) that handles the subset of tags Tiptap emits. No
  *    external Markdown library is needed (keeps the lazy chunk small and
  *    avoids an unlisted dependency).
@@ -34,7 +34,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Heading levels supported by the toolbar. */
@@ -70,7 +70,7 @@ export const DEFAULT_INITIAL_HTML =
 
 /**
  * Prompt the user for a URL via `window.prompt`. Returns the trimmed URL or
- * an empty string when cancelled. Pure-ish helper (uses `window.prompt`) —
+ * an empty string when cancelled. Pure-ish helper (uses `window.prompt`) -
  * extracted so it can be mocked in tests and so the composable stays thin.
  * When `currentUrl` is provided, it is pre-filled so the user can edit an
  * existing link.
@@ -223,7 +223,7 @@ function convertNode(node: Node, ctx: ConvertContext): string {
     case 'template':
       return '';
     default: {
-      // Unknown / inline-only container — unwrap and recurse.
+      // Unknown / inline-only container - unwrap and recurse.
       return convertChildren(el, ctx);
     }
   }
@@ -264,7 +264,7 @@ function inlineChildren(el: Element, ctx: ConvertContext): string {
         out += inner.trim().length ? `*${inner}*` : '';
         break;
       case 'u':
-        // Markdown has no underline syntax — preserve the HTML tag.
+        // Markdown has no underline syntax - preserve the HTML tag.
         out += inner.trim().length ? `<u>${inner}</u>` : '';
         break;
       case 's':
@@ -273,7 +273,7 @@ function inlineChildren(el: Element, ctx: ConvertContext): string {
         out += inner.trim().length ? `~~${inner}~~` : '';
         break;
       case 'code':
-        // Inline code — use enough backticks to avoid conflicts.
+        // Inline code - use enough backticks to avoid conflicts.
         const fence = '`'.repeat(longestFence(inner) + 1);
         out += inner ? `${fence}${inner}${fence}` : '';
         break;
@@ -294,7 +294,7 @@ function inlineChildren(el: Element, ctx: ConvertContext): string {
         break;
       }
       default:
-        // Unknown inline element — unwrap.
+        // Unknown inline element - unwrap.
         out += inner;
     }
   }
@@ -376,7 +376,7 @@ function decodeEntities(html: string): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + editor lifecycle + embed integration         */
+/* Composable - reactive state + editor lifecycle + embed integration         */
 /* -------------------------------------------------------------------------- */
 
 /** Lazy-loaded Tiptap bundle (cached after first load). */
@@ -485,7 +485,7 @@ export function useHtmlWysiwygEditor(): UseHtmlWysiwygEditorReturn {
   });
   const canToggleMark = ref<boolean>(false);
 
-  // Editor instance is kept in a non-reactive closure variable — Vue should
+  // Editor instance is kept in a non-reactive closure variable - Vue should
   // not traverse Tiptap's internal ProseMirror state.
   let editor: Editor | null = null;
 
@@ -567,7 +567,7 @@ export function useHtmlWysiwygEditor(): UseHtmlWysiwygEditorReturn {
     try {
       editor.destroy();
     } catch {
-      /* ignore — best effort cleanup */
+      /* ignore - best effort cleanup */
     }
     editor = null;
     editorReady.value = false;

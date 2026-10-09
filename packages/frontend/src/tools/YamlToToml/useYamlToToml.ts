@@ -1,10 +1,10 @@
 /**
- * useYamlToToml — composable + pure logic for the YAML → TOML converter.
+ * useYamlToToml - composable + pure logic for the YAML → TOML converter.
  *
- * Parses YAML text (single document only — TOML has no multi-document
+ * Parses YAML text (single document only - TOML has no multi-document
  * support) and emits TOML via `smol-toml`'s `stringify`. Both `yaml` and
  * `smol-toml` are part of the initial bundle per `tech-stack.md`, so they
- * are statically imported here — no dynamic import, no separate Vite chunk.
+ * are statically imported here - no dynamic import, no separate Vite chunk.
  *
  * Pure helpers (`yamlToToml`, `parseYamlObject`) have no Vue dependency and
  * can be imported standalone for unit testing or reuse. The `useYamlToToml()`
@@ -20,14 +20,14 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Result of a successful YAML → TOML conversion. */
 export interface YamlToTomlResult {
   /** Serialized TOML text. */
   toml: string;
-  /** Number of YAML documents parsed (always 1 — multi-doc streams error). */
+  /** Number of YAML documents parsed (always 1 - multi-doc streams error). */
   documentCount: number;
   /** Number of bytes in the input YAML (UTF-8). */
   inputBytes: number;
@@ -72,7 +72,7 @@ export function parseYamlObject(input: string): Record<string, unknown> | null {
   if (docs.length > 1) {
     throw toError(
       new Error(
-        `Multi-document YAML streams (---) cannot be converted to TOML — TOML has no multi-document form. Found ${docs.length} documents.`,
+        `Multi-document YAML streams (---) cannot be converted to TOML - TOML has no multi-document form. Found ${docs.length} documents.`,
       ),
       'yaml',
     );
@@ -167,7 +167,7 @@ function toError(err: unknown, stage: 'yaml' | 'toml'): YamlToTomlError {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface YamlToTomlOutputs {

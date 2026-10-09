@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import { fileURLToPath, URL } from 'node:url';
 
@@ -8,7 +9,7 @@ import { fileURLToPath, URL } from 'node:url';
  *
  * - Vue 3 SFC compilation via @vitejs/plugin-vue
  * - Ionic Vue router integration (handled in app code; no Vite plugin needed)
- * - PWA via vite-plugin-pwa (full offline strategy — see M11.3):
+ * - PWA via vite-plugin-pwa (full offline strategy - see M11.3):
  *     • App shell precached on install (index.html, manifest, icons, embed.js,
  *       registerSW.js). All Vite-emitted JS/CSS/WASM chunks are cached on
  *       first visit via CacheFirst runtime routes (NOT precached) so the SW
@@ -47,6 +48,12 @@ function embedHeadersPlugin(): Plugin {
 export default defineConfig({
   plugins: [
     vue(),
+    // Precompile locale messages at build time: smaller bundles and no
+    // runtime message compiler, keeping the CSP strict (iframe-embeddable).
+    VueI18nPlugin({
+      include: [fileURLToPath(new URL('./src/i18n/locales/**', import.meta.url))],
+      strictMessage: false,
+    }),
     embedHeadersPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -63,12 +70,14 @@ export default defineConfig({
         name: 'Q-Tools',
         short_name: 'Q-Tools',
         description:
-          'Comprehensive developer & utility tools — offline-first PWA, iframe-embeddable.',
+          'Comprehensive developer & utility tools - offline-first PWA, iframe-embeddable.',
         theme_color: '#0d1117',
         background_color: '#0d1117',
         display: 'standalone',
         start_url: '/',
         scope: '/',
+        lang: 'en',
+        dir: 'ltr',
         icons: [
           {
             src: 'favicon.svg',
@@ -168,7 +177,7 @@ export default defineConfig({
             },
           },
           {
-            // Backend API: NetworkFirst with 3s timeout — falls back to cache
+            // Backend API: NetworkFirst with 3s timeout - falls back to cache
             // (and the app falls back to LocalStorage) when offline.
             urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
             method: 'GET',

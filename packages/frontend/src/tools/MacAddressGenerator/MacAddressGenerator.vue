@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * MacAddressGenerator — generate cryptographically secure random MAC-48
+ * MacAddressGenerator - generate cryptographically secure random MAC-48
  * addresses.
  *
  * Configurable quantity (1-1000), case (upper/lower), separator
@@ -13,6 +13,7 @@
  * the generated list changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RefreshCw, Network } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -24,21 +25,24 @@ import {
 } from './useMacAddressGenerator';
 import type { MacCase, MacSeparator } from './useMacAddressGenerator';
 
+const { t } = useI18n();
+const U = 'tools.mac-address-generator.ui.';
+
 const { config, macs, regenerate } = useMacAddressGenerator();
 
 const allMacsText = computed(() => macs.value.join('\n'));
 
-const separatorOptions: { value: MacSeparator; label: string; sample: string }[] = [
-  { value: ':', label: 'Colon', sample: 'AA:BB:CC:DD:EE:FF' },
-  { value: '-', label: 'Dash', sample: 'AA-BB-CC-DD-EE-FF' },
-  { value: '.', label: 'Cisco', sample: 'AABB.CCDD.EEFF' },
-  { value: 'none', label: 'Bare', sample: 'AABBCCDDEEFF' },
-];
+const separatorOptions = computed<{ value: MacSeparator; label: string; sample: string }[]>(() => [
+  { value: ':', label: t(U + 'sepColon'), sample: 'AA:BB:CC:DD:EE:FF' },
+  { value: '-', label: t(U + 'sepDash'), sample: 'AA-BB-CC-DD-EE-FF' },
+  { value: '.', label: t(U + 'sepCisco'), sample: 'AABB.CCDD.EEFF' },
+  { value: 'none', label: t(U + 'sepBare'), sample: 'AABBCCDDEEFF' },
+]);
 
-const caseOptions: { value: MacCase; label: string }[] = [
-  { value: 'upper', label: 'UPPER' },
-  { value: 'lower', label: 'lower' },
-];
+const caseOptions = computed<{ value: MacCase; label: string }[]>(() => [
+  { value: 'upper', label: t(U + 'caseUpper') },
+  { value: 'lower', label: t(U + 'caseLower') },
+]);
 
 function onQuantityInput(e: Event): void {
   const v = Number((e.target as HTMLInputElement).value);
@@ -55,27 +59,27 @@ function onCaseChange(e: Event): void {
 </script>
 
 <template>
-  <div class="macgen">
+  <div class="qt-tool">
     <ToolInput
-      title="Configuration"
-      description="Cryptographically secure random MAC-48 addresses (Web Crypto API)."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="macgen__generate"
+          class="qt-btn qt-btn--primary"
           type="button"
           @click="regenerate"
         >
           <RefreshCw :size="14" />
-          <span>Generate</span>
+          <span>{{ t(U + 'generate') }}</span>
         </button>
       </template>
 
-      <div class="macgen__row">
-        <label class="macgen__field">
-          <span class="macgen__label">Quantity</span>
+      <div class="qt-row" style="--qt-row-gap:12px">
+        <label class="qt-field" style="gap:4px;flex:1 1 140px">
+          <span class="qt-label">{{ t(U + 'quantity') }}</span>
           <input
-            class="macgen__input"
+            class="qt-input"
             type="number"
             :min="MIN_QUANTITY"
             :max="MAX_QUANTITY"
@@ -83,10 +87,10 @@ function onCaseChange(e: Event): void {
             @input="onQuantityInput"
           />
         </label>
-        <label class="macgen__field">
-          <span class="macgen__label">Case</span>
+        <label class="qt-field" style="gap:4px;flex:1 1 140px">
+          <span class="qt-label">{{ t(U + 'caseLabel') }}</span>
           <select
-            class="macgen__input macgen__select"
+            class="qt-input"
             :value="config.case"
             @change="onCaseChange"
           >
@@ -95,24 +99,24 @@ function onCaseChange(e: Event): void {
             </option>
           </select>
         </label>
-        <label class="macgen__field">
-          <span class="macgen__label">Separator</span>
+        <label class="qt-field" style="gap:4px;flex:1 1 140px">
+          <span class="qt-label">{{ t(U + 'separator') }}</span>
           <select
-            class="macgen__input macgen__select"
+            class="qt-input"
             :value="config.separator"
             @change="onSeparatorChange"
           >
             <option v-for="o in separatorOptions" :key="o.value" :value="o.value">
-              {{ o.label }} — {{ o.sample }}
+              {{ o.label }} - {{ o.sample }}
             </option>
           </select>
         </label>
       </div>
 
       <fieldset class="macgen__fieldset">
-        <legend class="macgen__legend">IEEE 802 bits (first octet)</legend>
-        <div class="macgen__checks">
-          <label class="macgen__check">
+        <legend class="macgen__legend">{{ t(U + 'bitsLegend') }}</legend>
+        <div class="qt-grid" style="--qt-grid-min:220px;--qt-grid-gap:6px 12px">
+          <label class="qt-check">
             <input
               type="checkbox"
               :checked="config.locallyAdministered"
@@ -120,9 +124,9 @@ function onCaseChange(e: Event): void {
                 config.locallyAdministered = ($event.target as HTMLInputElement).checked
               "
             />
-            <span>Locally administered (U/L bit)</span>
+            <span>{{ t(U + 'locallyAdministered') }}</span>
           </label>
-          <label class="macgen__check">
+          <label class="qt-check">
             <input
               type="checkbox"
               :checked="config.multicast"
@@ -130,36 +134,33 @@ function onCaseChange(e: Event): void {
                 config.multicast = ($event.target as HTMLInputElement).checked
               "
             />
-            <span>Multicast / group (I/G bit)</span>
+            <span>{{ t(U + 'multicast') }}</span>
           </label>
         </div>
-        <p class="macgen__hint">
-          <Network :size="12" />
-          <span>
-            The U/L bit marks the address as locally administered (not globally
-            unique). The I/G bit marks it as a multicast/group address.
-          </span>
+        <p class="qt-alert qt-alert--note" style="font-size:12px">
+          <Network :size="12" style="flex-shrink:0;margin-top:2px" />
+          <span>{{ t(U + 'bitsNote') }}</span>
         </p>
       </fieldset>
     </ToolInput>
 
     <ToolOutput
-      title="Generated MAC addresses"
+      :title="t(U + 'outTitle')"
       :description="
         macs.length
-          ? `${macs.length} MAC address${macs.length === 1 ? '' : 'es'}`
+          ? t(U + (macs.length === 1 ? 'outDescOne' : 'outDesc'), { n: macs.length })
           : ''
       "
       :copy-text="allMacsText"
-      copy-label="Copy all"
+      :copy-label="t(U + 'copyAll')"
     >
-      <p v-if="macs.length === 0" class="macgen__empty">
-        No MACs yet — click <strong>Generate</strong>.
+      <p v-if="macs.length === 0" class="qt-alert qt-alert--empty">
+        {{ t(U + 'alertEmpty') }}
       </p>
-      <ul v-else class="macgen__list">
-        <li v-for="(m, i) in macs" :key="i" class="macgen__mac">
-          <span class="macgen__index">{{ i + 1 }}</span>
-          <code class="macgen__mac-text">{{ m }}</code>
+      <ul v-else class="qt-list qt-stack" style="--qt-stack-gap:6px">
+        <li v-for="(m, i) in macs" :key="i" class="qt-result-row" style="padding:8px 10px">
+          <span style="font-size:11px;font-weight:600;color:var(--qt-muted);font-variant-numeric:tabular-nums;min-width:28px;text-align:right;flex-shrink:0">{{ i + 1 }}</span>
+          <code class="qt-value qt-value--sm" style="font-size:13px;flex:1;min-width:0;word-break:break-all;white-space:pre-wrap">{{ m }}</code>
           <CopyButton :text="m" label="" icon-only />
         </li>
       </ul>
@@ -168,62 +169,9 @@ function onCaseChange(e: Event): void {
 </template>
 
 <style scoped>
-.macgen {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.macgen__row {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.macgen__field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1 1 140px;
-}
-.macgen__label {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  font-weight: 600;
-}
-.macgen__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 8px 10px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.macgen__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.macgen__select {
-  cursor: pointer;
-  appearance: none;
-  background-image: linear-gradient(45deg, transparent 50%, var(--qt-muted) 50%),
-    linear-gradient(135deg, var(--qt-muted) 50%, transparent 50%);
-  background-position:
-    calc(100% - 16px) 50%,
-    calc(100% - 11px) 50%;
-  background-size:
-    5px 5px,
-    5px 5px;
-  background-repeat: no-repeat;
-  padding-right: 28px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* IEEE-bits fieldset — bordered group with an inline legend. */
 .macgen__fieldset {
   border: 1px solid var(--qt-border);
   border-radius: var(--qt-radius-sm);
@@ -238,99 +186,5 @@ function onCaseChange(e: Event): void {
   font-weight: 600;
   color: var(--qt-muted);
   padding: 0 6px;
-}
-.macgen__checks {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 6px 12px;
-}
-.macgen__check {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  color: var(--qt-text);
-  cursor: pointer;
-}
-.macgen__check input[type='checkbox'] {
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
-.macgen__hint {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 0;
-  font-size: 12px;
-  color: var(--qt-muted);
-  line-height: 1.4;
-}
-.macgen__hint svg {
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-.macgen__generate {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.macgen__generate:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.macgen__generate:active:not(:disabled) {
-  transform: translateY(0);
-}
-.macgen__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.macgen__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.macgen__mac {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-}
-.macgen__index {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  font-variant-numeric: tabular-nums;
-  min-width: 28px;
-  text-align: right;
-  flex-shrink: 0;
-}
-.macgen__mac-text {
-  flex: 1 1 auto;
-  min-width: 0;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13px;
-  color: var(--qt-text);
-  word-break: break-all;
-  white-space: pre-wrap;
 }
 </style>

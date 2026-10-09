@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * CaseConverter — convert text between nine casing conventions.
+ * CaseConverter - convert text between nine casing conventions.
  *
  * A textarea input is converted live (debounced) into the selected case.
  * UPPER and lower preserve all separators; sentence case and Title Case
@@ -15,6 +15,7 @@
  * converted text changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RefreshCw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -32,6 +33,9 @@ const {
   recompute,
   setMode,
 } = useCaseConverter();
+
+const { t } = useI18n();
+const U = 'tools.case-converter.ui.';
 
 /** Character + word + line counts for the input. */
 const inputStats = computed(() => {
@@ -52,25 +56,25 @@ function onModeChange(m: CaseMode): void {
 </script>
 
 <template>
-  <div class="ccase">
+  <div class="qt-tool">
     <ToolInput
-      title="Text"
-      description="Enter the text to convert. Conversion is live."
+      :title="t('common.text')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="ccase__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="ccase__mode-row">
-        <span class="ccase__label">Case</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <span class="qt-label">{{ t(U + 'case') }}</span>
         <div class="ccase__mode-toggle">
           <button
             v-for="m in CASE_MODES"
@@ -79,7 +83,7 @@ function onModeChange(m: CaseMode): void {
             class="ccase__mode-opt"
             :class="{ 'ccase__mode-opt--active': mode === m.value }"
             :aria-pressed="mode === m.value"
-            :title="`Example: ${m.example}`"
+            :title="t(U + 'exampleTitle', { example: m.example })"
             @click="onModeChange(m.value)"
           >
             {{ m.label }}
@@ -88,8 +92,8 @@ function onModeChange(m: CaseMode): void {
       </div>
 
       <textarea
-        class="ccase__textarea"
-        placeholder="Type or paste text here…"
+        class="qt-input qt-input--mono ccase__textarea"
+        :placeholder="t('common.typeOrPaste')"
         :value="input"
         spellcheck="false"
         autocomplete="off"
@@ -97,47 +101,32 @@ function onModeChange(m: CaseMode): void {
         @input="onTextInput"
       />
 
-      <p class="ccase__stats">
-        <span>{{ inputStats.chars }} chars</span>
-        <span>{{ inputStats.words }} words</span>
-        <span>{{ inputStats.lines }} lines</span>
+      <p class="qt-row qt-row--center qt-hint" style="--qt-row-gap:14px">
+        <span>{{ t('common.chars', { n: inputStats.chars }) }}</span>
+        <span>{{ t('common.words', inputStats.words) }}</span>
+        <span>{{ t('common.lines', inputStats.lines) }}</span>
       </p>
     </ToolInput>
 
     <ToolOutput
-      title="Converted text"
-      :description="output ? `Converted to ${mode} case.` : 'Enter text above to convert.'"
+      :title="t(U + 'outputTitle')"
+      :description="output ? t(U + 'outputDesc', { mode }) : t(U + 'empty')"
     >
       <template v-if="output" #actions>
-        <CopyButton :text="output" label="Copy result" />
+        <CopyButton :text="output" :label="t('common.copyResult')" />
       </template>
-      <p v-if="!output" class="ccase__empty">
-        Enter text above to see the converted result.
+      <p v-if="!output" class="qt-alert qt-alert--empty">
+        {{ t(U + 'emptyResult') }}
       </p>
-      <pre v-else class="ccase__output">{{ output }}</pre>
+      <pre v-else class="qt-result qt-mono ccase__output">{{ output }}</pre>
     </ToolOutput>
   </div>
 </template>
 
 <style scoped>
-.ccase {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.ccase__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.ccase__mode-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Case-mode pill segmented control (solid-accent active). */
 .ccase__mode-toggle {
   display: inline-flex;
   background: var(--qt-bg);
@@ -160,85 +149,20 @@ function onModeChange(m: CaseMode): void {
   transition:
     color 0.15s ease,
     background 0.15s ease;
-  will-change: color, background;
 }
 .ccase__mode-opt--active {
   color: var(--qt-bg);
   background: var(--qt-accent);
 }
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .ccase__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 120px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.ccase__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.ccase__stats {
-  display: flex;
-  gap: 14px;
-  margin: 0;
-  font-size: 12px;
-  color: var(--qt-muted);
-}
-.ccase__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.ccase__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.ccase__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.ccase__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.ccase__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
+/* Output block (card via .qt-result, font via .qt-mono) — pre-wrapped. */
 .ccase__output {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 14px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
   min-height: 80px;
 }
 </style>

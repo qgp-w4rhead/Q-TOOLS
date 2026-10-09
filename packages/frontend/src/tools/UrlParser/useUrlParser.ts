@@ -1,5 +1,5 @@
 /**
- * useUrlParser — composable + pure logic for the URL parser tool.
+ * useUrlParser - composable + pure logic for the URL parser tool.
  *
  * Parses an input URL into its components (protocol, username, password,
  * host, port, path, query params, hash) using the native `URL` API, then
@@ -12,14 +12,14 @@
  * composable wraps them in reactive state and wires up the embed PostMessage
  * protocol.
  *
- * No external dependencies — only the native `URL` / `URLSearchParams` APIs.
+ * No external dependencies - only the native `URL` / `URLSearchParams` APIs.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** A single query parameter row in the editable table. */
@@ -50,7 +50,7 @@ export interface ParsedUrl {
   hash: string;
   /** Parsed query parameters as editable rows. */
   searchParams: QueryParam[];
-  /** Origin (`protocol://host[:port]`) — read-only convenience. */
+  /** Origin (`protocol://host[:port]`) - read-only convenience. */
   origin: string;
 }
 
@@ -85,7 +85,7 @@ export function normalizeUrlInput(raw: string): string {
   // before any `/`, `?` or `#`.
   const schemeMatch = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(trimmed);
   if (schemeMatch) return trimmed;
-  // No scheme — prepend `https://` (but never for protocol-relative `//`).
+  // No scheme - prepend `https://` (but never for protocol-relative `//`).
   if (trimmed.startsWith('//')) return `https:${trimmed}`;
   return `https://${trimmed}`;
 }
@@ -238,7 +238,7 @@ export function buildUrl(components: {
     if (components.hostname.length > 0) {
       base.hostname = components.hostname;
     } else {
-      // Clearing hostname on a special URL is invalid — keep placeholder.
+      // Clearing hostname on a special URL is invalid - keep placeholder.
       base.hostname = 'placeholder.invalid';
     }
     // Setting an invalid port throws; fall back to no port.
@@ -253,13 +253,13 @@ export function buildUrl(components: {
       : '/';
     base.pathname = path;
     base.search = serializeQueryParams(components.searchParams);
-    // Hash must start with `#` — if user typed one, keep as-is; otherwise add.
+    // Hash must start with `#` - if user typed one, keep as-is; otherwise add.
     base.hash = components.hash.length > 0
       ? (components.hash.startsWith('#') ? components.hash : `#${components.hash}`)
       : '';
 
     // If the hostname ended up as the placeholder and the user really wanted
-    // an empty host, the URL is invalid for special schemes — return null.
+    // an empty host, the URL is invalid for special schemes - return null.
     if (base.hostname === 'placeholder.invalid' && components.hostname.length === 0) {
       return null;
     }
@@ -303,7 +303,7 @@ export function buildUrl(components: {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UrlParserOutputs {
@@ -423,7 +423,7 @@ export function useUrlParser(): UseUrlParserReturn {
     const p = parsed.value;
     if (!p) return;
     (p as ParsedUrl)[field] = value;
-    // Trigger reactivity — replace the object so watchers fire.
+    // Trigger reactivity - replace the object so watchers fire.
     parsed.value = { ...p, searchParams: p.searchParams, origin: p.origin };
     rebuild();
   }

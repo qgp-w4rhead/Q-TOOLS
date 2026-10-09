@@ -1,9 +1,9 @@
 /**
- * IbanValidatorParser tool module — exports the lazy-loaded component plus its
+ * IbanValidatorParser tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
- * No external npm dependencies — the country spec table and mod-97 algorithm
+ * No external npm dependencies - the country spec table and mod-97 algorithm
  * are bundled inside the composable.
  */
 import { defineAsyncComponent } from 'vue';

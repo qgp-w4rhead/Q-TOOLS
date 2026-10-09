@@ -1,5 +1,5 @@
 /**
- * useBase64String — composable + pure logic for the Base64 string
+ * useBase64String - composable + pure logic for the Base64 string
  * encoder/decoder.
  *
  * Bidirectional conversion between UTF-8 text and Base64. The standard
@@ -25,7 +25,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Conversion mode. */
@@ -33,7 +33,7 @@ export type Base64Mode = 'encode' | 'decode';
 
 /** Standard Base64 alphabet. */
 const STD_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-/** URL-safe Base64 alphabet (RFC 4648 §5 — `+` → `-`, `/` → `_`). */
+/** URL-safe Base64 alphabet (RFC 4648 §5 - `+` → `-`, `/` → `_`). */
 const URLSAFE_ALPHABET =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
 
@@ -111,11 +111,11 @@ export function bytesToBase64(bytes: Uint8Array, urlSafe = false): string {
  */
 export function base64ToBytes(input: string, urlSafe = false): Uint8Array | null {
   if (typeof input !== 'string') return null;
-  // Strip all whitespace — Base64 is often line-wrapped in PEM/MIME contexts.
+  // Strip all whitespace - Base64 is often line-wrapped in PEM/MIME contexts.
   let s = input.replace(/\s+/g, '');
   if (s.length === 0) return new Uint8Array(0);
 
-  // Accept either alphabet regardless of the `urlSafe` flag — many real
+  // Accept either alphabet regardless of the `urlSafe` flag - many real
   // inputs mix the two (e.g. a URL-safe token with trailing `=`). We pick
   // the lookup table based on the flag but also tolerate the alternate
   // alphabet so the decoder is forgiving.
@@ -155,18 +155,18 @@ export function base64ToBytes(input: string, urlSafe = false): Uint8Array | null
   }
   const rem = values.length - j;
   if (rem === 1) {
-    // 6 leftover bits — invalid (must be 0, 2, or 3 sextets in the tail).
+    // 6 leftover bits - invalid (must be 0, 2, or 3 sextets in the tail).
     return null;
   } else if (rem === 2) {
     const n = (values[j]! << 18) | (values[j + 1]! << 12);
     if ((n & 0xfff) !== 0) {
-      // Non-zero trailing bits — strictly invalid, but we tolerate.
+      // Non-zero trailing bits - strictly invalid, but we tolerate.
     }
     out.push((n >> 16) & 0xff);
   } else if (rem === 3) {
     const n = (values[j]! << 18) | (values[j + 1]! << 12) | (values[j + 2]! << 6);
     if ((n & 0x3f) !== 0) {
-      // Non-zero trailing bits — strictly invalid, but we tolerate.
+      // Non-zero trailing bits - strictly invalid, but we tolerate.
     }
     out.push((n >> 16) & 0xff, (n >> 8) & 0xff);
   }
@@ -232,7 +232,7 @@ export function decodeBase64(input: string, urlSafe = false): string | null {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface Base64StringOutputs {

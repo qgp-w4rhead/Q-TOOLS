@@ -1,5 +1,5 @@
 /**
- * useHashText — composable + pure logic for the Hash text tool.
+ * useHashText - composable + pure logic for the Hash text tool.
  *
  * Computes hex digests of an input string across multiple algorithms:
  *   - MD5, SHA3-256, SHA3-512, Blake3 → `hash-wasm` (lazy-loaded)
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** Algorithm identifiers supported by the tool. */
@@ -157,7 +157,7 @@ export async function computeHashes(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface HashTextConfig {
@@ -209,7 +209,7 @@ export function useHashText(): UseHashTextReturn {
       return;
     }
     if (value.length > LARGE_INPUT_THRESHOLD) {
-      error.value = 'Input is very large — click "Hash" to compute manually.';
+      error.value = 'Input is very large - click "Hash" to compute manually.';
       return;
     }
     const token = ++runToken;

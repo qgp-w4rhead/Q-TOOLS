@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * Base64File — convert files to and from Base64.
+ * Base64File - convert files to and from Base64.
  *
  * Encode mode: drop or pick a file → Base64 string (raw or as a Data URI).
  * Decode mode: paste a Base64 string or Data URI → recover the original
@@ -15,6 +15,7 @@
  * the computed base64 / dataUri / file metadata.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   AlertCircle,
   ArrowLeftRight,
@@ -50,6 +51,9 @@ const {
   setMode,
 } = useBase64File();
 
+const { t } = useI18n();
+const U = 'tools.base64-file-converter.ui.';
+
 const fileInput = ref<HTMLInputElement | null>(null);
 const dragOver = ref<boolean>(false);
 
@@ -71,27 +75,25 @@ function pickFile(): void {
 }
 
 const inputDescription = computed(() =>
-  mode.value === 'encode'
-    ? 'Drop a file or click to browse — it will be encoded to Base64 locally. Nothing leaves your browser.'
-    : 'Paste a Base64 string or Data URI to recover the original file. The result is offered as a download.',
+  mode.value === 'encode' ? t(U + 'descEncode') : t(U + 'descDecode'),
 );
 
 const outputLabel = computed(() =>
   mode.value === 'encode'
     ? asDataUri.value
-      ? 'Data URI'
-      : 'Base64'
-    : 'Recovered file',
+      ? t('common.dataUri')
+      : t('common.base64')
+    : t('common.recoveredFile'),
 );
 
 const outputDescription = computed(() => {
   if (mode.value === 'encode') {
-    if (!file.value) return 'Pick a file above to encode.';
-    const mime = file.value.mimeType || 'unknown';
-    return `${file.value.name || 'file'} · ${formatFileSize(file.value.size)} · ${mime}`;
+    if (!file.value) return t(U + 'pickToEncode');
+    const mime = file.value.mimeType || t(U + 'unknown');
+    return t(U + 'outputDesc', { name: file.value.name || t('common.file'), size: formatFileSize(file.value.size), mime });
   }
-  if (!decoded.value) return 'Paste Base64 above to recover the file.';
-  return `${decoded.value.name} · ${formatFileSize(decoded.value.size)} · ${decoded.value.mimeType}`;
+  if (!decoded.value) return t(U + 'pasteToRecover');
+  return t(U + 'outputDesc', { name: decoded.value.name, size: formatFileSize(decoded.value.size), mime: decoded.value.mimeType });
 });
 
 const copyText = computed(() => {
@@ -118,41 +120,41 @@ function swap(): void {
     input.value = asDataUri.value ? dataUri.value : base64.value;
     setMode('decode');
   } else {
-    // No file to recover in encode mode — just switch.
+    // No file to recover in encode mode - just switch.
     setMode('encode');
   }
 }
 </script>
 
 <template>
-  <div class="b64f">
+  <div class="qt-tool">
     <ToolInput
-      :title="mode === 'encode' ? 'File' : 'Base64'"
+      :title="mode === 'encode' ? t('common.file') : t('common.base64')"
       :description="inputDescription"
     >
       <template #actions>
         <button
           v-if="file || input || decoded"
-          class="b64f__btn b64f__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
           @click="clear"
         >
           <Trash2 :size="14" />
-          <span>Clear</span>
+          <span>{{ t('common.clear') }}</span>
         </button>
         <button
-          class="b64f__btn b64f__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
-          title="Swap direction"
+          :title="t('common.swapTitle')"
           @click="swap"
         >
           <ArrowLeftRight :size="14" />
-          <span>Swap</span>
+          <span>{{ t('common.swap') }}</span>
         </button>
       </template>
 
-      <div class="b64f__mode-row">
-        <span class="b64f__label">Direction</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <span class="qt-label">{{ t('common.direction') }}</span>
         <div class="b64f__mode-toggle">
           <button
             type="button"
@@ -161,7 +163,7 @@ function swap(): void {
             :aria-pressed="mode === 'encode'"
             @click="onModeChange('encode')"
           >
-            File → Base64
+            {{ t(U + 'fileToBase64') }}
           </button>
           <button
             type="button"
@@ -170,27 +172,27 @@ function swap(): void {
             :aria-pressed="mode === 'decode'"
             @click="onModeChange('decode')"
           >
-            Base64 → File
+            {{ t(U + 'base64ToFile') }}
           </button>
         </div>
         <button
           type="button"
-          class="b64f__urlsafe"
-          :class="{ 'b64f__urlsafe--active': urlSafe }"
+          class="qt-chip qt-chip--filled"
+          :class="{ 'qt-chip--solid': urlSafe }"
           :aria-pressed="urlSafe"
-          title="Use URL-safe alphabet (-_ instead of +/, no padding)"
+          :title="t('common.urlSafeTitle')"
           @click="urlSafe = !urlSafe"
         >
           <Link2 :size="13" />
-          <span>URL-safe</span>
+          <span>{{ t('common.urlSafe') }}</span>
         </button>
       </div>
 
       <!-- Encode mode: drop zone -->
       <div v-if="mode === 'encode'">
         <div
-          class="b64f__drop"
-          :class="{ 'b64f__drop--over': dragOver }"
+          class="qt-drop"
+          :class="{ 'qt-drop--over': dragOver }"
           role="button"
           tabindex="0"
           @click="pickFile"
@@ -200,12 +202,12 @@ function swap(): void {
           @dragleave.prevent="dragOver = false"
           @drop.prevent="onDrop"
         >
-          <Loader2 v-if="busy" :size="28" class="b64f__spin" />
+          <Loader2 v-if="busy" :size="28" class="qt-spin b64f__spin" />
           <FileUp v-else :size="28" class="b64f__drop-icon" />
           <p class="b64f__drop-title">
-            {{ busy ? 'Reading file…' : 'Drop a file here or click to browse' }}
+            {{ busy ? t('common.readingFile') : t('common.dropFile') }}
           </p>
-          <p class="b64f__drop-hint">Max 32 MiB · processed locally</p>
+          <p class="b64f__drop-hint">{{ t('common.dropFileHint') }}</p>
           <input
             ref="fileInput"
             type="file"
@@ -214,43 +216,43 @@ function swap(): void {
           />
         </div>
 
-        <div v-if="file" class="b64f__file-meta">
+        <div v-if="file" class="qt-result">
           <div class="b64f__meta-row">
-            <span class="b64f__meta-key">Name</span>
-            <span class="b64f__meta-val">{{ file.name || '—' }}</span>
+            <span class="b64f__meta-key">{{ t('common.name') }}</span>
+            <span class="b64f__meta-val">{{ file.name || '-' }}</span>
           </div>
           <div class="b64f__meta-row">
-            <span class="b64f__meta-key">Size</span>
+            <span class="b64f__meta-key">{{ t('common.size') }}</span>
             <span class="b64f__meta-val">{{ formatFileSize(file.size) }}</span>
           </div>
           <div class="b64f__meta-row">
-            <span class="b64f__meta-key">MIME</span>
-            <span class="b64f__meta-val"><code>{{ file.mimeType || 'unknown' }}</code></span>
+            <span class="b64f__meta-key">{{ t(U + 'metaMime') }}</span>
+            <span class="b64f__meta-val"><code>{{ file.mimeType || t(U + 'unknown') }}</code></span>
           </div>
         </div>
 
-        <div v-if="file" class="b64f__toggle-row">
+        <div v-if="file" class="qt-row qt-row--center" style="--qt-row-gap:10px">
           <button
             type="button"
-            class="b64f__urlsafe"
-            :class="{ 'b64f__urlsafe--active': asDataUri }"
+            class="qt-chip qt-chip--filled"
+            :class="{ 'qt-chip--solid': asDataUri }"
             :aria-pressed="asDataUri"
-            title="Output as a Data URI (data:<mime>;base64,...)"
+            :title="t('common.dataUriTitle')"
             @click="asDataUri = !asDataUri"
           >
             <Link2 :size="13" />
-            <span>Data URI</span>
+            <span>{{ t('common.dataUri') }}</span>
           </button>
         </div>
       </div>
 
       <!-- Decode mode: textarea -->
       <div v-else>
-        <label class="b64f__field">
-          <span class="b64f__label">Base64 or Data URI</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'base64OrDataUri') }}</span>
           <textarea
-            class="b64f__textarea b64f__textarea--mono"
-            placeholder="Paste Base64 or a data: URI here…"
+            class="qt-input qt-input--mono b64f__textarea"
+            :placeholder="t('common.pasteBase64')"
             :value="input"
             rows="8"
             spellcheck="false"
@@ -259,12 +261,12 @@ function swap(): void {
           />
         </label>
         <button
-          class="b64f__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="decode"
         >
-          <span>Decode</span>
+          <span>{{ t('common.decode') }}</span>
         </button>
       </div>
     </ToolInput>
@@ -273,60 +275,60 @@ function swap(): void {
       :title="outputLabel"
       :description="outputDescription"
       :copy-text="copyText"
-      :copy-label="mode === 'encode' ? 'Copy output' : 'Copy input'"
+      :copy-label="mode === 'encode' ? t('common.copyOutput') : t('common.copyInput')"
     >
       <template #actions>
         <button
           v-if="mode === 'decode' && decoded"
-          class="b64f__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           @click="download"
         >
           <Download :size="14" />
-          <span>Download</span>
+          <span>{{ t('common.download') }}</span>
         </button>
       </template>
 
-      <p v-if="error" class="b64f__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
 
       <template v-else>
         <!-- Encode output -->
-        <div v-if="mode === 'encode' && outputText" class="b64f__result">
-          <code class="b64f__code">{{ outputText }}</code>
+        <div v-if="mode === 'encode' && outputText" class="qt-result b64f__result">
+          <code class="qt-mono b64f__code">{{ outputText }}</code>
         </div>
 
         <!-- Decode output -->
-        <div v-if="mode === 'decode' && decoded" class="b64f__decoded">
+        <div v-if="mode === 'decode' && decoded" class="qt-result">
           <div class="b64f__meta-row">
-            <span class="b64f__meta-key">Filename</span>
+            <span class="b64f__meta-key">{{ t('common.filename') }}</span>
             <span class="b64f__meta-val">{{ decoded.name }}</span>
           </div>
           <div class="b64f__meta-row">
-            <span class="b64f__meta-key">Size</span>
+            <span class="b64f__meta-key">{{ t('common.size') }}</span>
             <span class="b64f__meta-val">{{ formatFileSize(decoded.size) }}</span>
           </div>
           <div class="b64f__meta-row">
-            <span class="b64f__meta-key">MIME</span>
+            <span class="b64f__meta-key">{{ t(U + 'metaMime') }}</span>
             <span class="b64f__meta-val"><code>{{ decoded.mimeType }}</code></span>
           </div>
           <button
-            class="b64f__btn b64f__btn--ghost"
+            class="qt-btn qt-btn--ghost"
             type="button"
             @click="download"
           >
             <Download :size="14" />
-            <span>Download file</span>
+            <span>{{ t('common.downloadFile') }}</span>
           </button>
         </div>
 
         <p
           v-if="(mode === 'encode' && !outputText) || (mode === 'decode' && !decoded)"
-          class="b64f__empty"
+          class="qt-alert qt-alert--empty"
         >
-          {{ mode === 'encode' ? 'Pick a file above to encode.' : 'Paste Base64 above to recover the file.' }}
+          {{ mode === 'encode' ? t(U + 'pickToEncode') : t(U + 'pasteToRecover') }}
         </p>
       </template>
     </ToolOutput>
@@ -334,53 +336,9 @@ function swap(): void {
 </template>
 
 <style scoped>
-.b64f {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.b64f__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.b64f__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.b64f__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 140px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.b64f__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.b64f__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.b64f__mode-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Direction pill segmented control (solid-accent active). */
 .b64f__mode-toggle {
   display: inline-flex;
   background: var(--qt-bg);
@@ -401,96 +359,12 @@ function swap(): void {
   transition:
     color 0.15s ease,
     background 0.15s ease;
-  will-change: color, background;
 }
 .b64f__mode-opt--active {
   color: var(--qt-bg);
   background: var(--qt-accent);
 }
-.b64f__urlsafe {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 5px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
-}
-.b64f__urlsafe--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
-.b64f__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.b64f__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.b64f__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.b64f__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.b64f__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.b64f__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.b64f__drop {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 28px 16px;
-  border: 1.5px dashed var(--qt-border);
-  border-radius: var(--qt-radius);
-  background: var(--qt-bg);
-  color: var(--qt-muted);
-  cursor: pointer;
-  text-align: center;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: border-color;
-}
-.b64f__drop:hover,
-.b64f__drop--over {
-  border-color: var(--qt-accent);
-  background: oklch(from var(--qt-accent) 95% c h / 0.08);
-}
+/* Dropzone internals (container via .qt-drop). */
 .b64f__drop-icon {
   color: var(--qt-accent);
 }
@@ -504,25 +378,11 @@ function swap(): void {
   margin: 0;
   font-size: 12px;
 }
+/* Spinner accent (animation via .qt-spin). */
 .b64f__spin {
   color: var(--qt-accent);
-  animation: b64f-spin 0.9s linear infinite;
 }
-@keyframes b64f-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.b64f__file-meta,
-.b64f__decoded {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* Key/value meta rows (card via .qt-result). */
 .b64f__meta-row {
   display: flex;
   align-items: baseline;
@@ -543,37 +403,19 @@ function swap(): void {
   font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 12.5px;
 }
-.b64f__toggle-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+/* Encode output — scrollable (card via .qt-result). */
 .b64f__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
   max-height: 320px;
   overflow: auto;
 }
 .b64f__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--qt-text);
   word-break: break-all;
   white-space: pre-wrap;
 }
-.b64f__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.b64f__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
+/* Input textarea floor (control + mono via .qt-input--mono). */
+.b64f__textarea {
+  min-height: 140px;
 }
 </style>

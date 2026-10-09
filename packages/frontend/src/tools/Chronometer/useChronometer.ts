@@ -1,5 +1,5 @@
 /**
- * useChronometer — composable + pure logic for the chronometer (stopwatch) tool.
+ * useChronometer - composable + pure logic for the chronometer (stopwatch) tool.
  *
  * A precision stopwatch with lap timing. Elapsed time is measured with
  * `performance.now()` (monotonic, sub-millisecond) and the display is refreshed
@@ -11,22 +11,22 @@
  *     ▲                  │                  │                   │
  *     │                  └──stop / reset────┴───────────────────┘
  *
- *   - `start()`  — begin timing from 0 (or resume from current elapsed if
+ *   - `start()`  - begin timing from 0 (or resume from current elapsed if
  *                  stopped with elapsed > 0).
- *   - `pause()`  — freeze the display, keep elapsed accumulated.
- *   - `resume()` — continue from the paused elapsed.
- *   - `lap()`    — record the current elapsed as a lap; split = lap.total -
+ *   - `pause()`  - freeze the display, keep elapsed accumulated.
+ *   - `resume()` - continue from the paused elapsed.
+ *   - `lap()`    - record the current elapsed as a lap; split = lap.total -
  *                  previous lap.total.
- *   - `reset()`  — stop, zero elapsed, clear laps.
+ *   - `reset()`  - stop, zero elapsed, clear laps.
  *
- * No external dependencies — `performance.now()` + `requestAnimationFrame` only.
+ * No external dependencies - `performance.now()` + `requestAnimationFrame` only.
  */
 import { onBeforeUnmount, ref, watch, type Ref } from 'vue';
-import { useEmbed } from '@/composables/useEmbed';
+import { useToolEmbed } from '@/composables/useToolEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 /** A single recorded lap. */
@@ -40,7 +40,7 @@ export interface Lap {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -54,7 +54,7 @@ export interface Lap {
  *   - `0` → `00:00:00.000`
  *   - `1234` → `00:00:01.234`
  *   - `65432` → `00:01:05.432`
- *   - `3_723_456_789` → `01:03:23.456.789`? No — `103:23:45.789`
+ *   - `3_723_456_789` → `01:03:23.456.789`? No - `103:23:45.789`
  */
 export function formatStopwatch(ms: number): string {
   if (!Number.isFinite(ms) || ms < 0) return '00:00:00.000';
@@ -79,7 +79,7 @@ export function formatLapDelta(ms: number): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + rAF loop + embed integration                  */
+/* Composable - reactive state + rAF loop + embed integration                  */
 /* -------------------------------------------------------------------------- */
 
 export interface UseChronometerReturn {
@@ -191,7 +191,7 @@ export function useChronometer(): UseChronometerReturn {
   function resume(): void {
     if (running.value) return;
     if (!paused.value && elapsedMs.value === 0) {
-      // Nothing to resume — start fresh.
+      // Nothing to resume - start fresh.
       start();
       return;
     }
@@ -251,7 +251,7 @@ export function useChronometer(): UseChronometerReturn {
   });
 
   /* ---- Embed PostMessage integration ---- */
-  const { isEmbed, input: embedInput, sendOutput } = useEmbed({
+  const { isEmbed, input: embedInput } = useToolEmbed({
     onInput: (payload) => {
       if (!payload || typeof payload !== 'object') return;
       const p = payload as Record<string, unknown>;
@@ -293,29 +293,21 @@ export function useChronometer(): UseChronometerReturn {
       if (p.reset === true) reset();
       if (p.lap === true) lap();
     },
+    output: [running, paused, elapsedMs, laps],
+    toOutput: () => ({
+      running: running.value,
+      paused: paused.value,
+      elapsedMs: elapsedMs.value,
+      elapsed: formatStopwatch(elapsedMs.value),
+      laps: laps.value.map((l) => ({
+        index: l.index,
+        totalMs: l.totalMs,
+        splitMs: l.splitMs,
+        total: formatStopwatch(l.totalMs),
+        split: formatStopwatch(l.splitMs),
+      })),
+    }),
   });
-
-  // Send output snapshots whenever state changes.
-  watch(
-    [running, paused, elapsedMs, laps],
-    () => {
-      if (!isEmbed.value) return;
-      sendOutput({
-        running: running.value,
-        paused: paused.value,
-        elapsedMs: elapsedMs.value,
-        elapsed: formatStopwatch(elapsedMs.value),
-        laps: laps.value.map((l) => ({
-          index: l.index,
-          totalMs: l.totalMs,
-          splitMs: l.splitMs,
-          total: formatStopwatch(l.totalMs),
-          split: formatStopwatch(l.splitMs),
-        })),
-      });
-    },
-    { deep: true },
-  );
 
   return {
     running,

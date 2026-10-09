@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * NatoConverter — spell text using the NATO phonetic alphabet.
+ * NatoConverter - spell text using the NATO phonetic alphabet.
  *
  * A textarea input is converted live (debounced) into:
  *   - a flat string of space-joined NATO words (with punctuation preserved)
@@ -15,6 +15,7 @@
  * sends `output` PostMessages whenever the converted text changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RefreshCw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -27,6 +28,9 @@ const {
   rows,
   recompute,
 } = useNatoConverter();
+
+const { t } = useI18n();
+const U = 'tools.text-to-nato.ui.';
 
 /** Character + word + line counts for the input. */
 const inputStats = computed(() => {
@@ -44,7 +48,7 @@ function onTextInput(e: Event): void {
   input.value = (e.target as HTMLTextAreaElement).value;
 }
 
-/** Display label for a row's character — show newlines/whitespace visibly. */
+/** Display label for a row's character - show newlines/whitespace visibly. */
 function charLabel(ch: string): string {
   if (ch === '\n') return '↵';
   if (ch === ' ') return '·';
@@ -54,26 +58,26 @@ function charLabel(ch: string): string {
 </script>
 
 <template>
-  <div class="nato">
+  <div class="qt-tool">
     <ToolInput
-      title="Text"
-      description="Enter text to spell using the NATO phonetic alphabet. Conversion is live."
+      :title="t('common.text')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="nato__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Spell</span>
+          <span>{{ t(U + 'spell') }}</span>
         </button>
       </template>
 
       <textarea
-        class="nato__textarea"
-        placeholder="Type or paste text here…"
+        class="qt-input qt-input--mono nato__textarea"
+        :placeholder="t('common.typeOrPaste')"
         :value="input"
         spellcheck="false"
         autocomplete="off"
@@ -81,36 +85,36 @@ function charLabel(ch: string): string {
         @input="onTextInput"
       />
 
-      <p class="nato__stats">
-        <span>{{ inputStats.chars }} chars</span>
-        <span>{{ inputStats.words }} words</span>
-        <span>{{ inputStats.lines }} lines</span>
-        <span>{{ mappedCount }} mapped</span>
+      <p class="qt-row qt-row--center qt-hint" style="--qt-row-gap:14px">
+        <span>{{ t('common.chars', { n: inputStats.chars }) }}</span>
+        <span>{{ t('common.words', inputStats.words) }}</span>
+        <span>{{ t('common.lines', inputStats.lines) }}</span>
+        <span>{{ t('common.mapped', { n: mappedCount }) }}</span>
       </p>
     </ToolInput>
 
     <ToolOutput
-      title="NATO phonetic alphabet"
-      :description="output ? 'Each letter spelt out using the NATO phonetic alphabet.' : 'Enter text above to spell it out.'"
+      :title="t(U + 'outputTitle')"
+      :description="output ? t(U + 'outputDesc') : t(U + 'outputDescEmpty')"
     >
       <template v-if="output" #actions>
-        <CopyButton :text="output" label="Copy result" />
+        <CopyButton :text="output" :label="t('common.copyResult')" />
       </template>
-      <p v-if="!output" class="nato__empty">
-        Enter text above to see the NATO phonetic spelling.
+      <p v-if="!output" class="qt-alert qt-alert--empty">
+        {{ t(U + 'empty') }}
       </p>
-      <pre v-else class="nato__output">{{ output }}</pre>
+      <pre v-else class="qt-result qt-mono nato__output">{{ output }}</pre>
     </ToolOutput>
 
     <ToolOutput
       v-if="rows.length > 0"
-      title="Per-character breakdown"
-      :description="`Mapped ${mappedCount} of ${rows.length} characters.`"
+      :title="t(U + 'breakdownTitle')"
+      :description="t(U + 'breakdownDesc', { mapped: mappedCount, total: rows.length })"
     >
       <div class="nato__table" role="table">
         <div class="nato__row nato__row--head" role="row">
-          <span class="nato__cell nato__cell--char" role="columnheader">Char</span>
-          <span class="nato__cell nato__cell--word" role="columnheader">NATO word</span>
+          <span class="nato__cell nato__cell--char" role="columnheader">{{ t(U + 'colChar') }}</span>
+          <span class="nato__cell nato__cell--word" role="columnheader">{{ t(U + 'colWord') }}</span>
         </div>
         <div
           v-for="(row, i) in rows"
@@ -122,7 +126,7 @@ function charLabel(ch: string): string {
           <span class="nato__cell nato__cell--char" role="cell">{{ charLabel(row.char) }}</span>
           <span class="nato__cell nato__cell--word" role="cell">
             <template v-if="row.word">{{ row.word }}</template>
-            <span v-else class="nato__muted">—</span>
+            <span v-else class="nato__muted">-</span>
           </span>
         </div>
       </div>
@@ -131,89 +135,20 @@ function charLabel(ch: string): string {
 </template>
 
 <style scoped>
-.nato {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .nato__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 100px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.nato__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.nato__stats {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin: 0;
-  font-size: 12px;
-  color: var(--qt-muted);
-}
-.nato__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.nato__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.nato__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.nato__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.nato__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
+/* Output block (card via .qt-result, font via .qt-mono) — pre-wrapped. */
 .nato__output {
   margin: 0;
   white-space: pre-wrap;
   word-break: break-word;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 14px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 10px 12px;
   min-height: 60px;
 }
+/* Per-character breakdown — div-based table with sticky head + scroll. */
 .nato__table {
   display: flex;
   flex-direction: column;

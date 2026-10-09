@@ -75,7 +75,7 @@ export const MeResponseSchema = z.object({
 });
 
 /* ------------------------------------------------------------------ */
-/* JWT payload (internal — used by the backend jwt plugin)             */
+/* JWT payload (internal - used by the backend jwt plugin)             */
 /* ------------------------------------------------------------------ */
 
 export const AccessTokenPayloadSchema = z.object({
@@ -88,7 +88,7 @@ export const AccessTokenPayloadSchema = z.object({
 export const RefreshTokenPayloadSchema = z.object({
   sub: z.string(),
   type: z.literal('refresh'),
-  // jti (token id) is optional — present when rotation is used.
+  // jti (token id) is optional - present when rotation is used.
   jti: z.string().optional(),
 });
 

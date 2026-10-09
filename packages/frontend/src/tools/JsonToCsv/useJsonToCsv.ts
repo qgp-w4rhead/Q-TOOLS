@@ -1,5 +1,5 @@
 /**
- * useJsonToCsv — composable + pure logic for the JSON → CSV converter.
+ * useJsonToCsv - composable + pure logic for the JSON → CSV converter.
  *
  * Parses JSON text (an array of objects, or a single object wrapped into a
  * one-row array) and serializes it to CSV per RFC 4180. Nested objects and
@@ -17,7 +17,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Field delimiter. */
@@ -125,7 +125,7 @@ export function cellToString(value: unknown): string {
   try {
     return JSON.stringify(value) ?? '';
   } catch {
-    // Cycles / BigInt holders — fall back to a best-effort string.
+    // Cycles / BigInt holders - fall back to a best-effort string.
     return String(value);
   }
 }
@@ -162,7 +162,7 @@ export function escapeField(
  *   cells are blank for every column).
  * - A top-level JSON object is wrapped into a one-row array.
  * - Any other top-level type (string/number/boolean/null) is rejected with a
- *   normalised error — CSV requires tabular (object) data.
+ *   normalised error - CSV requires tabular (object) data.
  */
 export function jsonToCsv(
   input: string,
@@ -287,7 +287,7 @@ function posToLineCol(source: string, pos: number): { line: number; column: numb
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface JsonToCsvOutputs {

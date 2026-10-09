@@ -1,16 +1,18 @@
 <script setup lang="ts">
 /**
- * Home page — category grid with global search.
+ * Home page - category grid with global search.
  *
  * Lists every tool grouped by category. The search box filters tools across
  * all categories in real time. The theme toggle lives in the header.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Moon, Sun, Wrench } from 'lucide-vue-next';
 import CategorySection from '@/components/CategorySection.vue';
 import FavoritesSection from '@/components/FavoritesSection.vue';
 import GlobalSearch from '@/components/GlobalSearch.vue';
 import InstallPrompt from '@/components/InstallPrompt.vue';
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 import {
   CATEGORIES,
   TOOLS_BY_CATEGORY,
@@ -21,10 +23,15 @@ import {
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useFavoritesStore } from '@/stores/favoritesStore';
 
+const { t } = useI18n();
 const settings = useSettingsStore();
 const favorites = useFavoritesStore();
 
 const query = ref('');
+
+const toolCount = computed(() =>
+  Object.values(TOOLS_BY_CATEGORY).reduce((n, tools) => n + tools.length, 0),
+);
 
 const filteredTools = computed<ToolMetadata[]>(() => searchTools(query.value));
 
@@ -56,28 +63,29 @@ const showFavorites = computed(() => !query.value.trim() && favorites.count > 0)
         <Wrench :size="22" />
         <span class="home__brand-name">Q-Tools</span>
       </div>
-      <button
-        class="home__theme-toggle"
-        type="button"
-        @click="settings.toggleTheme()"
-        :aria-label="settings.isDark ? 'Switch to light theme' : 'Switch to dark theme'"
-        :title="settings.isDark ? 'Light mode' : 'Dark mode'"
-      >
-        <Sun v-if="settings.isDark" :size="18" />
-        <Moon v-else :size="18" />
-      </button>
+      <div class="home__actions">
+        <LanguageSwitcher />
+        <button
+          class="home__theme-toggle"
+          type="button"
+          @click="settings.toggleTheme()"
+          :aria-label="settings.isDark ? t('theme.toLight') : t('theme.toDark')"
+          :title="settings.isDark ? t('theme.light') : t('theme.dark')"
+        >
+          <Sun v-if="settings.isDark" :size="18" />
+          <Moon v-else :size="18" />
+        </button>
+      </div>
     </header>
 
     <section class="home__hero qt-container">
-      <h1 class="home__title">Developer &amp; utility tools, offline &amp; embeddable</h1>
+      <h1 class="home__title">{{ t('home.title') }}</h1>
       <p class="home__subtitle">
-        {{ TOOLS_BY_CATEGORY ? Object.values(TOOLS_BY_CATEGORY).reduce((n, t) => n + t.length, 0) : 0 }}
-        tools across {{ CATEGORIES.length }} categories — runs in your browser, works offline, and
-        embeds anywhere via iframe.
+        {{ t('home.subtitle', { count: toolCount, categories: CATEGORIES.length }) }}
       </p>
       <GlobalSearch v-model:query="query" />
       <p v-if="query.trim()" class="home__match-count">
-        {{ matchCount }} tool{{ matchCount === 1 ? '' : 's' }} matched
+        {{ t('home.matchCount', { n: matchCount }, matchCount) }}
       </p>
       <InstallPrompt v-if="!query.trim()" />
     </section>
@@ -91,12 +99,12 @@ const showFavorites = computed(() => !query.value.trim() && favorites.count > 0)
         :tools="entry.tools"
       />
       <p v-if="visibleCategories.length === 0" class="home__empty">
-        No tools match “{{ query }}”.
+        {{ t('home.empty', { query }) }}
       </p>
     </main>
 
     <footer class="home__footer">
-      <span>Q-Tools — built with Vue 3 + Ionic + Pinia</span>
+      <span>{{ t('home.footer') }}</span>
     </footer>
   </div>
 </template>
@@ -117,6 +125,11 @@ const showFavorites = computed(() => !query.value.trim() && favorites.count > 0)
   background: var(--qt-surface);
   border-bottom: 1px solid var(--qt-border);
   backdrop-filter: blur(8px);
+}
+.home__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .home__brand {
   display: flex;

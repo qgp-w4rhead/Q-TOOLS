@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * HtmlWysiwygEditor — Tiptap-based rich text editor producing HTML + Markdown.
+ * HtmlWysiwygEditor - Tiptap-based rich text editor producing HTML + Markdown.
  *
  * The Tiptap packages (`@tiptap/vue-3` + `@tiptap/starter-kit`) are
  * dynamically imported inside the composable so they land in a separate
@@ -20,6 +20,7 @@
  * can use the async Clipboard API.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   Bold,
   Italic,
@@ -68,23 +69,26 @@ const {
   clearFormatting,
 } = useHtmlWysiwygEditor();
 
+const { t } = useI18n();
+const U = 'tools.html-wysiwyg-editor.ui.';
+
 const outputMode = ref<OutputFormat>('html');
 
-const description = computed(() =>
-  'Rich text editor (Tiptap) with bold, italic, underline, headings, lists, links, and code blocks. Outputs clean HTML and Markdown.',
-);
+const description = computed(() => t(U + 'desc'));
 
 const htmlBytes = computed(() => new TextEncoder().encode(html.value).length);
 const mdBytes = computed(() => new TextEncoder().encode(markdown.value).length);
 
 const outputDescription = computed(() => {
-  if (!editorReady.value) return 'Editor is loading…';
-  if (outputMode.value === 'html') return `${htmlBytes.value} bytes`;
-  return `${mdBytes.value} bytes`;
+  if (!editorReady.value) return t(U + 'descLoading');
+  if (outputMode.value === 'html') return t(U + 'bytes', htmlBytes.value);
+  return t(U + 'bytes', mdBytes.value);
 });
 
 const copyText = computed(() => (outputMode.value === 'html' ? html.value : markdown.value));
-const copyLabel = computed(() => (outputMode.value === 'html' ? 'Copy HTML' : 'Copy Markdown'));
+const copyLabel = computed(() =>
+  outputMode.value === 'html' ? t(U + 'copyHtml') : t(U + 'copyMarkdown'),
+);
 
 function onHeading(level: HeadingLevel): void {
   // Toggle: if already active at this level, demote to paragraph.
@@ -101,21 +105,21 @@ function setOutput(mode: OutputFormat): void {
 </script>
 
 <template>
-  <div class="hwe">
-    <ToolInput title="Rich text editor" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'inputTitle')" :description="description">
       <template #actions>
-        <span v-if="isEmbed" class="hwe__embed-badge" title="Embed mode — add allow=&quot;clipboard-write&quot; to the iframe for copy support.">
-          embed
+        <span v-if="isEmbed" class="hwe__embed-badge" :title="t(U + 'embedBadgeTitle')">
+          {{ t(U + 'embedBadge') }}
         </span>
       </template>
 
       <!-- Toolbar -->
-      <div class="hwe__toolbar" role="toolbar" aria-label="Formatting">
+      <div class="qt-panel qt-row qt-row--center" style="--qt-row-gap:4px;padding:6px 8px" role="toolbar" :aria-label="t(U + 'toolbarLabel')">
         <button
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.bold }"
           type="button"
-          title="Bold (Ctrl+B)"
+          :title="t(U + 'bold')"
           :disabled="!editorReady"
           @click="toggleBold"
         >
@@ -125,7 +129,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.italic }"
           type="button"
-          title="Italic (Ctrl+I)"
+          :title="t(U + 'italic')"
           :disabled="!editorReady"
           @click="toggleItalic"
         >
@@ -135,7 +139,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.underline }"
           type="button"
-          title="Underline (Ctrl+U)"
+          :title="t(U + 'underline')"
           :disabled="!editorReady"
           @click="toggleUnderline"
         >
@@ -145,7 +149,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.strike }"
           type="button"
-          title="Strikethrough"
+          :title="t(U + 'strikethrough')"
           :disabled="!editorReady"
           @click="toggleStrike"
         >
@@ -155,7 +159,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.code }"
           type="button"
-          title="Inline code"
+          :title="t(U + 'inlineCode')"
           :disabled="!editorReady"
           @click="toggleCode"
         >
@@ -168,7 +172,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.heading === 1 }"
           type="button"
-          title="Heading 1"
+          :title="t(U + 'heading1')"
           :disabled="!editorReady"
           @click="onHeading(1)"
         >
@@ -178,7 +182,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.heading === 2 }"
           type="button"
-          title="Heading 2"
+          :title="t(U + 'heading2')"
           :disabled="!editorReady"
           @click="onHeading(2)"
         >
@@ -188,7 +192,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.heading === 3 }"
           type="button"
-          title="Heading 3"
+          :title="t(U + 'heading3')"
           :disabled="!editorReady"
           @click="onHeading(3)"
         >
@@ -201,7 +205,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.bulletList }"
           type="button"
-          title="Bullet list"
+          :title="t(U + 'bulletList')"
           :disabled="!editorReady"
           @click="toggleBulletList"
         >
@@ -211,7 +215,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.orderedList }"
           type="button"
-          title="Ordered list"
+          :title="t(U + 'orderedList')"
           :disabled="!editorReady"
           @click="toggleOrderedList"
         >
@@ -221,7 +225,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.codeBlock }"
           type="button"
-          title="Code block"
+          :title="t(U + 'codeBlock')"
           :disabled="!editorReady"
           @click="toggleCodeBlock"
         >
@@ -231,7 +235,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.blockquote }"
           type="button"
-          title="Blockquote"
+          :title="t(U + 'blockquote')"
           :disabled="!editorReady"
           @click="toggleBlockquote"
         >
@@ -241,7 +245,7 @@ function setOutput(mode: OutputFormat): void {
           class="hwe__btn"
           :class="{ 'hwe__btn--active': isActive.link }"
           type="button"
-          title="Insert / edit link"
+          :title="t(U + 'insertLink')"
           :disabled="!editorReady"
           @click="insertLink"
         >
@@ -253,7 +257,7 @@ function setOutput(mode: OutputFormat): void {
         <button
           class="hwe__btn"
           type="button"
-          title="Clear formatting"
+          :title="t(U + 'clearFormatting')"
           :disabled="!editorReady"
           @click="clearFormatting"
         >
@@ -263,13 +267,13 @@ function setOutput(mode: OutputFormat): void {
 
       <!-- Editor surface -->
       <div class="hwe__surface">
-        <p v-if="error" class="hwe__error">
+        <p v-if="error" class="qt-alert qt-alert--error hwe__error">
           <AlertCircle :size="14" />
           <span>{{ error.message }}</span>
         </p>
-        <div v-if="loading" class="hwe__loading">
-          <Loader2 :size="18" class="hwe__spin" />
-          <span>Loading editor…</span>
+        <div v-if="loading" class="qt-row qt-row--center hwe__loading" style="--qt-row-gap:8px">
+          <Loader2 :size="18" class="qt-spin" />
+          <span>{{ t(U + 'loading') }}</span>
         </div>
         <component
           v-else-if="editorContentComponent"
@@ -280,14 +284,14 @@ function setOutput(mode: OutputFormat): void {
     </ToolInput>
 
     <ToolOutput
-      title="Output"
+      :title="t('common.output')"
       :description="outputDescription"
       :copy-text="copyText"
       :copy-label="copyLabel"
     >
-      <div class="hwe__result">
-        <div class="hwe__result-head">
-          <div class="hwe__tabs">
+      <div class="qt-result hwe__result">
+        <div class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
+          <div class="qt-row qt-row--nowrap" style="--qt-row-gap:4px;flex:1">
             <button
               class="hwe__tab"
               :class="{ 'hwe__tab--active': outputMode === 'html' }"
@@ -310,23 +314,17 @@ function setOutput(mode: OutputFormat): void {
           <CopyButton :text="copyText" :label="copyLabel" icon-only />
         </div>
 
-        <pre v-if="outputMode === 'html'" class="hwe__code">{{ html }}</pre>
-        <pre v-else class="hwe__code">{{ markdown }}</pre>
+        <pre v-if="outputMode === 'html'" class="qt-mono hwe__code">{{ html }}</pre>
+        <pre v-else class="qt-mono hwe__code">{{ markdown }}</pre>
       </div>
     </ToolOutput>
   </div>
 </template>
 
 <style scoped>
-.hwe {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
 
-/* Embed badge */
+/* Embed-mode badge — small uppercase tag. */
 .hwe__embed-badge {
   font-size: 11px;
   font-weight: 600;
@@ -338,17 +336,7 @@ function setOutput(mode: OutputFormat): void {
   padding: 2px 6px;
 }
 
-/* Toolbar */
-.hwe__toolbar {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-wrap: wrap;
-  background: var(--qt-surface);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 6px 8px;
-}
+/* Toolbar icon buttons — 30px squares with accent-tinted active state. */
 .hwe__btn {
   display: inline-flex;
   align-items: center;
@@ -382,6 +370,7 @@ function setOutput(mode: OutputFormat): void {
   border-color: oklch(from var(--qt-accent) 80% c h / 0.5);
   color: var(--qt-accent);
 }
+/* Toolbar separator — thin vertical rule. */
 .hwe__sep {
   display: inline-block;
   width: 1px;
@@ -390,7 +379,7 @@ function setOutput(mode: OutputFormat): void {
   margin: 0 4px;
 }
 
-/* Editor surface */
+/* Editor surface — bordered box the ProseMirror content fills. */
 .hwe__surface {
   position: relative;
   background: var(--qt-bg);
@@ -400,7 +389,7 @@ function setOutput(mode: OutputFormat): void {
   overflow: hidden;
 }
 .hwe__content {
-  /* The EditorContent root — let Tiptap's ProseMirror fill the surface. */
+  /* The EditorContent root - let Tiptap's ProseMirror fill the surface. */
   min-height: 280px;
 }
 .hwe__content :deep(.ProseMirror) {
@@ -451,7 +440,7 @@ function setOutput(mode: OutputFormat): void {
   margin: 0.4em 0;
 }
 .hwe__content :deep(.ProseMirror code) {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
+  font-family: var(--qt-font-mono);
   font-size: 0.9em;
   background: var(--qt-surface);
   border: 1px solid var(--qt-border);
@@ -490,53 +479,24 @@ function setOutput(mode: OutputFormat): void {
 .hwe__content :deep(.ProseMirror u) { text-decoration: underline; }
 .hwe__content :deep(.ProseMirror s) { text-decoration: line-through; color: var(--qt-muted); }
 
-/* Loading + error */
+/* Loading row (layout via .qt-row) — muted text + padding. */
 .hwe__loading {
-  display: flex;
-  align-items: center;
-  gap: 8px;
   color: var(--qt-muted);
   font-size: 13.5px;
   padding: 20px 14px;
 }
-.hwe__spin {
-  animation: hwe-spin 0.9s linear infinite;
-}
-@keyframes hwe-spin {
-  to { transform: rotate(360deg); }
-}
+/* Error strip (base via .qt-alert--error) — danger-tinted fill. */
 .hwe__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
   padding: 10px 14px;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
   background: oklch(from var(--qt-danger) 90% c h / 0.1);
 }
 
-/* Output */
+/* Output card (base via .qt-result) — tighter padding + gap. */
 .hwe__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
+  gap: 8px;
   padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
-.hwe__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.hwe__tabs {
-  display: flex;
-  gap: 4px;
-  flex: 1;
-}
+/* Output tabs — ghost buttons with surface active state. */
 .hwe__tab {
   display: inline-flex;
   align-items: center;
@@ -564,8 +524,8 @@ function setOutput(mode: OutputFormat): void {
   background: var(--qt-surface);
   border-color: var(--qt-border);
 }
+/* Output code block (font via .qt-mono) — capped, scrollable. */
 .hwe__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;

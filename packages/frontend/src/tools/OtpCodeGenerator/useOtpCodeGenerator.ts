@@ -1,5 +1,5 @@
 /**
- * useOtpCodeGenerator — composable + pure logic for the OTP code generator
+ * useOtpCodeGenerator - composable + pure logic for the OTP code generator
  * tool.
  *
  * Implements TOTP (RFC 6238) and HOTP (RFC 4226) one-time passwords using the
@@ -28,7 +28,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types & constants — no Vue dependency below this point                       */
+/* Types & constants - no Vue dependency below this point                       */
 /* -------------------------------------------------------------------------- */
 
 /** Hash algorithm identifiers supported by the tool. */
@@ -72,14 +72,14 @@ export const DEFAULT_PERIOD: OtpPeriod = 30;
 const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 /* -------------------------------------------------------------------------- */
-/* Base32 (RFC 4648) — tolerant decode, canonical encode                       */
+/* Base32 (RFC 4648) - tolerant decode, canonical encode                       */
 /* -------------------------------------------------------------------------- */
 
 /**
  * Decode an RFC 4648 base32 string into raw bytes.
  *
  * Tolerant of: lowercase, whitespace, hyphens, missing padding. Strict about
- * alphabet characters — invalid characters cause an error. Padding (`=`) is
+ * alphabet characters - invalid characters cause an error. Padding (`=`) is
  * accepted but not required.
  */
 export function base32Decode(input: string): Uint8Array {
@@ -90,7 +90,7 @@ export function base32Decode(input: string): Uint8Array {
   if (cleaned.length === 0) return new Uint8Array(0);
   if (!/^[A-Z2-7]*$/.test(cleaned)) {
     throw new Error(
-      'Invalid base32 secret — only A–Z and 2–7 are allowed (plus optional spaces, hyphens, and = padding).',
+      'Invalid base32 secret - only A–Z and 2–7 are allowed (plus optional spaces, hyphens, and = padding).',
     );
   }
   // Accumulate 5-bit values and drain 8-bit bytes. The accumulator stays
@@ -156,7 +156,7 @@ export function base32Encode(bytes: Uint8Array): string {
  * implementation processes the input in 64-byte blocks and returns a 20-byte
  * ArrayBuffer.
  *
- * This is NOT constant-time and is not intended for general use — only as a
+ * This is NOT constant-time and is not intended for general use - only as a
  * fallback for the rare SHA-1-restricted environment.
  */
 function pureSha1(data: Uint8Array): ArrayBuffer {
@@ -279,7 +279,7 @@ export async function hmacBytes(
 ): Promise<ArrayBuffer> {
   const info = ALGORITHM_MAP[algorithm];
   if (!info) throw new Error(`Unknown OTP algorithm: ${algorithm}`);
-  // SHA-1 may be restricted in some environments — try Web Crypto first, fall
+  // SHA-1 may be restricted in some environments - try Web Crypto first, fall
   // back to pure JS only for SHA-1. SHA-256/512 are always available in secure
   // contexts.
   if (algorithm === 'sha-1') {
@@ -326,7 +326,7 @@ function counterToBytes(counter: number): Uint8Array {
 }
 
 /**
- * Dynamic truncation (RFC 4226 §5.3) — extract a 31-bit positive integer from
+ * Dynamic truncation (RFC 4226 §5.3) - extract a 31-bit positive integer from
  * the HMAC output.
  */
 export function dynamicTruncate(hmac: ArrayBuffer): number {
@@ -406,7 +406,7 @@ export interface OtpAuthUriInput {
   digits: number;
   period: number;
   algorithm: OtpAlgorithm;
-  /** Required for HOTP — the initial counter. */
+  /** Required for HOTP - the initial counter. */
   counter?: number;
 }
 
@@ -454,7 +454,7 @@ export function buildOtpAuthUri(input: OtpAuthUriInput): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* QR code generation (qrcode package — initial bundle)                        */
+/* QR code generation (qrcode package - initial bundle)                        */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -474,7 +474,7 @@ export async function generateQrDataUrl(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface OtpConfig {
@@ -634,7 +634,7 @@ export function useOtpCodeGenerator(): UseOtpCodeGeneratorReturn {
       const url = await generateQrDataUrl(uri.value, { size: 240, margin: 2 });
       qrDataUrl.value = url;
     } catch {
-      // QR generation failure is non-fatal — leave the previous QR in place.
+      // QR generation failure is non-fatal - leave the previous QR in place.
     }
   }
 

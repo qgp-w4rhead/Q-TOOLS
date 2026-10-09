@@ -1,16 +1,16 @@
 /**
- * POST /api/pdf/verify — full PKCS#7 signature verification for PDF files.
+ * POST /api/pdf/verify - full PKCS#7 signature verification for PDF files.
  *
  * Accepts a raw PDF file as the request body (`Content-Type: application/pdf`).
  * The route re-extracts every signature dictionary from the raw bytes, parses
  * each PKCS#7 SignedData blob with `node-forge`, and performs:
  *
- *   1. Cryptographic signature verification — recomputes the digest over the
+ *   1. Cryptographic signature verification - recomputes the digest over the
  *      PDF byte range and verifies the RSA signature against the signer
  *      certificate's public key (PKCS#1 v1.5).
- *   2. Certificate validity check — `notBefore` / `notAfter` vs. the declared
+ *   2. Certificate validity check - `notBefore` / `notAfter` vs. the declared
  *      signing time.
- *   3. Certificate chain check — verifies the issuer chain embedded in the
+ *   3. Certificate chain check - verifies the issuer chain embedded in the
  *      PKCS#7 (each certificate issued by the next, up to a self-signed root).
  *
  * The response is a JSON object with per-signature verification results and an
@@ -477,7 +477,7 @@ export async function pdfVerifyRoutes(app: FastifyInstance): Promise<void> {
   );
 }
 
-/** Shared verification logic — accepts raw PDF bytes. */
+/** Shared verification logic - accepts raw PDF bytes. */
 async function verifyPdf(
   bytes: Uint8Array,
   reply: FastifyReply,
@@ -565,7 +565,7 @@ async function verifyPdf(
         } else {
           chainValid = false;
           trustStatus = 'untrusted';
-          errors.push('Only one certificate in PKCS#7 — chain cannot be verified.');
+          errors.push('Only one certificate in PKCS#7 - chain cannot be verified.');
         }
       }
     }

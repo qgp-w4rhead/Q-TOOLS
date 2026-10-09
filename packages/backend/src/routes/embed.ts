@@ -1,5 +1,5 @@
 /**
- * Embed routes — chromeless iframe hosting with permissive framing headers.
+ * Embed routes - chromeless iframe hosting with permissive framing headers.
  *
  *   GET /embed/*  →  serves the SPA shell (index.html) with headers that
  *                    allow embedding from any origin:
@@ -7,7 +7,7 @@
  *                      Content-Security-Policy: frame-ancestors *
  *
  * In production the built SPA is served by @fastify/static, but static file
- * serving only returns files that physically exist — client-side routes like
+ * serving only returns files that physically exist - client-side routes like
  * `/embed/tools/hash-text` have no on-disk file. This route acts as the SPA
  * fallback for `/embed/*` paths: it serves `index.html` (from STATIC_ROOT)
  * with the permissive framing headers so the Vue router can take over and
@@ -36,7 +36,7 @@ export async function embedRoutes(app: FastifyInstance): Promise<void> {
   const staticRoot = path.resolve(config.staticRoot);
   const indexPath = path.join(staticRoot, 'index.html');
 
-  // GET /embed/* — SPA fallback with permissive framing headers.
+  // GET /embed/* - SPA fallback with permissive framing headers.
   app.get('/embed/*', async (_request: FastifyRequest, reply: FastifyReply) => {
     // Apply framing headers.
     for (const [key, value] of Object.entries(EMBED_HEADERS)) {

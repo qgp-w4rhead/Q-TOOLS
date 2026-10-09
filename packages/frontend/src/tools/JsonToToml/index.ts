@@ -1,5 +1,5 @@
 /**
- * JsonToToml tool module — exports the lazy-loaded component plus its
+ * JsonToToml tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *

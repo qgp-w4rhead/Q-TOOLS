@@ -1,9 +1,9 @@
 /**
- * useTomlToJson — composable + pure logic for the TOML → JSON converter.
+ * useTomlToJson - composable + pure logic for the TOML → JSON converter.
  *
  * Parses TOML text via `smol-toml`'s `parse` and emits pretty-printed (or
  * compact) JSON. The `smol-toml` package is part of the initial bundle per
- * `tech-stack.md`, so it is statically imported here — no dynamic import, no
+ * `tech-stack.md`, so it is statically imported here - no dynamic import, no
  * separate Vite chunk.
  *
  * Pure helpers (`parseToml`, `tomlToJson`) have no Vue dependency and can be
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation mode for the JSON output. */
@@ -120,7 +120,7 @@ function toTomlError(err: unknown): TomlParseError {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface TomlToJsonOutputs {

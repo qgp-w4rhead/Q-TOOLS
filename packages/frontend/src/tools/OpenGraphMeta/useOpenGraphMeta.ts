@@ -1,5 +1,5 @@
 /**
- * useOpenGraphMeta — composable + pure logic for the Open Graph / Twitter
+ * useOpenGraphMeta - composable + pure logic for the Open Graph / Twitter
  * social meta-tag generator tool.
  *
  * Builds a block of HTML `<meta>` tags for both the Open Graph protocol
@@ -13,7 +13,7 @@
  * composable wraps them in reactive state and wires up the embed PostMessage
  * protocol.
  *
- * No external dependencies — only string manipulation. Attribute values are
+ * No external dependencies - only string manipulation. Attribute values are
  * HTML-attribute-escaped (quotes, ampersands, angle brackets) so the generated
  * markup is safe to paste into any HTML document.
  */
@@ -22,7 +22,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types & constants — no Vue dependency below this point                       */
+/* Types & constants - no Vue dependency below this point                       */
 /* -------------------------------------------------------------------------- */
 
 /** Supported Open Graph `og:type` values (a curated subset of the OG protocol). */
@@ -99,7 +99,7 @@ export function escapeHtmlAttr(value: string): string {
  * Build the Open Graph (`og:*`) meta tags from the input.
  *
  * Only emits tags whose content is non-empty (after trimming). The `og:type`
- * tag is emitted only when the type is not the default `website` — actually we
+ * tag is emitted only when the type is not the default `website` - actually we
  * always emit `og:type` when present because consumers expect it; the default
  * `website` is a meaningful value. Empty optional fields (site name) are
  * omitted.
@@ -139,7 +139,7 @@ export function buildTwitterTags(input: OpenGraphInput): MetaTag[] {
     if (trimmed.length > 0) tags.push({ key, content: trimmed });
   };
 
-  // twitter:card is always required — emit even if other fields are empty.
+  // twitter:card is always required - emit even if other fields are empty.
   tags.push({ key: 'twitter:card', content: input.twitterCard });
   push('twitter:title', input.title);
   push('twitter:description', input.description);
@@ -205,7 +205,7 @@ export function generateMetaHtml(input: OpenGraphInput): OpenGraphResult {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseOpenGraphMetaReturn {

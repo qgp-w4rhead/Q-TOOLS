@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * OfflineBanner — fixed top banner shown when the browser is offline.
+ * OfflineBanner - fixed top banner shown when the browser is offline.
  *
  * Uses the singleton `useOnlineStatus` composable. The banner is dismissible
  * per offline episode: clicking the close button hides it until connectivity
@@ -10,9 +10,11 @@
  * (tools still work offline; the banner just informs the user).
  */
 import { ref, watch, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { WifiOff, X } from 'lucide-vue-next';
 import { useOnlineStatus, shouldShowOfflineBanner } from '@/composables/useOnlineStatus';
 
+const { t } = useI18n();
 const { isOnline } = useOnlineStatus();
 
 // Per-episode dismissal. Reset to `false` whenever we come back online so the
@@ -40,12 +42,12 @@ function close(): void {
     <div v-if="visible" class="offline-banner" role="status" aria-live="polite">
       <WifiOff :size="16" class="offline-banner__icon" />
       <span class="offline-banner__text">
-        You&rsquo;re offline — tools still work, but backend features (sync, auth) are paused.
+        {{ t('offline.banner') }}
       </span>
       <button
         class="offline-banner__close"
         type="button"
-        aria-label="Dismiss offline banner"
+        :aria-label="t('offline.dismiss')"
         @click="close"
       >
         <X :size="16" />

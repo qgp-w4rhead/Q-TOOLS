@@ -1,5 +1,5 @@
 /**
- * useDeviceInformation — composable + pure logic for the device information
+ * useDeviceInformation - composable + pure logic for the device information
  * tool.
  *
  * Snapshots the browser/device environment via the standard `navigator`,
@@ -13,14 +13,14 @@
  * live (resize + online/offline listeners), and wires up the embed
  * PostMessage protocol (sends an `output` snapshot whenever the info changes).
  *
- * No external dependencies — only native Web APIs.
+ * No external dependencies - only native Web APIs.
  */
 import { onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedOutputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** A single displayed key/value row. */
@@ -29,7 +29,7 @@ export interface InfoField {
   key: string;
   /** Human-readable label shown in the UI. */
   label: string;
-  /** Display value (always a string; `—` denotes "not available"). */
+  /** Display value (always a string; `-` denotes "not available"). */
   value: string;
   /** `true` when the underlying API reported the value as unavailable. */
   unavailable: boolean;
@@ -52,7 +52,7 @@ export interface DeviceInfo {
 }
 
 /** Sentinel shown for unavailable values. */
-export const UNAVAILABLE = '—';
+export const UNAVAILABLE = '-';
 
 /**
  * Format a maybe-undefined value as a display string.
@@ -111,7 +111,7 @@ function orientationLabel(screen: Screen | undefined, win: Window): string {
 /**
  * Snapshot the current device/browser environment into a `DeviceInfo`.
  *
- * Pure with respect to Vue — it only reads the global `navigator`, `screen`,
+ * Pure with respect to Vue - it only reads the global `navigator`, `screen`,
  * `window`, and `document` objects. Safe to call in any browser context.
  */
 export function collectDeviceInfo(): DeviceInfo {
@@ -214,7 +214,7 @@ export function collectDeviceInfo(): DeviceInfo {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — Vue reactive wrapper + embed wiring                            */
+/* Composable - Vue reactive wrapper + embed wiring                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseDeviceInformationReturn {
@@ -250,7 +250,7 @@ export function useDeviceInformation(): UseDeviceInformationReturn {
   }
 
   function copyAllText(): string {
-    const lines: string[] = [`# Device information — ${info.value.collectedAt}`];
+    const lines: string[] = [`# Device information - ${info.value.collectedAt}`];
     for (const group of info.value.groups) {
       lines.push('', `## ${group.label}`);
       for (const f of group.fields) {

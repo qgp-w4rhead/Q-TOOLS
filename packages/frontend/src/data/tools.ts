@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Q-Tools tool registry.
  *
  * Lists metadata for every tool in the application. Tool components themselves
@@ -8,8 +8,8 @@
  * The `ToolMetadata` interface, `ToolCategory` type, and `CATEGORIES` constants
  * live in `@q-tools/shared` (M0.4) and are re-exported here for convenience.
  *
- * Categories (10): crypto, converter, web, media, dev, network, math,
- * measurement, text, data.
+ * Categories (11): crypto, converter, web, media, dev, network, math,
+ * measurement, text, data, security.
  */
 
 export type { ToolCategory, ToolMetadata } from '@q-tools/shared';
@@ -370,15 +370,6 @@ export const TOOLS: ToolMetadata[] = [
     dependencies: [],
   },
   {
-    slug: 'mime-types',
-    name: 'MIME types',
-    description: 'Look up MIME types for file extensions and vice versa.',
-    category: 'web',
-    icon: 'file',
-    keywords: ['mime', 'type', 'extension', 'content-type'],
-    dependencies: [],
-  },
-  {
     slug: 'jwt-parser',
     name: 'JWT parser',
     description: 'Decode and inspect JSON Web Tokens.',
@@ -423,15 +414,6 @@ export const TOOLS: ToolMetadata[] = [
     icon: 'monitor',
     keywords: ['useragent', 'ua', 'browser', 'os'],
     dependencies: ['ua-parser-js'],
-  },
-  {
-    slug: 'http-status-codes',
-    name: 'HTTP status codes',
-    description: 'Reference for HTTP status codes with descriptions.',
-    category: 'web',
-    icon: 'server',
-    keywords: ['http', 'status', 'code', 'response'],
-    dependencies: [],
   },
   {
     slug: 'json-diff',
@@ -490,17 +472,126 @@ export const TOOLS: ToolMetadata[] = [
     dependencies: [],
     iframeRequirements: ['camera; microphone'],
   },
-
-  // ---- Development (M5) ----
   {
-    slug: 'git-cheatsheet',
-    name: 'Git cheatsheet',
-    description: 'Quick reference for common Git commands.',
-    category: 'dev',
-    icon: 'git-branch',
-    keywords: ['git', 'cheatsheet', 'reference', 'commands'],
+    slug: 'image-converter',
+    name: 'Image converter',
+    description: 'Convert images between PNG, JPEG, WebP, and AVIF locally via Canvas.',
+    category: 'media',
+    icon: 'repeat',
+    keywords: ['image', 'convert', 'png', 'jpeg', 'webp', 'avif', 'format', 'canvas'],
     dependencies: [],
   },
+  {
+    slug: 'image-compressor',
+    name: 'Image compressor',
+    description: 'Compress images with a quality slider or target file size, with before/after preview.',
+    category: 'media',
+    icon: 'shrink',
+    keywords: ['image', 'compress', 'optimize', 'quality', 'size', 'webp', 'jpeg'],
+    dependencies: [],
+  },
+  {
+    slug: 'image-resizer',
+    name: 'Image resizer',
+    description: 'Scale images by pixels or percent with aspect-ratio lock and batch export.',
+    category: 'media',
+    icon: 'scaling',
+    keywords: ['image', 'resize', 'scale', 'dimensions', 'batch', 'percent', 'pixels'],
+    dependencies: [],
+  },
+  {
+    slug: 'image-cropper',
+    name: 'Image cropper',
+    description: 'Drag-select crop with preset ratios (16:9, 1:1, 4:3, freeform).',
+    category: 'media',
+    icon: 'crop',
+    keywords: ['image', 'crop', 'cut', 'aspect', 'ratio', 'trim'],
+    dependencies: [],
+  },
+  {
+    slug: 'exif-viewer',
+    name: 'EXIF viewer',
+    description: 'Inspect camera, lens, GPS, and metadata embedded in a photo.',
+    category: 'media',
+    icon: 'info',
+    keywords: ['exif', 'metadata', 'camera', 'gps', 'photo', 'jpeg', 'inspect'],
+    dependencies: [],
+  },
+  {
+    slug: 'metadata-stripper',
+    name: 'EXIF / metadata stripper',
+    description: 'Re-encode an image via Canvas to wipe EXIF/GPS metadata for privacy.',
+    category: 'media',
+    icon: 'eraser',
+    keywords: ['exif', 'metadata', 'strip', 'remove', 'privacy', 'gps', 'clean'],
+    dependencies: [],
+  },
+  {
+    slug: 'qr-code-reader',
+    name: 'QR code reader',
+    description: 'Decode QR codes and barcodes from an uploaded image.',
+    category: 'media',
+    icon: 'scan-line',
+    keywords: ['qr', 'code', 'read', 'decode', 'scan', 'barcode'],
+    dependencies: [],
+  },
+  {
+    slug: 'favicon-generator',
+    name: 'Favicon generator',
+    description: 'One PNG → full favicon set (16/32/180/192/512, ICO, manifest snippet).',
+    category: 'media',
+    icon: 'star',
+    keywords: ['favicon', 'icon', 'ico', 'png', 'manifest', 'apple-touch-icon', 'pwa'],
+    dependencies: [],
+  },
+  {
+    slug: 'color-palette-extractor',
+    name: 'Color palette extractor',
+    description: 'Extract dominant colors from an image (median-cut), export as HEX/RGB/Tailwind.',
+    category: 'media',
+    icon: 'palette',
+    keywords: ['color', 'palette', 'extract', 'dominant', 'hex', 'rgb', 'tailwind', 'swatch'],
+    dependencies: [],
+  },
+  {
+    slug: 'screen-recorder',
+    name: 'Screen recorder',
+    description: 'Record screen/window/tab via getDisplayMedia + MediaRecorder.',
+    category: 'media',
+    icon: 'monitor',
+    keywords: ['screen', 'record', 'capture', 'display', 'video', 'webm', 'mediarecorder'],
+    dependencies: [],
+    iframeRequirements: ['display-capture'],
+  },
+  {
+    slug: 'svg-optimizer',
+    name: 'SVG optimizer',
+    description: 'Paste SVG → minified/optimized output (strip metadata, comments, whitespace).',
+    category: 'media',
+    icon: 'file-code',
+    keywords: ['svg', 'optimize', 'minify', 'compress', 'clean', 'markup'],
+    dependencies: [],
+  },
+  {
+    slug: 'image-to-ascii',
+    name: 'Image to ASCII art',
+    description: 'Render an image as ASCII text with charset and width controls.',
+    category: 'media',
+    icon: 'type',
+    keywords: ['image', 'ascii', 'art', 'text', 'convert', 'render'],
+    dependencies: [],
+  },
+  {
+    slug: 'image-redactor',
+    name: 'Image redactor / blur',
+    description: 'Draw boxes to blur or pixelate regions of an image; doubles as a privacy tool.',
+    category: 'media',
+    icon: 'eye-off',
+    keywords: ['image', 'redact', 'blur', 'pixelate', 'censor', 'privacy', 'hide'],
+    dependencies: [],
+  },
+
+  // ---- Development (M5) ----
   {
     slug: 'random-port-generator',
     name: 'Random port generator',
@@ -610,17 +701,6 @@ export const TOOLS: ToolMetadata[] = [
     dependencies: [],
   },
   {
-    slug: 'regex-cheatsheet',
-    name: 'Regex cheatsheet',
-    description: 'Quick reference for regular expression syntax.',
-    category: 'dev',
-    icon: 'regex',
-    keywords: ['regex', 'cheatsheet', 'reference'],
-    dependencies: [],
-  },
-
-  // ---- Network (M6) ----
-  {
     slug: 'ipv4-subnet-calculator',
     name: 'IPv4 subnet calculator',
     description: 'Calculate IPv4 subnets from CIDR notation.',
@@ -674,6 +754,116 @@ export const TOOLS: ToolMetadata[] = [
     keywords: ['ipv6', 'ula', 'local', 'generate'],
     dependencies: [],
   },
+  {
+    slug: 'port-reference',
+    name: 'Well-known ports reference',
+    description:
+      'Searchable port → service table (0-65535, TCP/UDP, curated IANA assignments).',
+    category: 'network',
+    icon: 'list',
+    keywords: ['port', 'ports', 'iana', 'tcp', 'udp', 'service', 'well-known'],
+    dependencies: [],
+  },
+  {
+    slug: 'subnet-splitter',
+    name: 'Subnet splitter / VLSM planner',
+    description:
+      'Split a CIDR into N equal subnets or plan VLSM allocations by required host counts.',
+    category: 'network',
+    icon: 'scissors',
+    keywords: ['subnet', 'split', 'vlsm', 'cidr', 'network', 'planner', 'ipv4'],
+    dependencies: [],
+  },
+  {
+    slug: 'cidr-aggregator',
+    name: 'CIDR aggregator',
+    description:
+      'Merge a list of CIDRs, ranges, and IPs into minimal covering blocks.',
+    category: 'network',
+    icon: 'merge',
+    keywords: ['cidr', 'aggregate', 'merge', 'summarize', 'supernet', 'ipv4', 'range'],
+    dependencies: [],
+  },
+  {
+    slug: 'ipv6-compressor',
+    name: 'IPv6 compressor / expander',
+    description:
+      'Convert IPv6 addresses between canonical, full, and IPv4-mapped forms.',
+    category: 'network',
+    icon: 'shrink',
+    keywords: ['ipv6', 'compress', 'expand', 'canonical', 'rfc5952', 'ipv4-mapped'],
+    dependencies: [],
+  },
+  {
+    slug: 'ip-classifier',
+    name: 'IP address classifier',
+    description:
+      'Classify an IP as private, loopback, link-local, multicast, CGNAT, or reserved with its RFC range.',
+    category: 'network',
+    icon: 'tag',
+    keywords: ['ip', 'classify', 'private', 'loopback', 'link-local', 'multicast', 'cgnat', 'reserved', 'rfc'],
+    dependencies: [],
+  },
+  {
+    slug: 'mac-normalizer',
+    name: 'MAC address normalizer',
+    description:
+      'Convert between colon/hyphen/dot/Cisco MAC formats; detect locally-administered and multicast bits.',
+    category: 'network',
+    icon: 'repeat',
+    keywords: ['mac', 'normalize', 'format', 'cisco', 'colon', 'hyphen', 'oui', 'eui48'],
+    dependencies: [],
+  },
+  {
+    slug: 'eui-64-calculator',
+    name: 'EUI-64 calculator',
+    description:
+      'Convert a MAC address to an IPv6 link-local / modified EUI-64 interface identifier.',
+    category: 'network',
+    icon: 'calculator',
+    keywords: ['eui64', 'eui-64', 'mac', 'ipv6', 'link-local', 'interface id', 'slaac'],
+    dependencies: [],
+  },
+  {
+    slug: 'wildcard-mask-converter',
+    name: 'Wildcard mask converter',
+    description:
+      'Convert between subnet mask, wildcard mask, and CIDR prefix (Cisco ACL style).',
+    category: 'network',
+    icon: 'flip-horizontal',
+    keywords: ['wildcard', 'mask', 'subnet', 'cidr', 'acl', 'cisco', 'inverse'],
+    dependencies: [],
+  },
+  {
+    slug: 'rdap-lookup',
+    name: 'RDAP / WHOIS lookup',
+    description:
+      'Look up domain or IP registration data (registrar, dates, nameservers) via RDAP.',
+    category: 'network',
+    icon: 'globe',
+    keywords: ['rdap', 'whois', 'domain', 'registration', 'registrar', 'nameserver', 'ip'],
+    dependencies: [],
+  },
+  {
+    slug: 'ip-geolocation',
+    name: 'IP geolocation lookup',
+    description:
+      'Look up an IP address\'s country, region, city, ISP, and coordinates via ipapi.co.',
+    category: 'network',
+    icon: 'map-pin',
+    keywords: ['ip', 'geolocation', 'geo', 'country', 'city', 'isp', 'asn', 'location'],
+    dependencies: [],
+  },
+  {
+    slug: 'wol-packet-builder',
+    name: 'Wake-on-LAN packet builder',
+    description:
+      'Build a WoL magic packet (hex + base64) and generate wakeonlan/etherwake CLI commands.',
+    category: 'network',
+    icon: 'send',
+    keywords: ['wol', 'wake-on-lan', 'magic packet', 'wakeonlan', 'etherwake', 'mac', 'broadcast'],
+    dependencies: [],
+  },
 
   // ---- Math (M7) ----
   {
@@ -717,7 +907,7 @@ export const TOOLS: ToolMetadata[] = [
   {
     slug: 'temperature-converter',
     name: 'Temperature converter',
-    description: 'Convert between Celsius, Fahrenheit, Kelvin, Rankine, Delisle, Newton, Réaumur, and Rømer.',
+    description: 'Convert between Celsius, Fahrenheit, Kelvin, Rankine, Delisle, Newton, RÃ©aumur, and RÃ¸mer.',
     category: 'measurement',
     icon: 'thermometer',
     keywords: ['temperature', 'celsius', 'fahrenheit', 'kelvin', 'rankine', 'delisle', 'newton', 'reaumur', 'romer'],
@@ -797,7 +987,7 @@ export const TOOLS: ToolMetadata[] = [
     slug: 'numeronym-generator',
     name: 'Numeronym generator',
     description:
-      'Generate numeronyms from words or phrases (e.g. internationalization → i18n). Configurable minimum word length and case preservation.',
+      'Generate numeronyms from words or phrases (e.g. internationalization â†’ i18n). Configurable minimum word length and case preservation.',
     category: 'text',
     icon: 'hash',
     keywords: [
@@ -859,9 +1049,1545 @@ export const TOOLS: ToolMetadata[] = [
     ],
     dependencies: [],
   },
+  {
+    slug: 'data-size-converter',
+    name: 'Data size converter',
+    description:
+      'Convert between bytes, KB, MB, GB, TB, PB with binary (1024) and decimal (1000) modes.',
+    category: 'measurement',
+    icon: 'hard-drive',
+    keywords: ['data', 'size', 'bytes', 'kilobytes', 'megabytes', 'gigabytes', 'terabytes', 'petabytes', 'binary', 'decimal'],
+    dependencies: [],
+  },
+  {
+    slug: 'length-converter',
+    name: 'Length converter',
+    description:
+      'Convert between metric and imperial length units (mm, cm, m, km, in, ft, yd, mi, nmi).',
+    category: 'measurement',
+    icon: 'ruler',
+    keywords: ['length', 'distance', 'metric', 'imperial', 'millimetre', 'centimetre', 'metre', 'kilometre', 'inch', 'foot', 'yard', 'mile', 'nautical'],
+    dependencies: [],
+  },
+  {
+    slug: 'speed-converter',
+    name: 'Speed converter',
+    description:
+      'Convert between m/s, km/h, mph, knots, ft/s, and Mach.',
+    category: 'measurement',
+    icon: 'gauge',
+    keywords: ['speed', 'velocity', 'metres per second', 'kilometres per hour', 'miles per hour', 'knots', 'feet per second', 'mach'],
+    dependencies: [],
+  },
+  {
+    slug: 'time-unit-converter',
+    name: 'Time unit converter',
+    description:
+      'Convert between milliseconds, seconds, minutes, hours, days, weeks, months, and years.',
+    category: 'measurement',
+    icon: 'clock',
+    keywords: ['time', 'convert', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks', 'months', 'years'],
+    dependencies: [],
+  },
+  {
+    slug: 'weight-converter',
+    name: 'Weight converter',
+    description:
+      'Convert between metric and imperial weight units (mg, g, kg, t, oz, lb, st, ton).',
+    category: 'measurement',
+    icon: 'scale',
+    keywords: ['weight', 'mass', 'metric', 'imperial', 'milligram', 'gram', 'kilogram', 'ton', 'ounce', 'pound', 'stone'],
+    dependencies: [],
+  },
+  {
+    slug: 'volume-converter',
+    name: 'Volume converter',
+    description:
+      'Convert between metric and imperial volume units (mL, L, mÂ³, cmÂ³, gal, qt, pt, cup, fl oz).',
+    category: 'measurement',
+    icon: 'flask-conical',
+    keywords: ['volume', 'capacity', 'metric', 'imperial', 'millilitre', 'litre', 'cubic metre', 'gallon', 'quart', 'pint', 'cup', 'fluid ounce'],
+    dependencies: [],
+  },
+  {
+    slug: 'area-converter',
+    name: 'Area converter',
+    description:
+      'Convert between metric and imperial area units (mmÂ², cmÂ², mÂ², ha, kmÂ², inÂ², ftÂ², ydÂ², ac, miÂ²).',
+    category: 'measurement',
+    icon: 'square',
+    keywords: ['area', 'surface', 'metric', 'imperial', 'square metre', 'hectare', 'acre', 'square foot', 'square mile'],
+    dependencies: [],
+  },
+  {
+    slug: 'pressure-converter',
+    name: 'Pressure converter',
+    description:
+      'Convert between Pa, kPa, MPa, bar, atm, psi, mmHg, and torr.',
+    category: 'measurement',
+    icon: 'gauge',
+    keywords: ['pressure', 'pascal', 'bar', 'atmosphere', 'psi', 'mmhg', 'torr', 'kilopascal', 'megapascal'],
+    dependencies: [],
+  },
+  {
+    slug: 'energy-converter',
+    name: 'Energy converter',
+    description:
+      'Convert between J, kJ, cal, kcal, Wh, kWh, BTU, and ftÂ·lb.',
+    category: 'measurement',
+    icon: 'zap',
+    keywords: ['energy', 'joule', 'kilojoule', 'calorie', 'kilocalorie', 'watt-hour', 'kilowatt-hour', 'btu', 'foot-pound'],
+    dependencies: [],
+  },
+  {
+    slug: 'angle-converter',
+    name: 'Angle converter',
+    description:
+      'Convert between degrees, radians, gradians, turns, arcminutes, and arcseconds.',
+    category: 'measurement',
+    icon: 'compass',
+    keywords: ['angle', 'degree', 'radian', 'gradian', 'turn', 'arcminute', 'arcsecond', 'geometry'],
+    dependencies: [],
+  },
+  {
+    slug: 'fuel-economy-converter',
+    name: 'Fuel economy converter',
+    description:
+      'Convert between mpg (US), mpg (UK), L/100km, and km/L.',
+    category: 'measurement',
+    icon: 'fuel',
+    keywords: ['fuel', 'economy', 'mpg', 'miles per gallon', 'litres per 100km', 'kilometres per litre', 'consumption'],
+    dependencies: [],
+  },
+  {
+    slug: 'frequency-converter',
+    name: 'Frequency converter',
+    description:
+      'Convert between Hz, kHz, MHz, GHz, THz, and rpm.',
+    category: 'measurement',
+    icon: 'radio',
+    keywords: ['frequency', 'hertz', 'kilohertz', 'megahertz', 'gigahertz', 'terahertz', 'rpm', 'revolutions per minute'],
+    dependencies: [],
+  },
+  {
+    slug: 'force-converter',
+    name: 'Force converter',
+    description: 'Convert between force units (N, kN, MN, dyn, lbf, kgf, pdl, kip).',
+    category: 'measurement',
+    icon: 'move-horizontal',
+    keywords: ['force', 'newton', 'kilonewton', 'dyne', 'pound-force', 'lbf', 'kilogram-force', 'kgf', 'poundal', 'kip'],
+    dependencies: [],
+  },
+  {
+    slug: 'power-converter',
+    name: 'Power converter',
+    description: 'Convert between power units (W, kW, MW, hp, PS, BTU/h, ftÂ·lb/s, ton of refrigeration).',
+    category: 'measurement',
+    icon: 'zap',
+    keywords: ['power', 'watt', 'kilowatt', 'megawatt', 'horsepower', 'hp', 'btu', 'foot-pound', 'ton of refrigeration'],
+    dependencies: [],
+  },
+  {
+    slug: 'torque-converter',
+    name: 'Torque converter',
+    description: 'Convert between torque units (NÂ·m, kNÂ·m, lbÂ·ft, lbÂ·in, ozÂ·in, kgfÂ·m, dynÂ·cm).',
+    category: 'measurement',
+    icon: 'rotate-cw',
+    keywords: ['torque', 'newton metre', 'pound foot', 'pound inch', 'lbft', 'nm', 'kgf', 'dyne centimetre', 'moment'],
+    dependencies: [],
+  },
+  {
+    slug: 'density-converter',
+    name: 'Density converter',
+    description: 'Convert between density units (kg/mÂ³, g/cmÂ³, g/mL, lb/ftÂ³, lb/inÂ³, lb/gal, oz/inÂ³).',
+    category: 'measurement',
+    icon: 'flask-conical',
+    keywords: ['density', 'kg/m3', 'g/cm3', 'specific gravity', 'pound per cubic foot', 'pound per gallon', 'mass per volume'],
+    dependencies: [],
+  },
+  {
+    slug: 'acceleration-converter',
+    name: 'Acceleration converter',
+    description: 'Convert between acceleration units (m/sÂ², ft/sÂ², in/sÂ², g-force, Gal, km/hÂ·s, mph/s).',
+    category: 'measurement',
+    icon: 'trending-up',
+    keywords: ['acceleration', 'metre per second squared', 'g-force', 'gravity', 'galileo', 'gal', 'ft/s2'],
+    dependencies: [],
+  },
+  {
+    slug: 'flow-rate-converter',
+    name: 'Flow rate converter',
+    description: 'Convert between volumetric flow rate units (L/s, L/min, mÂ³/h, gpm US/UK, cfm, ftÂ³/s).',
+    category: 'measurement',
+    icon: 'waves',
+    keywords: ['flow rate', 'litre per second', 'litre per minute', 'gpm', 'gallons per minute', 'cfm', 'cubic feet per minute', 'm3/h'],
+    dependencies: [],
+  },
+  {
+    slug: 'viscosity-converter',
+    name: 'Viscosity converter',
+    description: 'Convert between dynamic (PaÂ·s, poise, cP) and kinematic (St, cSt, ftÂ²/s) viscosity units.',
+    category: 'measurement',
+    icon: 'droplets',
+    keywords: ['viscosity', 'dynamic', 'kinematic', 'pascal second', 'poise', 'centipoise', 'stokes', 'centistokes', 'cst'],
+    dependencies: [],
+  },
+  {
+    slug: 'radiation-converter',
+    name: 'Radiation converter',
+    description: 'Convert between radiation units: activity (Bq, Ci), absorbed dose (Gy, rad), equivalent dose (Sv, rem), exposure (R).',
+    category: 'measurement',
+    icon: 'radiation',
+    keywords: ['radiation', 'becquerel', 'curie', 'gray', 'sievert', 'rad', 'rem', 'roentgen', 'dose', 'activity', 'exposure'],
+    dependencies: [],
+  },
+  {
+    slug: 'illuminance-converter',
+    name: 'Illuminance converter',
+    description: 'Convert between illuminance units (lux, foot-candle, lm/mÂ², lm/ftÂ², phot, nox).',
+    category: 'measurement',
+    icon: 'sun',
+    keywords: ['illuminance', 'lux', 'foot-candle', 'lumen', 'phot', 'nox', 'light', 'brightness'],
+    dependencies: [],
+  },
+  {
+    slug: 'typography-converter',
+    name: 'Typography unit converter',
+    description: 'Convert between typography units (pt, pica, px at configurable DPI, em, in, mm, cicero, didot).',
+    category: 'measurement',
+    icon: 'type',
+    keywords: ['typography', 'point', 'pica', 'pixel', 'em', 'cicero', 'didot', 'font size', 'dpi', 'print'],
+    dependencies: [],
+  },
+  {
+    slug: 'cooking-converter',
+    name: 'Cooking measures converter',
+    description: 'Convert between cooking measures (tsp, tbsp, cup US/UK/metric, fl oz, stick, dash, pinch, drop).',
+    category: 'measurement',
+    icon: 'chef-hat',
+    keywords: ['cooking', 'baking', 'teaspoon', 'tablespoon', 'cup', 'fluid ounce', 'stick', 'dash', 'pinch', 'drop', 'recipe'],
+    dependencies: [],
+  },
+  {
+    slug: 'data-rate-converter',
+    name: 'Data rate converter',
+    description: 'Convert between data rate units (bpsâ†’Tbps, B/sâ†’GiB/s, baud) with a transfer-time helper.',
+    category: 'measurement',
+    icon: 'activity',
+    keywords: ['data rate', 'bandwidth', 'bps', 'mbps', 'gbps', 'mb/s', 'kib/s', 'baud', 'transfer time', 'download'],
+    dependencies: [],
+  },
+  {
+    slug: 'paper-size-converter',
+    name: 'Paper size reference',
+    description: 'ISO A/B/C series and US paper sizes (Letter, Legal, Tabloid) with mm/inch dimensions.',
+    category: 'measurement',
+    icon: 'file',
+    keywords: ['paper', 'size', 'a4', 'letter', 'legal', 'tabloid', 'iso 216', 'ansi', 'dimensions', 'print'],
+    dependencies: [],
+  },
+  {
+    slug: 'clothing-size-converter',
+    name: 'Clothing & shoe size converter',
+    description: 'Convert clothing and shoe sizes between US, UK, EU, and JP systems (men, women, kids).',
+    category: 'measurement',
+    icon: 'shirt',
+    keywords: ['clothing', 'shoe', 'size', 'us', 'uk', 'eu', 'jp', 'men', 'women', 'kids', 'apparel'],
+    dependencies: [],
+  },
+  {
+    slug: 'calendar-converter',
+    name: 'Calendar converter',
+    description: 'Julian Day Number, day of week, day of year, ISO week number, and Julian â†” Gregorian dates.',
+    category: 'measurement',
+    icon: 'calendar',
+    keywords: ['calendar', 'julian day', 'jdn', 'day of week', 'day of year', 'iso week', 'gregorian', 'julian', 'leap year'],
+    dependencies: [],
+  },
+  {
+    slug: 'ohms-law-calculator',
+    name: "Ohm's law calculator",
+    description: 'Solve any two of voltage, current, resistance, and power (V = IÂ·R, P = VÂ·I).',
+    category: 'measurement',
+    icon: 'circuit-board',
+    keywords: ['ohm', 'law', 'voltage', 'current', 'resistance', 'power', 'volt', 'amp', 'watt', 'electrical'],
+    dependencies: [],
+  },
+  {
+    slug: 'prime-number-checker',
+    name: 'Prime number checker',
+    description:
+      'Check primality, find primes in a range, and compute prime factorization.',
+    category: 'math',
+    icon: 'hash',
+    keywords: ['prime', 'number', 'primality', 'factor', 'factorization', 'sieve', 'range'],
+    dependencies: [],
+  },
+  {
+    slug: 'fibonacci-generator',
+    name: 'Fibonacci generator',
+    description:
+      'Generate Fibonacci sequence numbers with arbitrary-precision BigInt arithmetic.',
+    category: 'math',
+    icon: 'sigma',
+    keywords: ['fibonacci', 'sequence', 'series', 'math', 'bigint', 'golden ratio'],
+    dependencies: [],
+  },
+  {
+    slug: 'gcd-lcm-calculator',
+    name: 'GCD & LCM calculator',
+    description:
+      'Compute the Greatest Common Divisor and Least Common Multiple of integers.',
+    category: 'math',
+    icon: 'divide',
+    keywords: ['gcd', 'lcm', 'greatest common divisor', 'least common multiple', 'euclidean', 'hcf'],
+    dependencies: [],
+  },
+  {
+    slug: 'text-reverser',
+    name: 'Text reverser',
+    description:
+      'Reverse text by characters, words, or lines.',
+    category: 'text',
+    icon: 'flip-horizontal',
+    keywords: ['text', 'reverse', 'flip', 'backwards', 'characters', 'words', 'lines'],
+    dependencies: [],
+  },
+  {
+    slug: 'text-sorter',
+    name: 'Text sorter',
+    description:
+      'Sort lines of text alphabetically, numerically, or by length.',
+    category: 'text',
+    icon: 'arrow-down-narrow-wide',
+    keywords: ['text', 'sort', 'order', 'alphabetical', 'numeric', 'length', 'lines', 'ascending', 'descending'],
+    dependencies: [],
+  },
+  {
+    slug: 'duplicate-line-remover',
+    name: 'Duplicate line remover',
+    description:
+      'Remove duplicate lines from text with case and trim options.',
+    category: 'text',
+    icon: 'eraser',
+    keywords: ['duplicate', 'remove', 'deduplicate', 'unique', 'lines', 'text'],
+    dependencies: [],
+  },
+  {
+    slug: 'credit-card-validator',
+    name: 'Credit card validator',
+    description:
+      'Validate credit card numbers with Luhn checksum and identify the card brand.',
+    category: 'data',
+    icon: 'credit-card',
+    keywords: ['credit', 'card', 'luhn', 'checksum', 'visa', 'mastercard', 'amex', 'discover'],
+    dependencies: [],
+  },
+  {
+    slug: 'isbn-validator',
+    name: 'ISBN validator',
+    description:
+      'Validate ISBN-10 and ISBN-13 numbers with checksum verification.',
+    category: 'data',
+    icon: 'book',
+    keywords: ['isbn', 'validate', 'checksum', 'book', 'isbn10', 'isbn13'],
+    dependencies: [],
+  },
+  {
+    slug: 'vin-decoder',
+    name: 'VIN decoder',
+    description:
+      'Decode Vehicle Identification Numbers into WMI, VDS, VIS, check digit, model year, and serial number.',
+    category: 'data',
+    icon: 'car',
+    keywords: ['vin', 'vehicle', 'identification', 'number', 'decoder', 'wmi', 'vds', 'vis', 'check', 'digit', 'model', 'year'],
+    dependencies: [],
+  },
+  {
+    slug: 'swift-bic-validator',
+    name: 'SWIFT/BIC validator',
+    description:
+      'Validate SWIFT/BIC codes and parse into bank code, country, location, and branch code.',
+    category: 'data',
+    icon: 'building-2',
+    keywords: ['swift', 'bic', 'validate', 'bank', 'code', 'iso', 'country', 'branch', 'location', 'wire', 'transfer'],
+    dependencies: [],
+  },
+  {
+    slug: 'ssn-validator',
+    name: 'SSN validator',
+    description:
+      'Validate US Social Security Numbers with area, group, and serial number rules. Detects ITINs.',
+    category: 'data',
+    icon: 'badge-check',
+    keywords: ['ssn', 'social', 'security', 'number', 'validate', 'itin', 'area', 'group', 'serial', 'us'],
+    dependencies: [],
+  },
+  {
+    slug: 'barcode-generator',
+    name: 'Barcode generator',
+    description:
+      'Generate CODE128, EAN-13, EAN-8, and UPC-A barcodes with SVG preview.',
+    category: 'data',
+    icon: 'barcode',
+    keywords: ['barcode', 'code128', 'ean13', 'ean8', 'upca', 'upc', 'generate', 'scan', 'product'],
+    dependencies: [],
+  },
+  {
+    slug: 'csv-to-json',
+    name: 'CSV to JSON',
+    description:
+      'Convert CSV data to JSON with configurable delimiter and header row.',
+    category: 'converter',
+    icon: 'file-spreadsheet',
+    keywords: ['csv', 'json', 'convert', 'delimiter', 'comma', 'tab', 'semicolon'],
+    dependencies: [],
+  },
+  {
+    slug: 'ipv6-subnet-calculator',
+    name: 'IPv6 subnet calculator',
+    description:
+      'Calculate IPv6 subnet details from an address and prefix length.',
+    category: 'network',
+    icon: 'network',
+    keywords: ['ipv6', 'subnet', 'cidr', 'prefix', 'network', 'address', 'range'],
+    dependencies: [],
+  },
+  // ---- Security & Privacy ----
+  {
+    slug: 'pii-redactor',
+    name: 'PII Redactor',
+    description:
+      'Mask emails, phone numbers, SSNs, credit cards, and other sensitive data in text.',
+    category: 'security',
+    icon: 'eye-off',
+    keywords: ['pii', 'redact', 'mask', 'email', 'phone', 'ssn', 'credit card', 'privacy', 'gdpr'],
+    dependencies: [],
+  },
+  {
+    slug: 'security-headers-builder',
+    name: 'Security Headers Builder',
+    description:
+      'Generate CSP, X-Frame-Options, HSTS, X-Content-Type-Options, Referrer-Policy headers.',
+    category: 'security',
+    icon: 'shield-check',
+    keywords: ['csp', 'hsts', 'x-frame-options', 'security', 'headers', 'referrer-policy', 'permissions-policy'],
+    dependencies: [],
+  },
+  {
+    slug: 'password-breach-checker',
+    name: 'Password Breach Checker',
+    description:
+      'Check if a password has appeared in known data breaches (HaveIBeenPwned k-anonymity).',
+    category: 'security',
+    icon: 'shield-alert',
+    keywords: ['password', 'breach', 'haveibeenpwned', 'pwned', 'leak', 'k-anonymity', 'sha1'],
+    dependencies: [],
+  },
+  {
+    slug: 'cors-policy-tester',
+    name: 'CORS Policy Tester',
+    description:
+      'Validate and test CORS configurations; generate Access-Control-* headers.',
+    category: 'security',
+    icon: 'globe',
+    keywords: ['cors', 'access-control', 'origin', 'preflight', 'cross-origin', 'headers'],
+    dependencies: [],
+  },
+  {
+    slug: 'xss-payload-sanitizer',
+    name: 'XSS Payload Sanitizer',
+    description:
+      'Test HTML input against XSS vectors with allowlist-based filtering.',
+    category: 'security',
+    icon: 'shield-alert',
+    keywords: ['xss', 'sanitize', 'html', 'security', 'allowlist', 'filter', 'payload', 'injection'],
+    dependencies: [],
+  },
+  {
+    slug: 'csp-evaluator',
+    name: 'CSP Evaluator',
+    description:
+      'Analyze Content-Security-Policy headers for missing protections and unsafe patterns.',
+    category: 'security',
+    icon: 'shield-check',
+    keywords: ['csp', 'content-security-policy', 'evaluate', 'analyze', 'security', 'headers', 'xss'],
+    dependencies: [],
+  },
+  {
+    slug: 'certificate-decoder',
+    name: 'Certificate Decoder',
+    description:
+      'Paste PEM certificate to parse issuer, subject, validity, SAN, key usage, and serial.',
+    category: 'security',
+    icon: 'file-check',
+    keywords: ['certificate', 'x509', 'pem', 'ssl', 'tls', 'decoder', 'parser', 'asn1'],
+    dependencies: ['node-forge'],
+  },
+  {
+    slug: 'hash-identifier',
+    name: 'Hash Identifier',
+    description:
+      'Identify the likely hash algorithm (MD5, SHA-1, SHA-256, bcrypt, etc.) by length and format.',
+    category: 'security',
+    icon: 'fingerprint',
+    keywords: ['hash', 'identify', 'md5', 'sha1', 'sha256', 'sha512', 'bcrypt', 'argon2', 'algorithm'],
+    dependencies: [],
+  },
+  {
+    slug: 'password-entropy-calculator',
+    name: 'Password Entropy Calculator',
+    description:
+      'Charset pool → bits of entropy, crack-time table, and strengthening tips.',
+    category: 'security',
+    icon: 'gauge',
+    keywords: ['password', 'entropy', 'bits', 'crack', 'brute force', 'strength', 'charset'],
+    dependencies: [],
+  },
+  {
+    slug: 'sri-hash-generator',
+    name: 'SRI Hash Generator',
+    description:
+      'Generate Subresource Integrity (sha256/384/512) attributes for script and link tags.',
+    category: 'security',
+    icon: 'shield-check',
+    keywords: ['sri', 'subresource', 'integrity', 'sha256', 'sha384', 'sha512', 'cdn', 'script'],
+    dependencies: [],
+  },
+  {
+    slug: 'file-checksum-verifier',
+    name: 'File Checksum Verifier',
+    description:
+      'Hash a local file (MD5/SHA-1/SHA-256/384/512) and compare against a published checksum.',
+    category: 'security',
+    icon: 'file-check',
+    keywords: ['checksum', 'verify', 'hash', 'sha256', 'sha512', 'md5', 'sha1', 'file', 'integrity'],
+    dependencies: ['hash-wasm'],
+  },
+  {
+    slug: 'secret-scanner',
+    name: 'Secret Scanner',
+    description:
+      'Detect leaked API keys, tokens, and private key blocks in pasted text or code.',
+    category: 'security',
+    icon: 'scan-line',
+    keywords: ['secret', 'scanner', 'api key', 'token', 'leak', 'aws', 'github', 'slack', 'stripe', 'private key'],
+    dependencies: [],
+  },
+  {
+    slug: 'email-header-analyzer',
+    name: 'Email Header Analyzer',
+    description:
+      'Parse raw email headers: Received chain, per-hop delays, and SPF/DKIM/DMARC results.',
+    category: 'security',
+    icon: 'mail',
+    keywords: ['email', 'header', 'analyzer', 'received', 'spf', 'dkim', 'dmarc', 'deliverability', 'phishing'],
+    dependencies: [],
+  },
+  {
+    slug: 'mail-auth-record-builder',
+    name: 'SPF / DKIM / DMARC Builder',
+    description:
+      'Build and validate SPF, DKIM, and DMARC DNS TXT records for email authentication.',
+    category: 'security',
+    icon: 'mail-check',
+    keywords: ['spf', 'dkim', 'dmarc', 'email', 'dns', 'txt', 'record', 'mail', 'authentication'],
+    dependencies: [],
+  },
+  {
+    slug: 'security-txt-generator',
+    name: 'security.txt Generator',
+    description:
+      'Build an RFC 9116 security.txt file (contact, expires, acknowledgments) for /.well-known/.',
+    category: 'security',
+    icon: 'file-text',
+    keywords: ['security.txt', 'rfc9116', 'vulnerability', 'disclosure', 'contact', 'well-known'],
+    dependencies: [],
+  },
+  {
+    slug: 'cookie-flags-analyzer',
+    name: 'Cookie Flags Analyzer',
+    description:
+      'Analyze Set-Cookie headers for missing Secure, HttpOnly, SameSite flags and scope issues.',
+    category: 'security',
+    icon: 'cookie',
+    keywords: ['cookie', 'set-cookie', 'secure', 'httponly', 'samesite', 'flags', 'session'],
+    dependencies: [],
+  },
+  {
+    slug: 'homoglyph-detector',
+    name: 'Homoglyph / Punycode Detector',
+    description:
+      'Flag confusable Unicode, xn-- punycode, and mixed-script phishing indicators in a URL or domain.',
+    category: 'security',
+    icon: 'scan-line',
+    keywords: ['homoglyph', 'punycode', 'idn', 'phishing', 'unicode', 'confusable', 'domain', 'url'],
+    dependencies: [],
+  },
+  {
+    slug: 'browser-leak-demo',
+    name: 'Browser Leak Demo',
+    description:
+      'See what your browser exposes: WebRTC local IPs, user-agent, screen, timezone, fingerprint entropy.',
+    category: 'security',
+    icon: 'eye',
+    keywords: ['browser', 'leak', 'fingerprint', 'webrtc', 'ip', 'privacy', 'tracking', 'user-agent'],
+    dependencies: [],
+  },
+  {
+    slug: 'htpasswd-generator',
+    name: 'htpasswd Generator',
+    description:
+      'Generate .htpasswd lines (bcrypt $2y$, Apache MD5 $apr1$, SHA-1) for basic auth.',
+    category: 'security',
+    icon: 'file-key',
+    keywords: ['htpasswd', 'apache', 'nginx', 'basic auth', 'bcrypt', 'apr1', 'md5', 'sha1', 'htaccess'],
+    dependencies: ['hash-wasm'],
+  },
+  {
+    slug: 'ssh-key-generator',
+    name: 'SSH Key Pair Generator',
+    description:
+      'Generate an Ed25519 SSH key pair (OpenSSH format) with SHA256 fingerprint, locally via Web Crypto.',
+    category: 'security',
+    icon: 'key',
+    keywords: ['ssh', 'key', 'ed25519', 'keygen', 'openssh', 'public key', 'private key', 'fingerprint'],
+    dependencies: [],
+  },
+  {
+    slug: 'permissions-policy-builder',
+    name: 'Permissions-Policy Builder',
+    description:
+      'Build a Permissions-Policy header (camera, microphone, geolocation, etc.) from a form.',
+    category: 'security',
+    icon: 'shield-check',
+    keywords: ['permissions-policy', 'feature-policy', 'header', 'camera', 'microphone', 'geolocation', 'http'],
+    dependencies: [],
+  },
+  // ---- Classical Ciphers ----
+  {
+    slug: 'caesar-cipher',
+    name: 'Caesar / ROT Cipher',
+    description:
+      'Bidirectional shift cipher with configurable rotation (ROT13 default).',
+    category: 'cipher',
+    icon: 'key-round',
+    keywords: ['caesar', 'rot', 'rot13', 'shift', 'cipher', 'encrypt', 'decrypt', 'substitution'],
+    dependencies: [],
+  },
+  {
+    slug: 'vigenere-cipher',
+    name: 'VigenÃ¨re Cipher',
+    description:
+      'Polyalphabetic substitution cipher with a keyword.',
+    category: 'cipher',
+    icon: 'key-round',
+    keywords: ['vigenere', 'polyalphabetic', 'keyword', 'cipher', 'encrypt', 'decrypt', 'substitution'],
+    dependencies: [],
+  },
+  {
+    slug: 'atbash-cipher',
+    name: 'Atbash Cipher',
+    description:
+      'Reverse-alphabet substitution cipher (Aâ†”Z, Bâ†”Y, â€¦). Self-inverse.',
+    category: 'cipher',
+    icon: 'key-round',
+    keywords: ['atbash', 'reverse', 'alphabet', 'cipher', 'substitution', 'hebrew'],
+    dependencies: [],
+  },
+  {
+    slug: 'morse-code-converter',
+    name: 'Morse Code Converter',
+    description:
+      'Bidirectional text â†” Morse code (ITU standard).',
+    category: 'cipher',
+    icon: 'radio',
+    keywords: ['morse', 'code', 'itu', 'telegraph', 'dot', 'dash', 'encode', 'decode'],
+    dependencies: [],
+  },
+  {
+    slug: 'polybius-square',
+    name: 'Polybius Square',
+    description:
+      'Coordinate-based substitution cipher with configurable grid size (5Ã—5 or 6Ã—6).',
+    category: 'cipher',
+    icon: 'grid-3x3',
+    keywords: ['polybius', 'square', 'grid', 'coordinate', 'cipher', 'substitution'],
+    dependencies: [],
+  },
+  {
+    slug: 'rail-fence-cipher',
+    name: 'Rail Fence Cipher',
+    description:
+      'Transposition cipher with configurable rail count.',
+    category: 'cipher',
+    icon: 'key-round',
+    keywords: ['rail', 'fence', 'zigzag', 'transposition', 'cipher', 'encrypt', 'decrypt'],
+    dependencies: [],
+  },
+  {
+    slug: 'affine-cipher',
+    name: 'Affine Cipher',
+    description:
+      'Mathematical substitution cipher (ax + b mod 26).',
+    category: 'cipher',
+    icon: 'function-square',
+    keywords: ['affine', 'math', 'substitution', 'cipher', 'modular', 'encrypt', 'decrypt'],
+    dependencies: [],
+  },
+  {
+    slug: 'bacon-cipher',
+    name: 'Bacon Cipher',
+    description:
+      'Binary steganography using a/b patterns (5-bit encoding).',
+    category: 'cipher',
+    icon: 'key-round',
+    keywords: ['bacon', 'binary', 'steganography', 'cipher', '5-bit', 'encode', 'decode'],
+    dependencies: [],
+  },
+  {
+    slug: 'rot47-cipher',
+    name: 'ROT47',
+    description:
+      'ROT47 variant for ASCII printable characters (33â€“126). Self-inverse.',
+    category: 'cipher',
+    icon: 'key-round',
+    keywords: ['rot47', 'rot', 'ascii', 'printable', 'cipher', 'shift', 'self-inverse'],
+    dependencies: [],
+  },
+  {
+    slug: 'xor-cipher',
+    name: 'XOR Cipher',
+    description:
+      'Simple XOR encryption/decryption with a key string.',
+    category: 'cipher',
+    icon: 'binary',
+    keywords: ['xor', 'cipher', 'encrypt', 'decrypt', 'key', 'hex', 'binary'],
+    dependencies: [],
+  },
+  // ---- DevOps & Infrastructure ----
+  {
+    slug: 'nginx-config-builder',
+    name: 'Nginx Config Builder',
+    description:
+      'Visual form â†’ Nginx reverse proxy, static site, or load balancer configuration.',
+    category: 'devops',
+    icon: 'server',
+    keywords: ['nginx', 'config', 'reverse-proxy', 'load-balancer', 'static-site', 'upstream', 'server-block'],
+    dependencies: [],
+  },
+  {
+    slug: 'systemd-service-generator',
+    name: 'Systemd Service Generator',
+    description:
+      'Form inputs â†’ .service unit file (ExecStart, Restart, User, Environment, etc.).',
+    category: 'devops',
+    icon: 'settings',
+    keywords: ['systemd', 'service', 'unit', 'execstart', 'restart', 'linux', 'init'],
+    dependencies: [],
+  },
+  {
+    slug: 'k8s-manifest-builder',
+    name: 'Kubernetes Manifest Builder',
+    description:
+      'Form â†’ Deployment, Service, and Ingress YAML manifests.',
+    category: 'devops',
+    icon: 'box',
+    keywords: ['kubernetes', 'k8s', 'manifest', 'deployment', 'service', 'ingress', 'yaml'],
+    dependencies: ['yaml'],
+  },
+  {
+    slug: 'env-file-manager',
+    name: 'Env File Manager',
+    description:
+      '.env â†” JSON conversion, diff, merge; quote handling, duplicate detection.',
+    category: 'devops',
+    icon: 'file-cog',
+    keywords: ['env', 'dotenv', 'environment', 'variables', 'json', 'convert', 'diff', 'merge'],
+    dependencies: [],
+  },
+  {
+    slug: 'dns-record-lookup',
+    name: 'DNS Record Lookup',
+    description:
+      'Query A/AAAA/MX/TXT/NS/CNAME/CAA records via DNS-over-HTTPS (Cloudflare/Google).',
+    category: 'devops',
+    icon: 'globe',
+    keywords: ['dns', 'lookup', 'doh', 'cloudflare', 'google', 'a', 'aaaa', 'mx', 'txt', 'ns', 'cname', 'caa'],
+    dependencies: [],
+  },
+  {
+    slug: 'cron-expression-validator',
+    name: 'Cron Expression Validator',
+    description:
+      'Validate and explain cron expressions with next-run preview.',
+    category: 'devops',
+    icon: 'clock',
+    keywords: ['cron', 'validate', 'explain', 'schedule', 'next-run', 'crontab'],
+    dependencies: [],
+  },
+  {
+    slug: 'log-formatter',
+    name: 'Log Formatter',
+    description:
+      'Parse and prettify common log formats (Nginx access, Apache, syslog, JSON logs).',
+    category: 'devops',
+    icon: 'file-text',
+    keywords: ['log', 'format', 'prettify', 'nginx', 'apache', 'syslog', 'json', 'parse'],
+    dependencies: [],
+  },
+  {
+    slug: 'port-forwarding-builder',
+    name: 'Port Forwarding Rule Builder',
+    description:
+      'Generate iptables, nftables, or SSH tunnel port-forwarding commands.',
+    category: 'devops',
+    icon: 'plug',
+    keywords: ['port', 'forwarding', 'iptables', 'nftables', 'ssh', 'tunnel', 'nat', 'redirect'],
+    dependencies: [],
+  },
+  {
+    slug: 'dockerfile-linter',
+    name: 'Dockerfile Linter',
+    description:
+      'Paste Dockerfile â†’ best-practice checks (layer count, base image, USER, HEALTHCHECK, etc.).',
+    category: 'devops',
+    icon: 'container',
+    keywords: ['dockerfile', 'lint', 'docker', 'best-practice', 'layers', 'healthcheck', 'user', 'base-image'],
+    dependencies: [],
+  },
+  // ---- API & Testing ----
+  {
+    slug: 'curl-command-builder',
+    name: 'cURL Command Builder',
+    description:
+      'Visual form â†’ cURL command; reverse: paste cURL â†’ parsed fields.',
+    category: 'api',
+    icon: 'terminal',
+    keywords: ['curl', 'command', 'http', 'request', 'build', 'parse', 'cli'],
+    dependencies: [],
+  },
+  {
+    slug: 'http-request-tester',
+    name: 'HTTP Request Tester',
+    description:
+      'Method/URL/headers/body â†’ fetch â†’ response (status, headers, timing, body).',
+    category: 'api',
+    icon: 'send',
+    keywords: ['http', 'request', 'fetch', 'api', 'response', 'tester', 'rest'],
+    dependencies: [],
+  },
+  {
+    slug: 'openapi-spec-formatter',
+    name: 'OpenAPI Spec Formatter',
+    description:
+      'Pretty-print / validate OpenAPI 3.x JSON/YAML with error reporting.',
+    category: 'api',
+    icon: 'file-code',
+    keywords: ['openapi', 'swagger', 'spec', 'format', 'validate', 'json', 'yaml', 'api'],
+    dependencies: [],
+  },
+  {
+    slug: 'graphql-query-formatter',
+    name: 'GraphQL Query Formatter',
+    description:
+      'Prettify and validate GraphQL queries/mutations/subscriptions.',
+    category: 'api',
+    icon: 'braces',
+    keywords: ['graphql', 'query', 'mutation', 'subscription', 'format', 'prettify', 'validate', 'gql'],
+    dependencies: [],
+  },
+  {
+    slug: 'webhook-payload-inspector',
+    name: 'Webhook Payload Inspector',
+    description:
+      'Paste JSON â†’ formatted tree view with JSONPath/jq-style filtering.',
+    category: 'api',
+    icon: 'webhook',
+    keywords: ['webhook', 'payload', 'json', 'inspect', 'tree', 'jsonpath', 'jq', 'filter'],
+    dependencies: [],
+  },
+  {
+    slug: 'mock-response-generator',
+    name: 'API Mock Response Generator',
+    description:
+      'Generate mock JSON from schema, template, or faker-style patterns.',
+    category: 'api',
+    icon: 'braces',
+    keywords: ['mock', 'response', 'generate', 'fake', 'schema', 'template', 'faker', 'json', 'api'],
+    dependencies: [],
+  },
+  {
+    slug: 'http-methods-reference',
+    name: 'HTTP Methods Reference',
+    description:
+      'Searchable reference for HTTP methods (GET/POST/PUT/PATCH/DELETE/OPTIONS/HEAD/TRACE) with safe/idempotent badges.',
+    category: 'api',
+    icon: 'book-open',
+    keywords: ['http', 'method', 'get', 'post', 'put', 'patch', 'delete', 'options', 'head', 'trace', 'connect', 'reference', 'safe', 'idempotent'],
+    dependencies: [],
+  },
+  {
+    slug: 'content-type-negotiator',
+    name: 'Content-Type Negotiation',
+    description:
+      'Parse Accept headers, show matched MIME types and quality factors.',
+    category: 'api',
+    icon: 'file-text',
+    keywords: ['content-type', 'accept', 'negotiation', 'mime', 'quality', 'q-value', 'header', 'http'],
+    dependencies: [],
+  },
+  {
+    slug: 'api-key-generator',
+    name: 'API Key Generator',
+    description:
+      'Generate API keys with configurable prefix, entropy, format (hex/base64/base32), and checksum.',
+    category: 'api',
+    icon: 'key-round',
+    keywords: ['api', 'key', 'generate', 'token', 'secret', 'hex', 'base64', 'base32', 'checksum', 'entropy'],
+    dependencies: [],
+  },
+  {
+    slug: 'json-schema-validator',
+    name: 'JSON Schema Validator',
+    description:
+      'Validate JSON instance against a JSON Schema (draft 2020-12 / draft-7).',
+    category: 'api',
+    icon: 'check-check',
+    keywords: ['json', 'schema', 'validate', 'validation', 'draft', 'json-schema', 'ajv', 'instance'],
+    dependencies: [],
+  },
+  // ---- i18n ----
+  {
+    slug: 'icu-message-format-builder',
+    name: 'ICU MessageFormat Builder',
+    description:
+      'Build/preview ICU MessageFormat strings with live rendering for plural, select, and date arguments.',
+    category: 'i18n',
+    icon: 'languages',
+    keywords: ['icu', 'messageformat', 'plural', 'select', 'i18n', 'l10n', 'translation', 'intl'],
+    dependencies: [],
+  },
+  {
+    slug: 'locale-formatter',
+    name: 'Locale Formatter',
+    description:
+      'Preview number, date, currency, list, and relative-time formatting across locales via Intl.',
+    category: 'i18n',
+    icon: 'calendar',
+    keywords: ['locale', 'format', 'number', 'date', 'currency', 'relative', 'intl', 'i18n'],
+    dependencies: [],
+  },
+  {
+    slug: 'plural-rules-explorer',
+    name: 'Plural Rules Explorer',
+    description:
+      'Show pluralization categories (one/few/many/other) per locale via Intl.PluralRules.',
+    category: 'i18n',
+    icon: 'layers',
+    keywords: ['plural', 'rules', 'cardinal', 'ordinal', 'locale', 'intl', 'i18n'],
+    dependencies: [],
+  },
+  {
+    slug: 'language-code-lookup',
+    name: 'Language Code Lookup',
+    description:
+      'ISO 639-1 / 639-2 / 639-3 code â†” language name, bidirectional search.',
+    category: 'i18n',
+    icon: 'book-open',
+    keywords: ['language', 'iso-639', 'code', 'locale', 'lookup', 'i18n'],
+    dependencies: [],
+  },
+  {
+    slug: 'timezone-database',
+    name: 'Timezone Database',
+    description:
+      'IANA timezone list with offsets, DST info, and search via Intl.supportedValuesOf.',
+    category: 'i18n',
+    icon: 'clock',
+    keywords: ['timezone', 'iana', 'tz', 'offset', 'dst', 'intl', 'i18n'],
+    dependencies: [],
+  },
+  {
+    slug: 'currency-code-lookup',
+    name: 'Currency Code Lookup',
+    description:
+      'ISO 4217 code â†” currency name, symbol, decimal places, and search.',
+    category: 'i18n',
+    icon: 'banknote',
+    keywords: ['currency', 'iso-4217', 'code', 'symbol', 'lookup', 'i18n'],
+    dependencies: [],
+  },
+  {
+    slug: 'country-code-lookup',
+    name: 'Country Code Lookup',
+    description:
+      'ISO 3166-1 alpha-2 / alpha-3 / numeric code â†” country name and flag emoji.',
+    category: 'i18n',
+    icon: 'globe',
+    keywords: ['country', 'iso-3166', 'code', 'flag', 'alpha-2', 'alpha-3', 'i18n'],
+    dependencies: [],
+  },
+  {
+    slug: 'collation-comparator',
+    name: 'Collation Comparator',
+    description:
+      'Compare string sort order across locales via Intl.Collator.',
+    category: 'i18n',
+    icon: 'arrow-down-up-narrow-wide',
+    keywords: ['collation', 'sort', 'compare', 'locale', 'intl', 'collator', 'i18n'],
+    dependencies: [],
+  },
+  {
+    slug: 'unicode-property-explorer',
+    name: 'Unicode Property Explorer',
+    description:
+      'Inspect code points, categories, scripts, blocks, and normalization forms.',
+    category: 'i18n',
+    icon: 'binary',
+    keywords: ['unicode', 'codepoint', 'script', 'block', 'normalization', 'nfc', 'nfd', 'i18n'],
+    dependencies: [],
+  },
+  {
+    slug: 'bidi-text-checker',
+    name: 'Bidirectional Text Checker',
+    description:
+      'Detect and visualize RTL/LTR directionality and BiDi control characters in text.',
+    category: 'i18n',
+    icon: 'arrow-left-right',
+    keywords: ['bidi', 'rtl', 'ltr', 'directionality', 'arabic', 'hebrew', 'i18n'],
+    dependencies: [],
+  },
+  // ---- Finance & Calculators ----
+  {
+    slug: 'loan-calculator',
+    name: 'Loan / Mortgage Calculator',
+    description:
+      'Calculate monthly payments and generate an amortization schedule from principal, rate, and term.',
+    category: 'finance',
+    icon: 'banknote',
+    keywords: ['loan', 'mortgage', 'amortization', 'principal', 'interest', 'monthly', 'payment'],
+    dependencies: [],
+  },
+  {
+    slug: 'compound-interest-calculator',
+    name: 'Compound Interest Calculator',
+    description:
+      'Calculate final amount and interest earned with configurable compounding frequency.',
+    category: 'finance',
+    icon: 'banknote',
+    keywords: ['compound', 'interest', 'principal', 'rate', 'compounding', 'investment'],
+    dependencies: [],
+  },
+  {
+    slug: 'currency-converter',
+    name: 'Currency Converter',
+    description:
+      'Convert between currencies using static rates or live API-fed exchange rates.',
+    category: 'finance',
+    icon: 'banknote',
+    keywords: ['currency', 'convert', 'exchange', 'rate', 'forex', 'money'],
+    dependencies: [],
+  },
+  {
+    slug: 'vat-calculator',
+    name: 'VAT / Sales Tax Calculator',
+    description:
+      'Add or remove VAT and sales tax at configurable rates.',
+    category: 'finance',
+    icon: 'receipt',
+    keywords: ['vat', 'sales', 'tax', 'gst', 'add', 'remove', 'net', 'gross'],
+    dependencies: [],
+  },
+  {
+    slug: 'income-tax-calculator',
+    name: 'Income Tax Bracket Calculator',
+    description:
+      'Progressive income tax calculator with configurable tax brackets.',
+    category: 'finance',
+    icon: 'receipt',
+    keywords: ['income', 'tax', 'bracket', 'progressive', 'marginal', 'deduction'],
+    dependencies: [],
+  },
+  {
+    slug: 'invoice-generator',
+    name: 'Invoice Generator',
+    description:
+      'Create formatted invoices from line items with totals, tax, and discounts.',
+    category: 'finance',
+    icon: 'file-text',
+    keywords: ['invoice', 'bill', 'receipt', 'line-item', 'subtotal', 'tax', 'discount'],
+    dependencies: [],
+  },
+  {
+    slug: 'tip-calculator',
+    name: 'Tip Calculator',
+    description:
+      'Calculate tip amounts and per-person totals from bill, tip percentage, and party size.',
+    category: 'finance',
+    icon: 'banknote',
+    keywords: ['tip', 'gratuity', 'bill', 'split', 'restaurant', 'party'],
+    dependencies: [],
+  },
+  {
+    slug: 'roi-calculator',
+    name: 'ROI Calculator',
+    description:
+      'Calculate return on investment percentage, annualized return, and gain or loss.',
+    category: 'finance',
+    icon: 'trending-up',
+    keywords: ['roi', 'return', 'investment', 'annualized', 'gain', 'loss', 'profit'],
+    dependencies: [],
+  },
+  {
+    slug: 'depreciation-calculator',
+    name: 'Depreciation Calculator',
+    description:
+      'Straight-line, declining-balance, and sum-of-years-digits depreciation schedules.',
+    category: 'finance',
+    icon: 'trending-down',
+    keywords: ['depreciation', 'straight-line', 'declining-balance', 'sum-of-years', 'asset', 'schedule'],
+    dependencies: [],
+  },
+  {
+    slug: 'break-even-calculator',
+    name: 'Break-Even Calculator',
+    description:
+      'Calculate the break-even point from fixed costs, variable cost per unit, and price per unit.',
+    category: 'finance',
+    icon: 'scale',
+    keywords: ['break-even', 'breakeven', 'fixed', 'variable', 'cost', 'price', 'units'],
+    dependencies: [],
+  },
+  // ---- Geographic & Coordinates ----
+  {
+    slug: 'coordinate-converter',
+    name: 'Coordinate Converter',
+    description:
+      'Convert coordinates between decimal, DMS (degrees/minutes/seconds), UTM, and MGRS formats.',
+    category: 'geo',
+    icon: 'map-pin',
+    keywords: ['coordinate', 'convert', 'decimal', 'dms', 'utm', 'mgrs', 'latitude', 'longitude', 'wgs84'],
+    dependencies: [],
+  },
+  {
+    slug: 'geohash-encoder',
+    name: 'Geohash Encoder / Decoder',
+    description:
+      'Encode and decode lat/lon coordinates to geohash strings with configurable precision.',
+    category: 'geo',
+    icon: 'hash',
+    keywords: ['geohash', 'encode', 'decode', 'lat', 'lon', 'precision', 'base32', 'geocode'],
+    dependencies: [],
+  },
+  {
+    slug: 'plus-code-encoder',
+    name: 'Plus Code Encoder / Decoder',
+    description:
+      'Encode and decode lat/lon coordinates to Open Location Code (Plus Code) format.',
+    category: 'geo',
+    icon: 'map-pin',
+    keywords: ['plus', 'code', 'open', 'location', 'olc', 'encode', 'decode', 'lat', 'lon', 'google'],
+    dependencies: [],
+  },
+  {
+    slug: 'distance-calculator',
+    name: 'Distance Calculator',
+    description:
+      'Calculate great-circle distance between two coordinate pairs using Haversine or Vincenty formula.',
+    category: 'geo',
+    icon: 'ruler',
+    keywords: ['distance', 'haversine', 'vincenty', 'great-circle', 'coordinates', 'lat', 'lon', 'km', 'mile'],
+    dependencies: [],
+  },
+  {
+    slug: 'timezone-from-coordinates',
+    name: 'Timezone from Coordinates',
+    description:
+      'Estimate timezone and UTC offset from latitude and longitude coordinates.',
+    category: 'geo',
+    icon: 'clock',
+    keywords: ['timezone', 'coordinates', 'lat', 'lon', 'utc', 'offset', 'estimate', 'longitude'],
+    dependencies: [],
+  },
+  {
+    slug: 'bounding-box-calculator',
+    name: 'Bounding Box Calculator',
+    description:
+      'Calculate a bounding box (min/max lat/lon) from a center point and radius for spatial queries.',
+    category: 'geo',
+    icon: 'square',
+    keywords: ['bounding', 'box', 'bbox', 'center', 'radius', 'lat', 'lon', 'spatial', 'query', 'geo'],
+    dependencies: [],
+  },
+  {
+    slug: 'coordinate-normalizer',
+    name: 'Coordinate Format Normalizer',
+    description:
+      'Parse and normalize various coordinate input formats to standard decimal degrees.',
+    category: 'geo',
+    icon: 'map-pin',
+    keywords: ['coordinate', 'normalize', 'parse', 'dms', 'decimal', 'degrees', 'format', 'lat', 'lon'],
+    dependencies: [],
+  },
+  {
+    slug: 'whatxword-encoder',
+    name: 'WhatXWord Encoder',
+    description:
+      'Encode/decode lat/lon â†” three-word addresses. Fully offline with 80K+ word list and multiple word packs.',
+    category: 'geo',
+    icon: 'map-pin',
+    keywords: ['whatxword', 'w3w', 'three', 'word', 'address', 'lat', 'lon', 'geocode', 'offline', 'encode', 'decode'],
+    dependencies: [],
+  },
+  // ---- Accessibility (a11y) ----
+  {
+    slug: 'color-contrast-checker',
+    name: 'Color Contrast Checker',
+    description:
+      'Check WCAG AA/AAA contrast ratio between two colors with pass/fail badges.',
+    category: 'a11y',
+    icon: 'contrast',
+    keywords: ['color', 'contrast', 'wcag', 'aa', 'aaa', 'accessibility', 'ratio', 'luminance'],
+    dependencies: [],
+  },
+  {
+    slug: 'aria-label-generator',
+    name: 'ARIA Label Generator',
+    description:
+      'Generate ARIA attributes (label, labelledby, describedby, role) from form inputs.',
+    category: 'a11y',
+    icon: 'tag',
+    keywords: ['aria', 'label', 'labelledby', 'describedby', 'role', 'accessibility', 'attribute'],
+    dependencies: [],
+  },
+  {
+    slug: 'alt-text-builder',
+    name: 'Alt Text Builder',
+    description:
+      'Template-based alt text generator for images (subject, action, context).',
+    category: 'a11y',
+    icon: 'image',
+    keywords: ['alt', 'text', 'image', 'accessibility', 'template', 'alt-text', 'description'],
+    dependencies: [],
+  },
+  {
+    slug: 'tab-order-visualizer',
+    name: 'Tab Order Visualizer',
+    description:
+      'Paste HTML to see tab navigation order with tabindex analysis.',
+    category: 'a11y',
+    icon: 'list-ordered',
+    keywords: ['tab', 'order', 'tabindex', 'navigation', 'keyboard', 'accessibility', 'focus'],
+    dependencies: [],
+  },
+  {
+    slug: 'wcag-reference',
+    name: 'WCAG Reference',
+    description:
+      'Searchable WCAG 2.2 criteria database (A/AA/AAA levels, principles, guidelines).',
+    category: 'a11y',
+    icon: 'book-open',
+    keywords: ['wcag', 'reference', 'criteria', 'guidelines', 'accessibility', 'level', 'conformance'],
+    dependencies: [],
+  },
+  {
+    slug: 'heading-structure-analyzer',
+    name: 'Heading Structure Analyzer',
+    description:
+      'Paste HTML to see heading hierarchy tree with skipped-level warnings.',
+    category: 'a11y',
+    icon: 'heading',
+    keywords: ['heading', 'structure', 'hierarchy', 'h1', 'h2', 'h3', 'accessibility', 'outline'],
+    dependencies: [],
+  },
+  {
+    slug: 'screen-reader-text-generator',
+    name: 'Screen Reader Text Generator',
+    description:
+      'Generate visually-hidden / sr-only text and aria-live region markup.',
+    category: 'a11y',
+    icon: 'volume-2',
+    keywords: ['screen', 'reader', 'sr-only', 'visually-hidden', 'aria-live', 'accessibility', 'announce'],
+    dependencies: [],
+  },
+  // ---- DevOps (extended) ----
+  {
+    slug: 'terraform-resource-builder',
+    name: 'Terraform Resource Builder',
+    description:
+      'Form â†’ HCL for AWS/Azure/GCP resources (EC2, S3, VPC, security groups, etc.).',
+    category: 'devops',
+    icon: 'cloud',
+    keywords: ['terraform', 'hcl', 'aws', 'azure', 'gcp', 'ec2', 's3', 'vpc', 'security-group', 'iac'],
+    dependencies: [],
+  },
+  {
+    slug: 'terraform-module-builder',
+    name: 'Terraform Module Generator',
+    description:
+      'Generate reusable module scaffolding (main.tf, variables.tf, outputs.tf) from inputs.',
+    category: 'devops',
+    icon: 'boxes',
+    keywords: ['terraform', 'module', 'scaffold', 'main.tf', 'variables.tf', 'outputs.tf', 'iac'],
+    dependencies: [],
+  },
+  {
+    slug: 'terraform-import-builder',
+    name: 'Terraform Import Command Builder',
+    description:
+      'Generate terraform import commands from a list of resource addresses and IDs.',
+    category: 'devops',
+    icon: 'download',
+    keywords: ['terraform', 'import', 'command', 'resource', 'address', 'id', 'iac'],
+    dependencies: [],
+  },
+  {
+    slug: 'proxmox-vm-builder',
+    name: 'Proxmox VM Builder',
+    description:
+      'Form â†’ QEMU VM config (CPU cores, memory, disk, net0, SCSI controller, boot order).',
+    category: 'devops',
+    icon: 'server',
+    keywords: ['proxmox', 'qemu', 'vm', 'virtual machine', 'cpu', 'memory', 'disk', 'scsi', 'boot'],
+    dependencies: [],
+  },
+  {
+    slug: 'proxmox-cloud-init-builder',
+    name: 'Proxmox Cloud-Init Generator',
+    description:
+      'Generate cloud-init user-data and network-config snippets for Proxmox VMs.',
+    category: 'devops',
+    icon: 'cloud',
+    keywords: ['proxmox', 'cloud-init', 'user-data', 'network-config', 'vm', 'snippet', 'ci'],
+    dependencies: [],
+  },
+  {
+    slug: 'proxmox-lxc-builder',
+    name: 'Proxmox LXC Container Builder',
+    description:
+      'Generate LXC container config (arch, cores, memory, swap, rootfs, network).',
+    category: 'devops',
+    icon: 'box',
+    keywords: ['proxmox', 'lxc', 'container', 'cores', 'memory', 'swap', 'rootfs', 'network'],
+    dependencies: [],
+  },
+  {
+    slug: 'ansible-playbook-builder',
+    name: 'Ansible Playbook Builder',
+    description:
+      'Form â†’ Ansible playbook YAML (hosts, tasks, handlers, variables).',
+    category: 'devops',
+    icon: 'file-code',
+    keywords: ['ansible', 'playbook', 'yaml', 'tasks', 'handlers', 'variables', 'automation'],
+    dependencies: [],
+  },
+  {
+    slug: 'wireguard-config-builder',
+    name: 'WireGuard Config Generator',
+    description:
+      'Generate WireGuard server and client configs with key pair generation.',
+    category: 'devops',
+    icon: 'shield',
+    keywords: ['wireguard', 'vpn', 'config', 'server', 'client', 'key', 'peer', 'tunnel'],
+    dependencies: [],
+  },
+  {
+    slug: 'ufw-rule-builder',
+    name: 'UFW Rule Builder',
+    description:
+      'Generate UFW firewall commands (allow/deny by port, service, IP, direction).',
+    category: 'devops',
+    icon: 'flame',
+    keywords: ['ufw', 'firewall', 'iptables', 'allow', 'deny', 'port', 'service', 'ip', 'rule'],
+    dependencies: [],
+  },
+  {
+    slug: 'haproxy-config-builder',
+    name: 'HAProxy Config Builder',
+    description:
+      'Form â†’ HAProxy frontend/backend config (ACLs, backends, SSL, stats).',
+    category: 'devops',
+    icon: 'server',
+    keywords: ['haproxy', 'load-balancer', 'frontend', 'backend', 'acl', 'ssl', 'stats', 'proxy'],
+    dependencies: [],
+  },
+  {
+    slug: 'makefile-generator',
+    name: 'Makefile Generator',
+    description:
+      'Generate common Makefile targets (build, test, lint, deploy, clean).',
+    category: 'devops',
+    icon: 'file-text',
+    keywords: ['makefile', 'make', 'build', 'test', 'lint', 'deploy', 'clean', 'targets'],
+    dependencies: [],
+  },
+  {
+    slug: 'helm-values-builder',
+    name: 'Helm Values Builder',
+    description:
+      'Form â†’ Helm values.yaml with common chart overrides.',
+    category: 'devops',
+    icon: 'ship',
+    keywords: ['helm', 'values', 'yaml', 'chart', 'override', 'kubernetes', 'k8s'],
+    dependencies: [],
+  },
+
+  // ---- Audio & Video (av) ----
+  {
+    slug: 'audio-converter',
+    name: 'Audio Converter',
+    description:
+      'Convert audio between WAV, MP3, OGG, FLAC, AAC, and M4A locally via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'music',
+    keywords: [
+      'audio', 'convert', 'mp3', 'wav', 'ogg', 'flac', 'aac', 'm4a', 'vorbis',
+      'transcode', 'ffmpeg',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'video-converter',
+    name: 'Video Converter',
+    description:
+      'Convert video between MP4, WebM, MOV, AVI, and MKV with codec/CRF controls via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'film',
+    keywords: [
+      'video', 'convert', 'mp4', 'webm', 'mov', 'avi', 'mkv', 'h264', 'vp9',
+      'transcode', 'ffmpeg', 'crf',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'video-to-gif',
+    name: 'Video to GIF',
+    description:
+      'Convert video clips to animated GIF with fps, width, and trim controls via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'image',
+    keywords: [
+      'video', 'gif', 'animated', 'convert', 'clip', 'fps', 'ffmpeg', 'meme',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'gif-to-video',
+    name: 'GIF to Video',
+    description:
+      'Convert animated GIF to MP4 or WebM for a much smaller file size via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'file-video',
+    keywords: [
+      'gif', 'video', 'mp4', 'webm', 'convert', 'animated', 'compress', 'ffmpeg',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'audio-extractor',
+    name: 'Audio Extractor',
+    description:
+      'Extract the audio track from a video file (MP4 â†’ MP3/AAC/WAV) via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'file-audio',
+    keywords: [
+      'audio', 'extract', 'video', 'mp4', 'mp3', 'aac', 'wav', 'rip', 'demux',
+      'ffmpeg',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'audio-trimmer',
+    name: 'Audio Trimmer',
+    description:
+      'Cut audio with a waveform preview, fade in/out, and format re-export via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'scissors',
+    keywords: [
+      'audio', 'trim', 'cut', 'fade', 'waveform', 'mp3', 'wav', 'ffmpeg', 'clip',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'video-trimmer',
+    name: 'Video Trimmer',
+    description:
+      'Cut video clips by start/end timestamp; stream-copy when codecs allow, via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'clapperboard',
+    keywords: [
+      'video', 'trim', 'cut', 'clip', 'mp4', 'keyframe', 'ffmpeg', 'split',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'audio-merger',
+    name: 'Audio Merger',
+    description:
+      'Concatenate multiple audio files into a single track via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'merge',
+    keywords: [
+      'audio', 'merge', 'join', 'concat', 'combine', 'mp3', 'wav', 'ffmpeg',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'video-compressor',
+    name: 'Video Compressor',
+    description:
+      'Reduce video size via resolution, bitrate, and CRF presets via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'shrink',
+    keywords: [
+      'video', 'compress', 'reduce', 'size', 'crf', 'bitrate', 'mp4', 'webm',
+      'ffmpeg', 'shrink',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'volume-normalizer',
+    name: 'Volume Normalizer',
+    description:
+      'Normalize or boost audio loudness (peak / EBU R128) and export via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'volume-2',
+    keywords: [
+      'audio', 'volume', 'normalize', 'loudness', 'lufs', 'ebu', 'r128', 'gain',
+      'boost', 'ffmpeg',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'audio-metadata-editor',
+    name: 'Audio Metadata Editor',
+    description:
+      'View and edit ID3 and Vorbis tags (title, artist, album, cover art) via ffmpeg.wasm.',
+    category: 'av',
+    icon: 'file-music',
+    keywords: [
+      'audio', 'metadata', 'id3', 'tags', 'mp3', 'flac', 'vorbis', 'cover',
+      'artist', 'album', 'ffmpeg',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
+  {
+    slug: 'media-info-inspector',
+    name: 'Media Info Inspector',
+    description:
+      'Inspect container, codecs, duration, bitrate, resolution, and streams of a media file via ffprobe.',
+    category: 'av',
+    icon: 'info',
+    keywords: [
+      'media', 'info', 'inspect', 'ffprobe', 'codec', 'bitrate', 'resolution',
+      'duration', 'metadata', 'ffmpeg',
+    ],
+    dependencies: ['@ffmpeg/core'],
+  },
 ];
 
-/** Map slug → metadata for O(1) lookups. */
+/** Map slug â†’ metadata for O(1) lookups. */
 export const TOOLS_BY_SLUG: Record<string, ToolMetadata> = Object.fromEntries(
   TOOLS.map((t) => [t.slug, t]),
 );

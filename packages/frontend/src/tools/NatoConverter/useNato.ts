@@ -1,5 +1,5 @@
 /**
- * useNatoConverter — composable + pure logic for the Text-to-NATO tool.
+ * useNatoConverter - composable + pure logic for the Text-to-NATO tool.
  *
  * Converts text into the NATO phonetic alphabet:
  *
@@ -29,10 +29,10 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
-/** NATO phonetic alphabet — index 0 = 'A'. */
+/** NATO phonetic alphabet - index 0 = 'A'. */
 export const NATO_ALPHABET: readonly string[] = [
   'Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel',
   'India', 'Juliett', 'Kilo', 'Lima', 'Mike', 'November', 'Oscar', 'Papa',
@@ -40,7 +40,7 @@ export const NATO_ALPHABET: readonly string[] = [
   'X-ray', 'Yankee', 'Zulu',
 ];
 
-/** ITU digit spellings — index 0 = '0'. */
+/** ITU digit spellings - index 0 = '0'. */
 export const NATO_DIGITS: readonly string[] = [
   'Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight',
   'Niner',
@@ -119,7 +119,7 @@ export function toNatoRows(text: string): NatoRow[] {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 /** Debounce window (ms) for recomputing on input changes. */

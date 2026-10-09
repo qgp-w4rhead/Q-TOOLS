@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * JsonToXml — convert JSON to XML.
+ * JsonToXml - convert JSON to XML.
  *
  * Builds XML text from a parsed JSON value via `fast-xml-parser`'s
  * `XMLBuilder`. The `fast-xml-parser` package is part of the initial
@@ -17,6 +17,7 @@
  * computed XML changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -41,22 +42,28 @@ const {
   setIndent,
 } = useJsonToXml();
 
-const description = computed(() =>
-  'Parse JSON and build XML. Keys prefixed with the attribute prefix become attributes; the parsed value is wrapped under the root element name.',
-);
+const { t } = useI18n();
+const U = 'tools.json-to-xml.ui.';
+
+const description = computed(() => t(U + 'desc'));
 
 const indentOptions: Array<{ value: XmlIndent; label: string }> = [
   { value: 2, label: '2 spaces' },
   { value: 4, label: '4 spaces' },
 ];
 
+/** Localized indent-option label. */
+function indentLabel(o: { value: XmlIndent }): string {
+  return t(U + 'indentN', { n: o.value });
+}
+
 const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
   if (e.line != null && e.column != null) {
-    return `Line ${e.line}, column ${e.column}`;
+    return t(U + 'errLineCol', { line: e.line, col: e.column });
   }
-  if (e.line != null) return `Line ${e.line}`;
+  if (e.line != null) return t(U + 'errLine', { line: e.line });
   return '';
 });
 
@@ -83,38 +90,38 @@ function onPrettyToggle(e: Event): void {
 </script>
 
 <template>
-  <div class="j2x">
-    <ToolInput title="JSON input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'inputTitle')" :description="description">
       <template #actions>
         <button
-          class="j2x__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="j2x__opts">
-        <label class="j2x__opt">
-          <span class="j2x__label">Root element</span>
+      <div class="qt-row qt-row--end" style="--qt-row-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'rootElement') }}</span>
           <input
-            class="j2x__input"
+            class="qt-input j2x__input"
             type="text"
             :value="rootName"
             spellcheck="false"
             autocomplete="off"
-            placeholder="root (empty = use JSON's top key)"
+            :placeholder="t(U + 'rootPlaceholder')"
             @input="onRootNameInput"
           />
         </label>
 
-        <label class="j2x__opt">
-          <span class="j2x__label">Attribute prefix</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'attrPrefix') }}</span>
           <input
-            class="j2x__input j2x__input--narrow"
+            class="qt-input j2x__input--narrow"
             type="text"
             :value="attributeNamePrefix"
             spellcheck="false"
@@ -124,35 +131,34 @@ function onPrettyToggle(e: Event): void {
           />
         </label>
 
-        <label v-if="pretty" class="j2x__opt">
-          <span class="j2x__label">Indent</span>
+        <label v-if="pretty" class="qt-field">
+          <span class="qt-label">{{ t(U + 'indent') }}</span>
           <select
-            class="j2x__select"
+            class="qt-input"
             :value="indent"
             @change="onIndentChange"
           >
             <option v-for="o in indentOptions" :key="o.value" :value="o.value">
-              {{ o.label }}
+              {{ indentLabel(o) }}
             </option>
           </select>
         </label>
 
-        <label class="j2x__opt j2x__opt--check">
+        <label class="qt-check">
           <input
-            class="j2x__checkbox"
             type="checkbox"
             :checked="pretty"
             @change="onPrettyToggle"
           />
-          <span class="j2x__label">Pretty print</span>
+          <span>{{ t(U + 'prettyPrint') }}</span>
         </label>
       </div>
 
-      <label class="j2x__field">
-        <span class="j2x__label">JSON</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'jsonLabel') }}</span>
         <textarea
-          class="j2x__textarea j2x__textarea--mono"
-          placeholder='Paste JSON here… e.g. {"user":{"name":"Alice","@_id":"1"}}'
+          class="qt-input qt-input--mono j2x__textarea"
+          :placeholder="t(U + 'placeholder')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -163,12 +169,12 @@ function onPrettyToggle(e: Event): void {
     </ToolInput>
 
     <ToolOutput
-      title="XML output"
-      :description="outputs ? `${outputs.rootKeyCount} root element${outputs.rootKeyCount === 1 ? '' : 's'} · ${outputs.outputBytes} bytes` : 'Paste JSON above to convert.'"
+      :title="t(U + 'outputTitle')"
+      :description="outputs ? t(U + 'outputDesc', { elements: t(U + 'rootElements', outputs.rootKeyCount), bytes: outputs.outputBytes }) : t(U + 'empty')"
       :copy-text="outputs?.xml ?? ''"
-      copy-label="Copy XML"
+      :copy-label="t(U + 'copyXml')"
     >
-      <p v-if="error" class="j2x__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
           <strong v-if="errorLocation">{{ errorLocation }}:</strong>
@@ -176,22 +182,22 @@ function onPrettyToggle(e: Event): void {
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="j2x__empty">
-          Paste JSON above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'empty') }}
         </p>
-        <div v-if="outputs" class="j2x__result">
-          <div class="j2x__result-head">
-            <span class="j2x__result-label">XML</span>
-            <CopyButton :text="outputs.xml" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">XML</span>
+            <CopyButton :text="outputs.xml" :label="t('common.copy')" icon-only />
           </div>
-          <pre v-if="outputs.xml" class="j2x__code">{{ outputs.xml }}</pre>
-          <p v-else class="j2x__empty">JSON parsed to an empty result.</p>
-          <div class="j2x__meta">
-            <span>{{ outputs.rootKeyCount }} root element{{ outputs.rootKeyCount === 1 ? '' : 's' }}</span>
+          <pre v-if="outputs.xml" class="qt-mono j2x__code">{{ outputs.xml }}</pre>
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px">
+            <span>{{ t(U + 'rootElements', outputs.rootKeyCount) }}</span>
             <span class="j2x__dot">·</span>
-            <span>{{ outputs.inputBytes }} bytes in</span>
+            <span>{{ t(U + 'bytesIn', { n: outputs.inputBytes }) }}</span>
             <span class="j2x__dot">·</span>
-            <span>{{ outputs.outputBytes }} bytes out</span>
+            <span>{{ t(U + 'bytesOut', { n: outputs.outputBytes }) }}</span>
           </div>
         </div>
       </template>
@@ -200,163 +206,22 @@ function onPrettyToggle(e: Event): void {
 </template>
 
 <style scoped>
-.j2x {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.j2x__opts {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.j2x__opt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2x__opt--check {
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-}
-.j2x__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2x__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.j2x__select,
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Opt input sizing (control via .qt-input). */
 .j2x__input {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  will-change: border-color;
-}
-.j2x__input {
-  cursor: text;
   min-width: 200px;
 }
 .j2x__input--narrow {
   min-width: 80px;
   width: 100px;
 }
-.j2x__select:focus,
-.j2x__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.j2x__checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .j2x__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.j2x__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.j2x__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.j2x__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.j2x__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.j2x__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.j2x__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.j2x__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.j2x__error strong {
-  margin-right: 4px;
-}
-.j2x__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.j2x__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.j2x__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.j2x__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* XML output block (font via .qt-mono) — scrollable, pre-wrapped. */
 .j2x__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -365,14 +230,7 @@ function onPrettyToggle(e: Event): void {
   max-height: 60vh;
   overflow: auto;
 }
-.j2x__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
-}
+/* Meta separator dot. */
 .j2x__dot {
   opacity: 0.6;
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * OtpCodeGenerator — generate TOTP (RFC 6238) one-time passwords from a
+ * OtpCodeGenerator - generate TOTP (RFC 6238) one-time passwords from a
  * base32 shared secret.
  *
  * Inputs: secret (base32), account label, issuer label, digits (6/8),
@@ -18,6 +18,7 @@
  * whenever the snapshot changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { Smartphone, KeyRound, Building2, User, Clock, Hash, RefreshCw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -45,6 +46,9 @@ const {
   error,
   computing,
 } = useOtpCodeGenerator();
+
+const { t } = useI18n();
+const U = 'tools.otp-code-generator.ui.';
 
 const hasSecret = computed(() => secret.value.trim().length > 0);
 
@@ -90,20 +94,20 @@ const _PERIOD_OPTIONS = PERIOD_OPTIONS;
 </script>
 
 <template>
-  <div class="otp">
+  <div class="qt-tool">
     <ToolInput
-      title="Shared secret"
-      description="Enter the base32 shared secret from your provider (A–Z, 2–7; spaces and hyphens are ignored), or generate a fresh 160-bit secret."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
-      <div class="otp__grid">
-        <label class="otp__field otp__field--full">
-          <span class="otp__label">
+      <div class="qt-grid" style="--qt-grid-min:240px;--qt-grid-gap:14px">
+        <label class="qt-field otp__field--full">
+          <span class="qt-label">
             <KeyRound :size="13" />
-            <span>Secret (base32)</span>
+            <span>{{ t(U + 'fieldSecret') }}</span>
           </span>
-          <div class="otp__row">
+          <div class="qt-row" style="--qt-row-gap:8px">
             <input
-              class="otp__input otp__input--mono"
+              class="qt-input qt-input--mono otp__input"
               type="text"
               placeholder="JBSWY3DPEHPK3PXP"
               :value="secret"
@@ -114,23 +118,23 @@ const _PERIOD_OPTIONS = PERIOD_OPTIONS;
             />
             <button
               type="button"
-              class="otp__btn otp__btn--ghost"
-              title="Generate a random 160-bit secret"
+              class="qt-btn qt-btn--ghost"
+              :title="t(U + 'generateTitle')"
               @click="generateRandomSecret"
             >
               <RefreshCw :size="14" />
-              <span>Generate</span>
+              <span>{{ t('common.generate') }}</span>
             </button>
           </div>
         </label>
 
-        <label class="otp__field">
-          <span class="otp__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <Building2 :size="13" />
-            <span>Issuer (site name)</span>
+            <span>{{ t(U + 'fieldIssuer') }}</span>
           </span>
           <input
-            class="otp__input"
+            class="qt-input"
             type="text"
             placeholder="GitHub"
             :value="issuer"
@@ -140,13 +144,13 @@ const _PERIOD_OPTIONS = PERIOD_OPTIONS;
           />
         </label>
 
-        <label class="otp__field">
-          <span class="otp__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <User :size="13" />
-            <span>Account (label)</span>
+            <span>{{ t(U + 'fieldAccount') }}</span>
           </span>
           <input
-            class="otp__input"
+            class="qt-input"
             type="text"
             placeholder="user@example.com"
             :value="account"
@@ -156,32 +160,32 @@ const _PERIOD_OPTIONS = PERIOD_OPTIONS;
           />
         </label>
 
-        <label class="otp__field">
-          <span class="otp__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <Hash :size="13" />
-            <span>Digits</span>
+            <span>{{ t(U + 'fieldDigits') }}</span>
           </span>
-          <select class="otp__input otp__select" :value="digits" @change="onDigits">
-            <option v-for="d in _DIGIT_OPTIONS" :key="d" :value="d">{{ d }} digits</option>
+          <select class="qt-input" :value="digits" @change="onDigits">
+            <option v-for="d in _DIGIT_OPTIONS" :key="d" :value="d">{{ t(U + 'digitsOption', d) }}</option>
           </select>
         </label>
 
-        <label class="otp__field">
-          <span class="otp__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <Clock :size="13" />
-            <span>Period</span>
+            <span>{{ t(U + 'fieldPeriod') }}</span>
           </span>
-          <select class="otp__input otp__select" :value="period" @change="onPeriod">
-            <option v-for="p in _PERIOD_OPTIONS" :key="p" :value="p">{{ p }} seconds</option>
+          <select class="qt-input" :value="period" @change="onPeriod">
+            <option v-for="p in _PERIOD_OPTIONS" :key="p" :value="p">{{ t(U + 'periodOption', p) }}</option>
           </select>
         </label>
 
-        <label class="otp__field">
-          <span class="otp__label">
+        <label class="qt-field">
+          <span class="qt-label">
             <Smartphone :size="13" />
-            <span>Algorithm</span>
+            <span>{{ t(U + 'fieldAlgorithm') }}</span>
           </span>
-          <select class="otp__input otp__select" :value="algorithm" @change="onAlgorithm">
+          <select class="qt-input" :value="algorithm" @change="onAlgorithm">
             <option v-for="a in _ALGORITHMS" :key="a.id" :value="a.id">{{ a.label }}</option>
           </select>
         </label>
@@ -189,177 +193,79 @@ const _PERIOD_OPTIONS = PERIOD_OPTIONS;
     </ToolInput>
 
     <ToolOutput
-      title="Current code"
-      :description="hasSecret ? 'TOTP code refreshes automatically at each period boundary.' : 'Enter a base32 secret to generate a TOTP code.'"
+      :title="t(U + 'outputTitle')"
+      :description="hasSecret ? t(U + 'descActive') : t(U + 'descEmpty')"
     >
       <template v-if="!hasSecret">
-        <p class="otp__empty">Enter a base32 secret above to generate a TOTP code.</p>
+        <p class="qt-alert qt-alert--empty">{{ t(U + 'empty') }}</p>
       </template>
       <template v-else-if="error">
-        <p class="otp__error">{{ error }}</p>
+        <p class="qt-alert qt-alert--error">{{ error }}</p>
       </template>
       <template v-else>
-        <div class="otp__code-block">
-          <div class="otp__code-main">
-            <span class="otp__code" :class="{ 'otp__code--low': snapshot && snapshot.remaining <= 5 }">
+        <div class="qt-stack" style="--qt-stack-gap:12px">
+          <div class="qt-row qt-row--center" style="--qt-row-gap:14px">
+            <span class="qt-mono otp__code" :class="{ 'otp__code--low': snapshot && snapshot.remaining <= 5 }">
               {{ snapshot?.current ?? '····' }}
             </span>
             <CopyButton
               v-if="snapshot"
               :text="snapshot.current"
-              label="Copy code"
+              :label="t(U + 'copyCode')"
             />
           </div>
-          <div class="otp__countdown" v-if="snapshot">
+          <div class="qt-stack" style="--qt-stack-gap:6px" v-if="snapshot">
             <div class="otp__countdown-bar">
               <div
                 class="otp__countdown-fill"
                 :style="{ width: `${(snapshot.progress * 100).toFixed(1)}%` }"
               ></div>
             </div>
-            <span class="otp__countdown-text">
+            <span class="qt-row qt-row--center qt-hint" style="--qt-row-gap:5px">
               <Clock :size="12" />
-              <span>{{ snapshot.remaining }}s remaining</span>
+              <span>{{ t(U + 'remaining', snapshot.remaining) }}</span>
               <span class="otp__countdown-dot" v-if="computing">·</span>
             </span>
           </div>
         </div>
 
-        <div class="otp__next" v-if="snapshot">
-          <span class="otp__next-label">Next code ({{ snapshot.period }}s)</span>
-          <span class="otp__next-code">{{ snapshot.next }}</span>
-          <CopyButton :text="snapshot.next" label="Copy next" />
+        <div class="qt-panel qt-row qt-row--center" style="--qt-row-gap:10px" v-if="snapshot">
+          <span class="qt-stat-head">{{ t(U + 'nextCode', { period: snapshot.period }) }}</span>
+          <span class="qt-mono otp__next-code">{{ snapshot.next }}</span>
+          <CopyButton :text="snapshot.next" :label="t(U + 'copyNext')" />
         </div>
       </template>
     </ToolOutput>
 
     <ToolOutput
       v-if="hasSecret && !error"
-      title="Provisioning QR code"
-      description="Scan this with Google Authenticator, Authy, 1Password, or any TOTP app to add the account."
+      :title="t(U + 'qrTitle')"
+      :description="t(U + 'qrDesc')"
       :copy-text="uri"
-      copy-label="Copy otpauth URI"
+      :copy-label="t(U + 'copyUri')"
     >
-      <div class="otp__qr">
-        <img v-if="qrDataUrl" :src="qrDataUrl" alt="OTP provisioning QR code" class="otp__qr-img" />
-        <div v-else class="otp__qr-placeholder">Generating QR…</div>
-        <pre class="otp__uri"><code>{{ uri }}</code></pre>
+      <div class="qt-stack" style="--qt-stack-gap:12px;align-items:flex-start">
+        <img v-if="qrDataUrl" :src="qrDataUrl" :alt="t(U + 'qrAlt')" class="otp__qr-img" />
+        <div v-else class="otp__qr-placeholder">{{ t(U + 'qrGenerating') }}</div>
+        <pre class="qt-output otp__uri"><code>{{ uri }}</code></pre>
       </div>
     </ToolOutput>
   </div>
 </template>
 
 <style scoped>
-.otp {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.otp__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.otp__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Full-width field spanning both grid columns (layout via .qt-field). */
 .otp__field--full {
   grid-column: 1 / -1;
 }
-.otp__label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.otp__row {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-}
+/* Secret input grows inside its row (control + mono via .qt-input--mono). */
 .otp__input {
   flex: 1;
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 9px 12px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.otp__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.otp__input--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  letter-spacing: 0.02em;
-}
-.otp__select {
-  appearance: none;
-  cursor: pointer;
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 30px;
-}
-.otp__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 14px;
-  font-size: 13px;
-  font-weight: 600;
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  background: var(--qt-surface);
-  color: var(--qt-text);
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: border-color;
-}
-.otp__btn:hover {
-  border-color: var(--qt-accent);
-}
-.otp__btn--ghost {
-  background: transparent;
-}
-.otp__empty,
-.otp__error {
-  margin: 0;
-  font-size: 13.5px;
-}
-.otp__error {
-  color: var(--qt-danger);
-}
-.otp__code-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.otp__code-main {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
+/* Big TOTP code (font via .qt-mono) — tabular, letter-spaced, low-time danger. */
 .otp__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 36px;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -372,11 +278,7 @@ const _PERIOD_OPTIONS = PERIOD_OPTIONS;
 .otp__code--low {
   color: var(--qt-danger);
 }
-.otp__countdown {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+/* Thin countdown bar + fill (turns danger when the code is about to roll). */
 .otp__countdown-bar {
   width: 100%;
   height: 4px;
@@ -390,48 +292,18 @@ const _PERIOD_OPTIONS = PERIOD_OPTIONS;
   border-radius: 999px;
   transition: width 1s linear, background 0.2s ease;
 }
-.otp__code--low ~ .otp__countdown .otp__countdown-fill {
+.otp__code--low ~ .qt-stack .otp__countdown-fill {
   background: var(--qt-danger);
 }
-.otp__countdown-text {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  font-variant-numeric: tabular-nums;
-}
-.otp__next {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background: var(--qt-surface);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  flex-wrap: wrap;
-}
-.otp__next-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
+/* Next-code value (font via .qt-mono) — tabular, letter-spaced. */
 .otp__next-code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: 0.12em;
   color: var(--qt-text);
   font-variant-numeric: tabular-nums;
 }
-.otp__qr {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: flex-start;
-}
+/* QR code image + generating placeholder (fixed 240px square). */
 .otp__qr-img {
   width: 240px;
   height: 240px;
@@ -452,29 +324,18 @@ const _PERIOD_OPTIONS = PERIOD_OPTIONS;
   color: var(--qt-muted);
   font-size: 13px;
 }
+/* otpauth URI block (base via .qt-output) — capped, scrollable, break-all. */
 .otp__uri {
   margin: 0;
-  padding: 10px 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: var(--qt-text);
-  white-space: pre-wrap;
-  word-break: break-all;
-  width: 100%;
   max-height: 120px;
   overflow-y: auto;
+  word-break: break-all;
+  font-size: 12.5px;
 }
 .otp__uri code {
   font-family: inherit;
 }
 @media (max-width: 640px) {
-  .otp__grid {
-    grid-template-columns: 1fr;
-  }
   .otp__code {
     font-size: 30px;
   }

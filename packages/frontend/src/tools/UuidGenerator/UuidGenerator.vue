@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /**
- * UuidGenerator — generate UUIDs of versions 1, 3, 4 and 5 (RFC 4122).
+ * UuidGenerator - generate UUIDs of versions 1, 3, 4 and 5 (RFC 4122).
  *
  *   - v1: timestamp + clock sequence + random node (multicast bit set).
- *   - v3: MD5(namespace + name) — pure-JS MD5 (no external dep).
+ *   - v3: MD5(namespace + name) - pure-JS MD5 (no external dep).
  *   - v4: `crypto.randomUUID()` (cryptographically secure random).
  *   - v5: SHA-1(namespace + name) via Web Crypto.
  *
@@ -15,6 +15,7 @@
  * UUIDs.
  */
 import { computed, onMounted } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RefreshCw, AlertCircle, Loader2 } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -28,6 +29,8 @@ import {
   type UuidVersion,
   type NamespacePreset,
 } from './useUuidGenerator';
+
+const { t } = useI18n();
 
 const {
   version,
@@ -44,7 +47,7 @@ const {
   generate,
 } = useUuidGenerator();
 
-/** All UUIDs joined by newlines — used for the "copy all" button. */
+/** All UUIDs joined by newlines - used for the "copy all" button. */
 const allUuidsText = computed(() => uuids.value.join('\n'));
 
 /** Whether the current version requires a namespace + name (v3/v5). */
@@ -65,12 +68,17 @@ const canGenerate = computed(() => {
   return true;
 });
 
-const VERSION_OPTIONS: { value: UuidVersion; label: string; hint: string }[] = [
-  { value: 'v4', label: 'v4', hint: 'random' },
-  { value: 'v1', label: 'v1', hint: 'timestamp' },
-  { value: 'v3', label: 'v3', hint: 'MD5 namespace' },
-  { value: 'v5', label: 'v5', hint: 'SHA-1 namespace' },
+const VERSION_OPTIONS: { value: UuidVersion; label: string; hintKey: string }[] = [
+  { value: 'v4', label: 'v4', hintKey: 'v4Hint' },
+  { value: 'v1', label: 'v1', hintKey: 'v1Hint' },
+  { value: 'v3', label: 'v3', hintKey: 'v3Hint' },
+  { value: 'v5', label: 'v5', hintKey: 'v5Hint' },
 ];
+
+/** Localized label for a namespace preset (custom is translated; RFC names stay). */
+function presetLabel(p: NamespacePreset): string {
+  return p.id === 'custom' ? t('tools.uuid-generator.ui.nsCustom') : p.label;
+}
 
 function onQuantityInput(e: Event): void {
   const v = Number((e.target as HTMLInputElement).value);
@@ -98,27 +106,27 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="uuid-gen">
+  <div class="qt-tool">
     <ToolInput
-      title="Configuration"
-      description="RFC 4122 UUIDs — v4 uses crypto.randomUUID(), v1/v3/v5 are custom-implemented."
+      :title="t('common.configuration')"
+      :description="t('tools.uuid-generator.ui.desc')"
     >
       <template #actions>
         <button
-          class="uuid-gen__generate"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="!canGenerate"
           @click="generate"
         >
-          <Loader2 v-if="generating" :size="14" class="uuid-gen__spin" />
+          <Loader2 v-if="generating" :size="14" class="qt-spin" />
           <RefreshCw v-else :size="14" />
-          <span>{{ generating ? 'Generating…' : 'Generate' }}</span>
+          <span>{{ generating ? t('common.generating') : t('common.generate') }}</span>
         </button>
       </template>
 
-      <div class="uuid-gen__field">
-        <span class="uuid-gen__label">Version</span>
-        <div class="uuid-gen__versions" role="radiogroup" aria-label="UUID version">
+      <div class="qt-field">
+        <span class="qt-label">{{ t('tools.uuid-generator.ui.version') }}</span>
+        <div class="uuid-gen__versions" role="radiogroup" :aria-label="t('tools.uuid-generator.ui.versionLabel')">
           <button
             v-for="opt in VERSION_OPTIONS"
             :key="opt.value"
@@ -127,19 +135,19 @@ onMounted(() => {
             :aria-checked="version === opt.value"
             class="uuid-gen__version"
             :class="{ 'uuid-gen__version--active': version === opt.value }"
-            :title="opt.hint"
+            :title="t(`tools.uuid-generator.ui.${opt.hintKey}`)"
             @click="version = opt.value"
           >
             <span class="uuid-gen__version-label">{{ opt.label }}</span>
-            <span class="uuid-gen__version-hint">{{ opt.hint }}</span>
+            <span class="uuid-gen__version-hint">{{ t(`tools.uuid-generator.ui.${opt.hintKey}`) }}</span>
           </button>
         </div>
       </div>
 
-      <label class="uuid-gen__field">
-        <span class="uuid-gen__label">Quantity</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t('common.quantity') }}</span>
         <input
-          class="uuid-gen__input"
+          class="qt-input"
           type="number"
           :min="MIN_QUANTITY"
           :max="MAX_QUANTITY"
@@ -148,57 +156,57 @@ onMounted(() => {
         />
       </label>
 
-      <div class="uuid-gen__toggles">
-        <label class="uuid-gen__toggle">
+      <div class="qt-row" style="--qt-row-gap:18px">
+        <label class="qt-check">
           <input type="checkbox" :checked="hyphenated" @change="hyphenated = ($event.target as HTMLInputElement).checked" />
-          <span>Hyphenated</span>
+          <span>{{ t('common.hyphenated') }}</span>
         </label>
-        <label class="uuid-gen__toggle">
+        <label class="qt-check">
           <input type="checkbox" :checked="uppercase" @change="uppercase = ($event.target as HTMLInputElement).checked" />
-          <span>Uppercase</span>
+          <span>{{ t('common.uppercase') }}</span>
         </label>
       </div>
 
       <div v-if="needsNamespace" class="uuid-gen__ns">
-        <div class="uuid-gen__field">
-          <span class="uuid-gen__label">Namespace</span>
-          <div class="uuid-gen__presets">
+        <div class="qt-field">
+          <span class="qt-label">{{ t('tools.uuid-generator.ui.namespace') }}</span>
+          <div class="qt-row" style="--qt-row-gap:6px">
             <button
               v-for="p in NAMESPACE_PRESETS"
               :key="p.id"
               type="button"
-              class="uuid-gen__preset"
-              :class="{ 'uuid-gen__preset--active': namespacePreset === p.id }"
+              class="qt-chip qt-chip--filled"
+              :class="{ 'qt-chip--active': namespacePreset === p.id }"
               @click="selectPreset(p)"
             >
-              {{ p.label }}
+              {{ presetLabel(p) }}
             </button>
           </div>
         </div>
 
-        <label v-if="namespacePreset === 'custom'" class="uuid-gen__field">
-          <span class="uuid-gen__label">Custom namespace UUID</span>
+        <label v-if="namespacePreset === 'custom'" class="qt-field">
+          <span class="qt-label">{{ t('tools.uuid-generator.ui.customNamespace') }}</span>
           <input
-            class="uuid-gen__input uuid-gen__input--mono"
+            class="qt-input qt-input--mono"
             type="text"
-            placeholder="e.g. 6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+            :placeholder="t('tools.uuid-generator.ui.customNsPlaceholder')"
             :value="customNamespace"
-            :class="{ 'uuid-gen__input--err': !customNamespaceValid }"
+            :class="{ 'qt-input--error': !customNamespaceValid }"
             spellcheck="false"
             autocomplete="off"
             @input="onCustomNamespaceInput"
           />
-          <span v-if="!customNamespaceValid" class="uuid-gen__hint uuid-gen__hint--err">
-            Enter a valid canonical UUID.
+          <span v-if="!customNamespaceValid" class="qt-hint qt-hint--error">
+            {{ t('tools.uuid-generator.ui.customNsInvalid') }}
           </span>
         </label>
 
-        <label class="uuid-gen__field">
-          <span class="uuid-gen__label">Name</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t('common.name') }}</span>
           <input
-            class="uuid-gen__input uuid-gen__input--mono"
+            class="qt-input qt-input--mono"
             type="text"
-            placeholder="e.g. example.com (for DNS namespace)"
+            :placeholder="t('tools.uuid-generator.ui.namePlaceholder')"
             :value="name"
             spellcheck="false"
             autocomplete="off"
@@ -207,30 +215,30 @@ onMounted(() => {
         </label>
 
         <p v-if="namespacePreset !== 'custom'" class="uuid-gen__ns-preview">
-          <span class="uuid-gen__ns-label">Effective namespace</span>
-          <code class="uuid-gen__ns-value">{{ namespace }}</code>
+          <span class="uuid-gen__ns-label">{{ t('tools.uuid-generator.ui.effectiveNs') }}</span>
+          <code class="qt-mono uuid-gen__ns-value">{{ namespace }}</code>
         </p>
       </div>
     </ToolInput>
 
     <ToolOutput
-      title="Generated UUIDs"
-      :description="uuids.length ? `${uuids.length} UUID${uuids.length === 1 ? '' : 's'} (${version})` : ''"
+      :title="t('tools.uuid-generator.ui.outputTitle')"
+      :description="uuids.length ? t('tools.uuid-generator.ui.outputDesc', { n: uuids.length, version }, uuids.length) : ''"
       :copy-text="allUuidsText"
-      copy-label="Copy all"
+      :copy-label="t('common.copyAll')"
     >
-      <p v-if="error" class="uuid-gen__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
-      <p v-else-if="uuids.length === 0" class="uuid-gen__empty">
-        No UUIDs yet — click <strong>Generate</strong>.
+      <p v-else-if="uuids.length === 0" class="qt-alert qt-alert--empty">
+        {{ t('tools.uuid-generator.ui.empty') }}
       </p>
-      <ul v-else class="uuid-gen__list">
-        <li v-for="(u, i) in uuids" :key="i" class="uuid-gen__uuid">
+      <ul v-else class="qt-list qt-stack uuid-gen__list" style="--qt-stack-gap:6px">
+        <li v-for="(u, i) in uuids" :key="i" class="qt-result-row">
           <span class="uuid-gen__idx">{{ i + 1 }}</span>
-          <code class="uuid-gen__uuid-text">{{ u }}</code>
-          <CopyButton :text="u" label="Copy" icon-only />
+          <code class="qt-mono uuid-gen__uuid-text">{{ u }}</code>
+          <CopyButton :text="u" :label="t('common.copy')" icon-only />
         </li>
       </ul>
     </ToolOutput>
@@ -238,56 +246,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.uuid-gen {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.uuid-gen__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.uuid-gen__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.uuid-gen__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 9px 11px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.uuid-gen__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.uuid-gen__input--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13px;
-}
-.uuid-gen__input--err {
-  border-color: var(--qt-danger);
-}
-.uuid-gen__hint {
-  font-size: 11.5px;
-  color: var(--qt-muted);
-}
-.uuid-gen__hint--err {
-  color: var(--qt-danger);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Version picker — fixed 4-col grid of selectable cards. */
 .uuid-gen__versions {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -309,7 +270,6 @@ onMounted(() => {
     border-color 0.15s ease,
     background-color 0.15s ease,
     color 0.15s ease;
-  will-change: border-color;
 }
 .uuid-gen__version:hover {
   border-color: var(--qt-accent);
@@ -328,23 +288,7 @@ onMounted(() => {
   font-size: 10.5px;
   opacity: 0.85;
 }
-.uuid-gen__toggles {
-  display: flex;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-.uuid-gen__toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  color: var(--qt-text);
-  cursor: pointer;
-}
-.uuid-gen__toggle input[type='checkbox'] {
-  accent-color: var(--qt-accent);
-  cursor: pointer;
-}
+/* Namespace sub-panel. */
 .uuid-gen__ns {
   display: flex;
   flex-direction: column;
@@ -354,35 +298,7 @@ onMounted(() => {
   border-radius: var(--qt-radius-sm);
   background: oklch(from var(--qt-surface) 98% c h / 0.4);
 }
-.uuid-gen__presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-.uuid-gen__preset {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease;
-  will-change: border-color;
-}
-.uuid-gen__preset:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-text);
-}
-.uuid-gen__preset--active {
-  border-color: var(--qt-accent);
-  background: var(--qt-accent);
-  color: var(--qt-bg);
-}
+/* Effective-namespace preview line. */
 .uuid-gen__ns-preview {
   display: flex;
   align-items: center;
@@ -396,7 +312,6 @@ onMounted(() => {
   font-weight: 600;
 }
 .uuid-gen__ns-value {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   background: var(--qt-bg);
   border: 1px solid var(--qt-border);
   border-radius: var(--qt-radius-sm);
@@ -404,74 +319,12 @@ onMounted(() => {
   color: var(--qt-text);
   word-break: break-all;
 }
-.uuid-gen__generate {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.uuid-gen__generate:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.uuid-gen__generate:active:not(:disabled) {
-  transform: translateY(0);
-}
-.uuid-gen__generate:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.uuid-gen__spin {
-  animation: uuid-gen-spin 0.8s linear infinite;
-}
-@keyframes uuid-gen-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.uuid-gen__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.uuid-gen__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
+/* Scrollable UUID list. */
 .uuid-gen__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   max-height: 60vh;
   overflow-y: auto;
 }
-.uuid-gen__uuid {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 7px 10px;
-}
+/* Row index. */
 .uuid-gen__idx {
   flex: 0 0 auto;
   font-size: 11px;
@@ -480,10 +333,10 @@ onMounted(() => {
   min-width: 28px;
   text-align: right;
 }
+/* UUID text (font via .qt-mono). */
 .uuid-gen__uuid-text {
   flex: 1 1 auto;
   min-width: 0;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13px;
   color: var(--qt-text);
   word-break: break-all;

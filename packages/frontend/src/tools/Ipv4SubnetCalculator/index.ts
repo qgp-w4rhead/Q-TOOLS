@@ -1,9 +1,9 @@
 /**
- * Ipv4SubnetCalculator tool module — exports the lazy-loaded component plus its
+ * Ipv4SubnetCalculator tool module - exports the lazy-loaded component plus its
  * metadata, composable, and pure helpers so the tool can be registered in the
  * registry and routed dynamically.
  *
- * No external dependencies — all logic is pure TypeScript using 32-bit
+ * No external dependencies - all logic is pure TypeScript using 32-bit
  * unsigned integer arithmetic.
  */
 import { defineAsyncComponent } from 'vue';

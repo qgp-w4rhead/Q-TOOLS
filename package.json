@@ -2,7 +2,7 @@
   "name": "q-tools",
   "version": "0.0.0",
   "private": true,
-  "description": "Q-Tools — comprehensive web app with 85+ developer/utility tools (Vue 3 + Ionic + Fastify, PWA, iframe-embeddable).",
+  "description": "Q-Tools - comprehensive web app with 85+ developer/utility tools (Vue 3 + Ionic + Fastify, PWA, iframe-embeddable).",
   "type": "module",
   "packageManager": "pnpm@10.32.1",
   "engines": {

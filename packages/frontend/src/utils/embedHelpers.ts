@@ -6,7 +6,7 @@
  * helpers below. This module mirrors those helpers as typed, importable
  * functions so they can be unit-tested with tsx (Node) without a DOM.
  *
- * Keep the two implementations in sync — the tests here validate the logic
+ * Keep the two implementations in sync - the tests here validate the logic
  * that ships in embed.js.
  */
 

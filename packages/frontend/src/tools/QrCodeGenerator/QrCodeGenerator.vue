@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * QrCodeGenerator — render arbitrary text/URLs as QR codes.
+ * QrCodeGenerator - render arbitrary text/URLs as QR codes.
  *
  * Inputs: text/URL, size (px), error correction level (L/M/Q/H), margin
  * (quiet-zone modules), foreground + background colors. Output: a live QR
@@ -16,6 +16,7 @@
  * rendered QR changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import {
   QrCode,
   Image as ImageIcon,
@@ -53,6 +54,23 @@ const {
   error,
   computing,
 } = useQrCodeGenerator();
+
+const { t } = useI18n();
+const U = 'tools.qr-code-generator.ui.';
+
+const ECL_LABEL_KEYS: Record<ErrorCorrectionLevel, string> = {
+  L: 'eclL',
+  M: 'eclM',
+  Q: 'eclQ',
+  H: 'eclH',
+};
+function eclOptionLabel(lvl: (typeof ERROR_CORRECTION_LEVELS)[number]): string {
+  return t(U + 'eclOption', {
+    label: t(U + ECL_LABEL_KEYS[lvl.value]),
+    value: lvl.value,
+    recovery: lvl.recovery,
+  });
+}
 
 const hasText = computed(() => text.value.trim().length > 0);
 const hasOutput = computed(() => pngDataUrl.value.length > 0);
@@ -131,25 +149,25 @@ function resetOptions(): void {
 </script>
 
 <template>
-  <div class="qr">
+  <div class="qt-tool">
     <ToolInput
-      title="Input"
-      description="Text or URL to encode as a QR code."
+      :title="t('common.input')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
           type="button"
-          class="qr__reset-btn"
-          title="Reset options to defaults"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
+          :title="t(U + 'resetTitle')"
           @click="resetOptions"
         >
-          <RotateCcw :size="14" /> Reset
+          <RotateCcw :size="14" /> {{ t('common.reset') }}
         </button>
       </template>
 
       <textarea
-        class="qr__textarea"
-        placeholder="https://example.com — or any text to encode"
+        class="qt-input qt-input--mono qr__textarea"
+        :placeholder="t(U + 'placeholder')"
         :value="text"
         rows="3"
         spellcheck="false"
@@ -157,43 +175,43 @@ function resetOptions(): void {
         @input="onText"
       />
 
-      <div class="qr__options">
-        <label class="qr__field">
-          <span class="qr__label">Size</span>
-          <span class="qr__range-row">
+      <div class="qt-stack" style="--qt-stack-gap:14px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t('common.size') }}</span>
+          <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:10px">
             <input
               type="range"
               :min="MIN_SIZE"
               :max="MAX_SIZE"
               step="16"
               :value="size"
-              class="qr__range"
+              class="qt-range"
               @input="onSize"
             />
             <span class="qr__range-value">{{ size }}px</span>
           </span>
         </label>
 
-        <label class="qr__field">
-          <span class="qr__label">Margin (quiet zone)</span>
-          <span class="qr__range-row">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'margin') }}</span>
+          <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:10px">
             <input
               type="range"
               :min="MIN_MARGIN"
               :max="MAX_MARGIN"
               step="1"
               :value="margin"
-              class="qr__range"
+              class="qt-range"
               @input="onMargin"
             />
-            <span class="qr__range-value">{{ margin }} modules</span>
+            <span class="qr__range-value">{{ margin }} {{ t(U + 'modules') }}</span>
           </span>
         </label>
 
-        <label class="qr__field">
-          <span class="qr__label">Error correction</span>
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'errorCorrection') }}</span>
           <select
-            class="qr__select"
+            class="qt-input"
             :value="errorCorrectionLevel"
             @change="onEcl"
           >
@@ -202,15 +220,15 @@ function resetOptions(): void {
               :key="lvl.value"
               :value="lvl.value"
             >
-              {{ lvl.label }} ({{ lvl.value }}) — recovers {{ lvl.recovery }}
+              {{ eclOptionLabel(lvl) }}
             </option>
           </select>
         </label>
 
-        <div class="qr__colors">
-          <label class="qr__field qr__color-field">
-            <span class="qr__label"><Palette :size="12" /> Foreground</span>
-            <span class="qr__color-row">
+        <div class="qt-grid" style="--qt-grid-min:200px;--qt-grid-gap:12px">
+          <label class="qt-field">
+            <span class="qt-label"><Palette :size="12" /> {{ t('common.foreground') }}</span>
+            <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
               <input
                 type="color"
                 :value="foreground"
@@ -220,16 +238,16 @@ function resetOptions(): void {
               <input
                 type="text"
                 :value="foreground"
-                class="qr__color-text"
+                class="qt-input qt-input--mono qr__color-text"
                 spellcheck="false"
                 @input="onForeground"
               />
             </span>
           </label>
 
-          <label class="qr__field qr__color-field">
-            <span class="qr__label">Background</span>
-            <span class="qr__color-row">
+          <label class="qt-field">
+            <span class="qt-label">{{ t('common.background') }}</span>
+            <span class="qt-row qt-row--center qt-row--nowrap" style="--qt-row-gap:8px">
               <input
                 type="color"
                 :value="background"
@@ -239,7 +257,7 @@ function resetOptions(): void {
               <input
                 type="text"
                 :value="background"
-                class="qr__color-text"
+                class="qt-input qt-input--mono qr__color-text"
                 spellcheck="false"
                 @input="onBackground"
               />
@@ -250,57 +268,57 @@ function resetOptions(): void {
     </ToolInput>
 
     <ToolOutput
-      title="QR code"
-      :description="hasText ? `${size}×${size}px · ${errorCorrectionLevel} · margin ${margin}` : 'Enter text to generate a QR code.'"
+      :title="t(U + 'outputTitle')"
+      :description="hasText ? t(U + 'descResult', { size, ecl: errorCorrectionLevel, margin }) : t(U + 'descEmpty')"
     >
       <template #actions>
         <button
           type="button"
-          class="qr__download-btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :disabled="!hasOutput"
-          title="Download PNG"
+          :title="t(U + 'downloadPng')"
           @click="downloadPng"
         >
           <ImageIcon :size="14" /> PNG
         </button>
         <button
           type="button"
-          class="qr__download-btn"
+          class="qt-btn qt-btn--ghost qt-btn--sm"
           :disabled="!hasOutput"
-          title="Download SVG"
+          :title="t(U + 'downloadSvg')"
           @click="downloadSvg"
         >
           <FileCode :size="14" /> SVG
         </button>
       </template>
 
-      <div v-if="error" class="qr__error">
+      <div v-if="error" class="qt-banner qt-banner--warn">
         <AlertTriangle :size="16" />
         <span>{{ error }}</span>
       </div>
 
       <div v-else-if="computing && !hasOutput" class="qr__placeholder">
         <QrCode :size="48" class="qr__placeholder-icon" />
-        <span>Generating…</span>
+        <span>{{ t('common.generating') }}</span>
       </div>
 
       <div v-else-if="!hasText" class="qr__placeholder">
         <QrCode :size="48" class="qr__placeholder-icon" />
-        <span>Enter text or a URL to generate a QR code.</span>
+        <span>{{ t(U + 'empty') }}</span>
       </div>
 
-      <div v-else-if="hasOutput" class="qr__preview">
+      <div v-else-if="hasOutput" class="qt-stack" style="--qt-stack-gap:16px;align-items:center;padding:16px">
         <img
           :src="pngDataUrl"
-          :alt="`QR code for: ${text}`"
+          :alt="t(U + 'imgAlt', { text })"
           class="qr__img"
           :style="{ maxWidth: `${size}px`, width: '100%' }"
         />
-        <div class="qr__meta">
-          <span class="qr__meta-pill">{{ size }}×{{ size }}</span>
-          <span class="qr__meta-pill">ECL {{ errorCorrectionLevel }}</span>
-          <span class="qr__meta-pill">margin {{ margin }}</span>
-          <span class="qr__meta-pill">{{ text.length }} chars</span>
+        <div class="qt-row" style="--qt-row-gap:6px;justify-content:center">
+          <span class="qt-badge">{{ size }}×{{ size }}</span>
+          <span class="qt-badge">{{ t(U + 'badgeEcl', { ecl: errorCorrectionLevel }) }}</span>
+          <span class="qt-badge">{{ t(U + 'badgeMargin', { margin }) }}</span>
+          <span class="qt-badge">{{ t('common.chars', text.length) }}</span>
         </div>
       </div>
     </ToolOutput>
@@ -308,54 +326,14 @@ function resetOptions(): void {
 </template>
 
 <style scoped>
-.qr {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .qr__textarea {
-  width: 100%;
-  resize: vertical;
   min-height: 72px;
-  padding: 10px 12px;
-  font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 13px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
 }
-.qr__textarea:focus {
-  border-color: var(--qt-accent);
-}
-.qr__options {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.qr__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.qr__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.qr__range-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.qr__range {
-  flex: 1;
-  accent-color: var(--qt-accent);
-}
+/* Range readout — fixed-width tabular value. */
 .qr__range-value {
   font-size: 12px;
   color: var(--qt-text);
@@ -363,28 +341,7 @@ function resetOptions(): void {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-.qr__select {
-  padding: 8px 10px;
-  font-size: 13px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
-}
-.qr__select:focus {
-  border-color: var(--qt-accent);
-}
-.qr__colors {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-.qr__color-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* Native colour-picker swatch — fixed 36px square. */
 .qr__color-picker {
   width: 36px;
   height: 36px;
@@ -395,46 +352,14 @@ function resetOptions(): void {
   cursor: pointer;
   flex-shrink: 0;
 }
+/* Hex text input (control + mono via .qt-input--mono) — grows, lowercase. */
 .qr__color-text {
   flex: 1;
   min-width: 0;
-  padding: 8px 10px;
-  font-family: var(--qt-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
   font-size: 12px;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  outline: none;
   text-transform: lowercase;
 }
-.qr__color-text:focus {
-  border-color: var(--qt-accent);
-}
-.qr__reset-btn,
-.qr__download-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--qt-text);
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius);
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease;
-}
-.qr__reset-btn:hover,
-.qr__download-btn:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.qr__download-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* Centered empty/generating state — big icon + prompt. */
 .qr__placeholder {
   display: flex;
   flex-direction: column;
@@ -448,13 +373,7 @@ function resetOptions(): void {
 .qr__placeholder-icon {
   opacity: 0.4;
 }
-.qr__preview {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-}
+/* QR preview image — white card, pixel-perfect rendering. */
 .qr__img {
   display: block;
   height: auto;
@@ -462,30 +381,5 @@ function resetOptions(): void {
   border-radius: var(--qt-radius);
   background: #ffffff;
   image-rendering: pixelated;
-}
-.qr__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-.qr__meta-pill {
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-  font-variant-numeric: tabular-nums;
-}
-.qr__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  border-radius: var(--qt-radius);
-  background: oklch(from var(--qt-warning, #f59e0b) 25% c h / 12%);
-  color: var(--qt-warning, #f59e0b);
-  font-size: 13px;
 }
 </style>

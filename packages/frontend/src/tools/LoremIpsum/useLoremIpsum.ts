@@ -1,5 +1,5 @@
 /**
- * useLoremIpsum — composable + pure logic for the Lorem ipsum generator tool.
+ * useLoremIpsum - composable + pure logic for the Lorem ipsum generator tool.
  *
  * Generates Lorem Ipsum placeholder text from a bundled word pool. Supports
  * configurable paragraph count, sentences per paragraph, words per sentence,
@@ -14,7 +14,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Types — pure logic (no Vue dependency)                                      */
+/* Types - pure logic (no Vue dependency)                                      */
 /* -------------------------------------------------------------------------- */
 
 export interface LoremOptions {
@@ -30,7 +30,7 @@ export interface LoremOptions {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Constants — bundled word pool (no external dependency)                      */
+/* Constants - bundled word pool (no external dependency)                      */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -61,7 +61,7 @@ export const CLASSIC_OPENING =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -91,7 +91,7 @@ export function randomInt(max: number): number {
     // Rejection sampling: discard values that would introduce modulo bias.
     const limit = Math.floor(0xffffffff / max) * max;
     const buf = new Uint32Array(1);
-    // Bounded retries — practically always resolves on the first draw.
+    // Bounded retries - practically always resolves on the first draw.
     for (let i = 0; i < 32; i++) {
       globalThis.crypto.getRandomValues(buf);
       const r = buf[0] ?? 0;
@@ -168,7 +168,7 @@ export function generateLorem(options: LoremOptions): string {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                             */
+/* Composable - reactive state + embed integration                             */
 /* -------------------------------------------------------------------------- */
 
 export interface UseLoremIpsumReturn {

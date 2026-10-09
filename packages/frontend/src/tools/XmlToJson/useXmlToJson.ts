@@ -1,9 +1,9 @@
 /**
- * useXmlToJson — composable + pure logic for the XML → JSON converter.
+ * useXmlToJson - composable + pure logic for the XML → JSON converter.
  *
  * Parses XML text via `fast-xml-parser`'s `XMLParser` and emits pretty-printed
  * (or compact) JSON. The `fast-xml-parser` package is part of the initial
- * bundle per `tech-stack.md`, so it is statically imported here — no dynamic
+ * bundle per `tech-stack.md`, so it is statically imported here - no dynamic
  * import, no separate Vite chunk.
  *
  * Pure helpers (`parseXml`, `xmlToJson`) have no Vue dependency and can be
@@ -19,7 +19,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation mode for the JSON output. */
@@ -28,10 +28,10 @@ export type JsonIndent = 2 | 4 | 0;
 /**
  * Array mode for the XML parser.
  *
- * - `auto`   — default behaviour: a tag becomes an array only when it appears
+ * - `auto`   - default behaviour: a tag becomes an array only when it appears
  *              more than once at the same level. Single-occurrence tags are
  *              scalars/objects. This is `fast-xml-parser`'s default.
- * - `always` — every element tag is wrapped in an array (`isArray: () => true`),
+ * - `always` - every element tag is wrapped in an array (`isArray: () => true`),
  *              even single-occurrence ones. Useful when the consumer needs a
  *              predictable structure for code consumption.
  */
@@ -85,7 +85,7 @@ export function buildParser(opts: XmlToJsonOptions): XMLParser {
     // `isArray: undefined` lets fast-xml-parser use its default behaviour
     // (repeated tags → arrays, single tags → scalars).
     ...(isArray ? { isArray } : {}),
-    // Keep CDATA and comments out of the JSON by default — they would otherwise
+    // Keep CDATA and comments out of the JSON by default - they would otherwise
     // surface as `__cdata` / `__comment` keys. Users wanting them can extend
     // this later.
     cdataPropName: false,
@@ -103,7 +103,7 @@ export function buildParser(opts: XmlToJsonOptions): XMLParser {
  * if valid, or a normalised `XmlParseError` if malformed. `XMLValidator` is
  * deprecated in v5 in favour of the separate `fast-xml-validator` package, but
  * it remains functional and is part of the same `fast-xml-parser` dependency
- * already listed in `tech-stack.md` — no new dependency is introduced.
+ * already listed in `tech-stack.md` - no new dependency is introduced.
  */
 export function validateXml(input: string): XmlParseError | null {
   const result = XMLValidator.validate(input);
@@ -230,7 +230,7 @@ function extractLineColumn(raw: string): {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface XmlToJsonOutputs {

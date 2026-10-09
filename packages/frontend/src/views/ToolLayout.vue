@@ -1,25 +1,22 @@
 <script setup lang="ts">
 /**
- * Full app layout for `/tools/:slug`.
+ * Tool page layout for `/tools/:slug`.
  *
- * Renders a sidebar (category navigation), a header (back link, theme toggle,
- * embed link), and the active tool via `<router-view>`. When `?embed=1` is
- * present, renders chromeless (delegates to the embed view styling).
- *
- * The actual tool component is injected by the child route (`tool-view` →
- * ToolPlaceholder until tools are implemented in M1+).
+ * Renders a header (back link, theme toggle, embed link) and the active tool
+ * via `<router-view>`. The sidebar is now rendered globally in App.vue.
+ * When `?embed=1` is present, renders chromeless.
  */
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ArrowLeft, Moon, Sun, ExternalLink, Home } from 'lucide-vue-next';
-import {
-  CATEGORIES,
-  TOOLS_BY_CATEGORY,
-  getToolBySlug,
-} from '@/data/tools';
+import { useI18n } from 'vue-i18n';
+import { ArrowLeft, Moon, Sun, ExternalLink } from 'lucide-vue-next';
+import { getToolBySlug } from '@/data/tools';
+import { localizedToolName } from '@/i18n/localized';
 import { useSettingsStore } from '@/stores/settingsStore';
 import FavoriteButton from '@/components/FavoriteButton.vue';
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue';
 
+const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const settings = useSettingsStore();
@@ -41,45 +38,27 @@ function openEmbed() {
 <template>
   <div class="tool-layout" :class="{ 'tool-layout--embed': isEmbedAlias }">
     <template v-if="!isEmbedAlias">
-      <aside class="tool-layout__sidebar">
-        <button class="tool-layout__brand" type="button" @click="goHome">
-          <Home :size="16" />
-          <span>Q-Tools</span>
-        </button>
-        <nav class="tool-layout__nav" aria-label="Categories">
-          <button
-            v-for="cat in CATEGORIES"
-            :key="cat.id"
-            type="button"
-            class="tool-layout__nav-item"
-            :class="{ 'is-active': tool?.category === cat.id }"
-            @click="router.push({ name: 'home', hash: `#category-${cat.id}` })"
-          >
-            <span>{{ cat.label }}</span>
-            <span class="tool-layout__nav-count">{{ TOOLS_BY_CATEGORY[cat.id]?.length ?? 0 }}</span>
-          </button>
-        </nav>
-      </aside>
-
       <div class="tool-layout__main">
         <header class="tool-layout__header">
           <button class="tool-layout__back" type="button" @click="goHome">
             <ArrowLeft :size="16" />
-            <span>Back</span>
+            <span>{{ t('common.back') }}</span>
           </button>
-          <h1 class="tool-layout__title">{{ tool?.name ?? 'Tool' }}</h1>
+          <h1 class="tool-layout__title">
+            {{ tool ? localizedToolName(tool) : t('tool.fallbackTitle') }}
+          </h1>
           <div class="tool-layout__actions">
             <FavoriteButton
               v-if="slug"
               :slug="slug"
-              :label="tool?.name"
+              :label="tool ? localizedToolName(tool) : undefined"
             />
             <button
               class="tool-layout__icon-btn"
               type="button"
               @click="openEmbed"
-              title="Open embed view"
-              aria-label="Open embed view"
+              :title="t('tool.openEmbed')"
+              :aria-label="t('tool.openEmbed')"
             >
               <ExternalLink :size="16" />
             </button>
@@ -87,11 +66,12 @@ function openEmbed() {
               class="tool-layout__icon-btn"
               type="button"
               @click="settings.toggleTheme()"
-              :aria-label="settings.isDark ? 'Light mode' : 'Dark mode'"
+              :aria-label="settings.isDark ? t('theme.light') : t('theme.dark')"
             >
               <Sun v-if="settings.isDark" :size="16" />
               <Moon v-else :size="16" />
             </button>
+            <LanguageSwitcher />
           </div>
         </header>
         <main class="tool-layout__content">
@@ -109,75 +89,12 @@ function openEmbed() {
 
 <style scoped>
 .tool-layout {
-  display: flex;
   min-height: 100vh;
 }
-.tool-layout__sidebar {
-  position: sticky;
-  top: 0;
-  align-self: flex-start;
-  width: var(--qt-sidebar-width);
-  height: 100vh;
-  flex: 0 0 var(--qt-sidebar-width);
-  background: var(--qt-surface);
-  border-right: 1px solid var(--qt-border);
-  padding: 16px 12px;
-  overflow-y: auto;
-}
-.tool-layout__brand {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: var(--qt-accent);
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  padding: 8px 10px;
-  margin-bottom: 12px;
-  border-radius: var(--qt-radius-sm);
-}
-.tool-layout__brand:hover {
-  background: var(--qt-bg);
-}
-.tool-layout__nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.tool-layout__nav-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: var(--qt-text);
-  font: inherit;
-  text-align: left;
-  padding: 8px 10px;
-  border-radius: var(--qt-radius-sm);
-  cursor: pointer;
-}
-.tool-layout__nav-item:hover {
-  background: var(--qt-bg);
-}
-.tool-layout__nav-item.is-active {
-  background: var(--qt-bg);
-  color: var(--qt-accent);
-  font-weight: 600;
-}
-.tool-layout__nav-count {
-  font-size: 11px;
-  color: var(--qt-muted);
-}
 .tool-layout__main {
-  flex: 1 1 auto;
-  min-width: 0;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 .tool-layout__header {
   position: sticky;
@@ -241,10 +158,5 @@ function openEmbed() {
 }
 .tool-layout__chromeless {
   padding: 16px;
-}
-@media (max-width: 768px) {
-  .tool-layout__sidebar {
-    display: none;
-  }
 }
 </style>

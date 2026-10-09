@@ -1,5 +1,5 @@
 /**
- * useBasicAuthGenerator — composable + pure logic for the HTTP Basic auth
+ * useBasicAuthGenerator - composable + pure logic for the HTTP Basic auth
  * header generator tool.
  *
  * Builds an `Authorization: Basic <base64>` header from a username + password
@@ -15,14 +15,14 @@
  * `useBasicAuthGenerator()` composable wraps them in reactive state and wires
  * up the embed PostMessage protocol.
  *
- * No external dependencies — only the native `btoa` / `TextEncoder` APIs.
+ * No external dependencies - only the native `btoa` / `TextEncoder` APIs.
  */
 import { ref, watch, type Ref } from 'vue';
 import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -94,7 +94,7 @@ export function buildAuthHeader(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseBasicAuthGeneratorReturn {

@@ -1,14 +1,14 @@
 /**
- * useUrlEncodeDecode — composable + pure logic for the URL encode/decode
+ * useUrlEncodeDecode - composable + pure logic for the URL encode/decode
  * tool.
  *
  * Bidirectional percent-encoding converter with two scopes:
  *
- * - **component** — `encodeURIComponent` / `decodeURIComponent`. Encodes
+ * - **component** - `encodeURIComponent` / `decodeURIComponent`. Encodes
  *   every character that is not an unreserved character (`A-Za-z0-9-_.!~*'()`).
  *   Use this for query-parameter *values*, path segments, or any single URI
  *   component.
- * - **uri** — `encodeURI` / `decodeURI`. Preserves the reserved URI
+ * - **uri** - `encodeURI` / `decodeURI`. Preserves the reserved URI
  *   characters `;,/?:@&=+$#` so a full URI string keeps its structure. Use
  *   this when you want to encode a complete URL without breaking its
  *   delimiters.
@@ -18,7 +18,7 @@
  * `useUrlEncodeDecode()` composable wraps them in reactive state and wires
  * up the embed PostMessage protocol.
  *
- * No external dependencies — only the native `encodeURIComponent` /
+ * No external dependencies - only the native `encodeURIComponent` /
  * `decodeURIComponent` / `encodeURI` / `decodeURI` functions.
  */
 import { ref, watch, type Ref } from 'vue';
@@ -26,7 +26,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Conversion direction. */
@@ -76,7 +76,7 @@ export function decodeUrl(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UrlEncodeDecodeOutputs {

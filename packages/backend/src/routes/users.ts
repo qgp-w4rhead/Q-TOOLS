@@ -1,14 +1,14 @@
 /**
- * User routes — profile, favorites, presets.
+ * User routes - profile, favorites, presets.
  *
- *   GET    /api/users/me                  — current user's profile
- *   GET    /api/users/favorites           — list the user's favorites
- *   POST   /api/users/favorites           — add a favorite
- *   DELETE /api/users/favorites/:id       — remove a favorite
- *   GET    /api/users/presets             — list the user's presets
- *   POST   /api/users/presets             — create a preset
- *   PATCH  /api/users/presets/:id         — update a preset
- *   DELETE /api/users/presets/:id         — delete a preset
+ *   GET    /api/users/me                  - current user's profile
+ *   GET    /api/users/favorites           - list the user's favorites
+ *   POST   /api/users/favorites           - add a favorite
+ *   DELETE /api/users/favorites/:id       - remove a favorite
+ *   GET    /api/users/presets             - list the user's presets
+ *   POST   /api/users/presets             - create a preset
+ *   PATCH  /api/users/presets/:id         - update a preset
+ *   DELETE /api/users/presets/:id         - delete a preset
  *
  * All routes require a valid access token.
  */

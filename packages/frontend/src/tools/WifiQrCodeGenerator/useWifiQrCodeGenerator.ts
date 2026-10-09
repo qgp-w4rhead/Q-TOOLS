@@ -1,5 +1,5 @@
 /**
- * useWifiQrCodeGenerator — composable + pure logic for the WiFi QR Code
+ * useWifiQrCodeGenerator - composable + pure logic for the WiFi QR Code
  * generator tool.
  *
  * Builds a WiFi-network configuration string in the de-facto standard format
@@ -48,7 +48,7 @@ export const WIFI_ENCRYPTIONS: WifiEncryptionInfo[] = [
     value: 'WEP',
     label: 'WEP',
     token: 'WEP',
-    description: 'Legacy encryption — avoid if possible.',
+    description: 'Legacy encryption - avoid if possible.',
   },
   {
     value: 'None',
@@ -123,7 +123,7 @@ export const DEFAULT_WIFI_CONFIG: WifiConfig = {
 };
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /**
@@ -213,7 +213,7 @@ export async function generateWifiQrDataUrl(
 ): Promise<string> {
   const data = text ?? '';
   if (data.length === 0) {
-    throw new Error('WiFi string is empty — provide an SSID.');
+    throw new Error('WiFi string is empty - provide an SSID.');
   }
   return QRCode.toDataURL(data, buildQrOptions(opts));
 }
@@ -225,7 +225,7 @@ export async function generateWifiQrSvg(
 ): Promise<string> {
   const data = text ?? '';
   if (data.length === 0) {
-    throw new Error('WiFi string is empty — provide an SSID.');
+    throw new Error('WiFi string is empty - provide an SSID.');
   }
   return QRCode.toString(data, {
     ...buildQrOptions(opts),
@@ -234,7 +234,7 @@ export async function generateWifiQrSvg(
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseWifiQrCodeGeneratorReturn {

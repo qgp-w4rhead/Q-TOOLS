@@ -1,9 +1,9 @@
 /**
- * useTomlToYaml — composable + pure logic for the TOML → YAML converter.
+ * useTomlToYaml - composable + pure logic for the TOML → YAML converter.
  *
  * Parses TOML text via `smol-toml`'s `parse` and serializes the result to YAML
  * via the `yaml` package's `stringify`. Both packages are part of the initial
- * bundle per `tech-stack.md`, so they are statically imported here — no dynamic
+ * bundle per `tech-stack.md`, so they are statically imported here - no dynamic
  * import, no separate Vite chunk.
  *
  * `smol-toml` returns `TomlDate` instances (which extend `Date`) for TOML
@@ -28,7 +28,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation width for the YAML output. */
@@ -194,7 +194,7 @@ function toError(err: unknown, stage: 'toml' | 'yaml'): TomlToYamlError {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface TomlToYamlOutputs {

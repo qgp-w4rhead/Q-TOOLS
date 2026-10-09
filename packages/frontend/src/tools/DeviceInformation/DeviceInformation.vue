@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * DeviceInformation — display browser, OS, and device information.
+ * DeviceInformation - display browser, OS, and device information.
  *
  * Snapshots the runtime environment via the standard `navigator`, `screen`,
  * and `window` APIs and renders the result as a grouped key/value grid.
@@ -14,6 +14,7 @@
  * `input` PostMessage with `{ refresh: true }` to trigger a re-snapshot.
  */
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RefreshCw, Monitor, Check, Copy } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -21,6 +22,21 @@ import CopyButton from '@/components/CopyButton.vue';
 import { useDeviceInformation } from './useDeviceInformation';
 
 const { info, refreshing, refresh, copyAllText } = useDeviceInformation();
+
+const { t } = useI18n();
+const U = 'tools.device-information.ui.';
+
+function groupLabel(id: string): string {
+  return t(`${U}groups.${id}`);
+}
+function fieldLabel(key: string): string {
+  return t(`${U}fields.${key}`);
+}
+function fieldValue(f: { value: string }): string {
+  if (f.value === 'Yes') return t(U + 'yes');
+  if (f.value === 'No') return t(U + 'no');
+  return f.value;
+}
 
 const groups = computed(() => info.value.groups);
 const collectedAt = computed(() => info.value.collectedAt);
@@ -55,54 +71,55 @@ async function onCopyAll(): Promise<void> {
 </script>
 
 <template>
-  <div class="device">
+  <div class="qt-tool">
     <ToolInput
-      title="Device information"
-      description="Live snapshot of your browser, screen, viewport, hardware, and capabilities. The viewport and online status update automatically."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
       <template #actions>
         <button
-          class="device__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="refreshing"
           @click="refresh"
         >
-          <RefreshCw :size="14" :class="{ 'device__spin': refreshing }" />
-          <span>{{ refreshing ? 'Refreshing…' : 'Refresh' }}</span>
+          <RefreshCw :size="14" :class="{ 'qt-spin': refreshing }" />
+          <span>{{ refreshing ? t(U + 'refreshing') : t(U + 'refresh') }}</span>
         </button>
         <button
-          class="device__btn device__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
           @click="onCopyAll"
         >
           <component :is="copiedAll ? Check : Copy" :size="14" />
-          <span>{{ copiedAll ? 'Copied!' : 'Copy all' }}</span>
+          <span>{{ copiedAll ? t('common.copiedFeedback') : t('common.copyAll') }}</span>
         </button>
       </template>
 
-      <div class="device__meta">
+      <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px;font-size:12px">
         <Monitor :size="14" />
-        <span>{{ totalFields }} fields · updated {{ collectedAtLabel }}</span>
+        <span>{{ t(U + 'fieldsCount', { time: collectedAtLabel }, totalFields) }}</span>
       </div>
     </ToolInput>
 
-    <ToolOutput title="Snapshot">
-      <div class="device__groups">
+    <ToolOutput :title="t(U + 'outputTitle')">
+      <div class="qt-stack" style="--qt-stack-gap:18px">
         <section
           v-for="group in groups"
           :key="group.id"
-          class="device__group"
+          class="qt-stack"
+          style="--qt-stack-gap:8px"
         >
-          <h3 class="device__group-title">{{ group.label }}</h3>
-          <dl class="device__grid">
+          <h3 class="qt-stat-head device__group-title">{{ groupLabel(group.id) }}</h3>
+          <dl class="qt-stack" style="--qt-stack-gap:2px;margin:0">
             <div
               v-for="f in group.fields"
               :key="f.key"
               class="device__row"
               :class="{ 'device__row--unavailable': f.unavailable }"
             >
-              <dt class="device__key">{{ f.label }}</dt>
-              <dd class="device__value" :title="f.value">{{ f.value }}</dd>
+              <dt class="qt-label">{{ fieldLabel(f.key) }}</dt>
+              <dd class="qt-mono device__value" :title="f.value">{{ fieldValue(f) }}</dd>
               <CopyButton
                 v-if="!f.unavailable"
                 :text="f.value"
@@ -117,91 +134,16 @@ async function onCopyAll(): Promise<void> {
 </template>
 
 <style scoped>
-.device {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.device__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.device__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.device__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.device__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.device__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.device__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.device__spin {
-  animation: device-spin 0.8s linear infinite;
-}
-@keyframes device-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-.device__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-}
-.device__groups {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-.device__group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Group heading (base via .qt-stat-head) — bottom rule. */
 .device__group-title {
   margin: 0;
-  font-size: 12.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--qt-muted);
   padding-bottom: 6px;
   border-bottom: 1px solid var(--qt-border);
+  width: 100%;
 }
-.device__grid {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 0;
-}
+/* Field rows — 3-col grid (key / value / copy) with hover reveal. */
 .device__row {
   display: grid;
   grid-template-columns: minmax(140px, 220px) 1fr auto;
@@ -217,16 +159,10 @@ async function onCopyAll(): Promise<void> {
 .device__row--unavailable {
   opacity: 0.65;
 }
-.device__key {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
 .device__value {
   margin: 0;
   font-size: 13.5px;
   color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   word-break: break-word;
   min-width: 0;
 }

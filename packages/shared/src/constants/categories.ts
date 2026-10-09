@@ -1,7 +1,7 @@
 /**
- * Tool category definitions — shared between frontend and backend.
+ * Tool category definitions - shared between frontend and backend.
  *
- * The 10 categories match the `ToolCategory` union in `../types/tool.ts`.
+ * The categories match the `ToolCategory` union in `../types/tool.ts`.
  * Each category has an id (used in tool metadata), a human-readable label,
  * a lucide-vue-next icon name, and a short description.
  */
@@ -19,13 +19,13 @@ export const CATEGORIES: CategoryDefinition[] = [
   {
     id: 'crypto',
     label: 'Crypto',
-    icon: 'shield',
+    icon: 'lock',
     description: 'Hashing, encryption, keys, and password tools.',
   },
   {
     id: 'converter',
     label: 'Converter',
-    icon: 'repeat',
+    icon: 'arrow-left-right',
     description: 'Convert between data formats, encodings, and units.',
   },
   {
@@ -74,7 +74,61 @@ export const CATEGORIES: CategoryDefinition[] = [
     id: 'data',
     label: 'Data',
     icon: 'database',
-    description: 'Phone numbers and IBAN validation.',
+    description: 'Phone numbers, IBAN, VIN, SSN, credit cards, ISBN, SWIFT/BIC, and barcodes.',
+  },
+  {
+    id: 'security',
+    label: 'Security & Privacy',
+    icon: 'eye-off',
+    description: 'PII redaction, security headers, breach checks, CSP analysis, and certificate decoding.',
+  },
+  {
+    id: 'cipher',
+    label: 'Classical Ciphers',
+    icon: 'key-round',
+    description: 'Historical and educational cipher tools - Caesar, Vigenère, Atbash, Morse, and more.',
+  },
+  {
+    id: 'devops',
+    label: 'DevOps & Infrastructure',
+    icon: 'terminal',
+    description: 'Nginx, systemd, Kubernetes, DNS, Dockerfile, cron, and port-forwarding utilities.',
+  },
+  {
+    id: 'api',
+    label: 'API & Testing',
+    icon: 'webhook',
+    description: 'HTTP request building, API development, mock utilities, and schema validation.',
+  },
+  {
+    id: 'i18n',
+    label: 'Internationalization',
+    icon: 'languages',
+    description: 'ICU MessageFormat, locale formatting, plural rules, language/currency/country codes, and Unicode utilities.',
+  },
+  {
+    id: 'finance',
+    label: 'Finance & Calculators',
+    icon: 'banknote',
+    description: 'Loan, compound interest, currency, VAT, income tax, invoice, ROI, depreciation, and break-even calculators.',
+  },
+  {
+    id: 'geo',
+    label: 'Geographic & Coordinates',
+    icon: 'map-pin',
+    description: 'Coordinate conversion, geohash, Plus Code, distance, timezone, bounding box, and what3words utilities.',
+  },
+  {
+    id: 'a11y',
+    label: 'Accessibility',
+    icon: 'accessibility',
+    description: 'Color contrast, ARIA labels, alt text, tab order, WCAG reference, heading structure, focus indicators, and screen reader text.',
+  },
+  {
+    id: 'av',
+    label: 'Audio & Video',
+    icon: 'clapperboard',
+    description: 'Audio and video conversion, transcoding, trimming, merging, and metadata utilities.',
   },
 ];
 

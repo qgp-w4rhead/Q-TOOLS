@@ -1,9 +1,9 @@
 /**
- * ChmodCalculator tool module — exports the lazy-loaded component plus its
+ * ChmodCalculator tool module - exports the lazy-loaded component plus its
  * metadata, composable, and pure helpers so the tool can be registered in the
  * registry and routed dynamically.
  *
- * No external dependencies — all logic is pure TypeScript.
+ * No external dependencies - all logic is pure TypeScript.
  */
 import { defineAsyncComponent } from 'vue';
 import type { ToolMetadata } from '@q-tools/shared';

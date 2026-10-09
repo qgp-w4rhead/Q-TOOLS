@@ -1,5 +1,5 @@
 /**
- * useJsonMinify — composable + pure logic for the JSON minify tool.
+ * useJsonMinify - composable + pure logic for the JSON minify tool.
  *
  * Parses JSON text with `JSON.parse` and re-serializes it with
  * `JSON.stringify(value)` (no indent argument) → single-line, whitespace-free
@@ -18,7 +18,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Result of a successful JSON minify operation. */
@@ -190,7 +190,7 @@ function posToLineCol(source: string, pos: number): { line: number; column: numb
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface JsonMinifyOutputs {

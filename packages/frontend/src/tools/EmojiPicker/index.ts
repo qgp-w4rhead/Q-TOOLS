@@ -1,5 +1,5 @@
 /**
- * EmojiPicker tool module — exports the lazy-loaded component plus its
+ * EmojiPicker tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
@@ -8,7 +8,7 @@
  * selector and copy-as-shortcode mode. The emoji dataset is lazy-loaded as a
  * separate Vite chunk (~100 KB source / ~30 KB gzip).
  *
- * No external dependencies — the dataset is bundled and hand-curated.
+ * No external dependencies - the dataset is bundled and hand-curated.
  */
 import { defineAsyncComponent } from 'vue';
 import type { ToolMetadata } from '@q-tools/shared';

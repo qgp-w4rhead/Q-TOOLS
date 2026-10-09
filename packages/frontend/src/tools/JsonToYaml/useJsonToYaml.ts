@@ -1,10 +1,10 @@
 /**
- * useJsonToYaml — composable + pure logic for the JSON → YAML converter.
+ * useJsonToYaml - composable + pure logic for the JSON → YAML converter.
  *
  * Parses JSON text (single value, or an array of values when multi-document
  * YAML output is requested) and serializes it to YAML via the `yaml` package's
  * `stringify` / `Document.toString`. The `yaml` package is part of the
- * initial bundle per `tech-stack.md`, so it is statically imported here —
+ * initial bundle per `tech-stack.md`, so it is statically imported here -
  * no dynamic import, no separate Vite chunk.
  *
  * Pure helpers (`parseJsonInput`, `jsonToYaml`) have no Vue dependency and
@@ -20,7 +20,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                             */
+/* Pure logic - no Vue dependency below this point                             */
 /* -------------------------------------------------------------------------- */
 
 /** Indentation width for the YAML output. */
@@ -155,7 +155,7 @@ export function jsonToYaml(
  * ("at position N") and as `e.message`. We extract the position from the
  * message text and translate it to a 1-based line/column using the source
  * text (when provided). Newer engines also expose `err.line`/`err.column`
- * directly on some errors — we prefer those when present.
+ * directly on some errors - we prefer those when present.
  */
 function toError(err: unknown, stage: 'json' | 'yaml', source?: string): JsonToYamlError {
   if (err instanceof Error) {
@@ -183,7 +183,7 @@ function toError(err: unknown, stage: 'json' | 'yaml', source?: string): JsonToY
 
 /** Extract the character position from a V8/Node SyntaxError message. */
 function extractPosition(message: string): number {
-  // Matches "at position N" (V8) — returns -1 if not found.
+  // Matches "at position N" (V8) - returns -1 if not found.
   const m = /at position (\d+)/.exec(message);
   return m ? Number(m[1]!) : -1;
 }
@@ -206,7 +206,7 @@ function posToLineCol(source: string, pos: number): { line: number; column: numb
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface JsonToYamlOutputs {

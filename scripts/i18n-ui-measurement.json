@@ -1,0 +1,734 @@
+{
+  "en": {
+    "chronometer": {
+      "inputTitle": "Chronometer",
+      "desc": "Precision stopwatch with lap timing. Uses performance.now() for sub-millisecond accuracy.",
+      "resetTitle": "Reset stopwatch and clear laps",
+      "btnStart": "Start",
+      "btnPause": "Pause",
+      "btnResume": "Resume",
+      "btnLap": "Lap",
+      "btnStop": "Stop",
+      "lapTitle": "Record a lap split",
+      "stopTitle": "Stop and freeze the timer",
+      "outTitle": "Laps",
+      "descLaps": "{n} laps recorded.",
+      "descLapsOne": "{n} lap recorded.",
+      "descEmpty": "No laps recorded yet. Press Lap while the timer is running.",
+      "alertEmpty": "No laps recorded yet. Press Lap while the timer is running.",
+      "colSplit": "Split",
+      "colTotal": "Total",
+      "copyLaps": "Copy laps"
+    },
+    "temperature-converter": {
+      "inputTitle": "Temperature value",
+      "desc": "Enter a temperature and pick its unit - every other scale updates live.",
+      "phValue": "e.g. 25",
+      "outTitle": "Conversions",
+      "descEmpty": "Enter a value to see all conversions.",
+      "descBelow": "Below absolute zero - values are mathematically valid but physically impossible.",
+      "descOk": "Live conversions across all eight temperature scales.",
+      "alertBelow": "Below absolute zero (0 K) - physically impossible.",
+      "alertEmpty": "Enter a value to see all conversions."
+    },
+    "benchmark-builder": {
+      "inputTitle": "Code snippet",
+      "desc": "Enter JavaScript code to benchmark. Use the optional setup block to prepare data (shared via ctx). Click a preset to load an example.",
+      "resetTitle": "Reset all fields",
+      "presets": "Presets:",
+      "setupLabel": "Setup code (runs once, before warmup)",
+      "phSetup": "ctx.arr = [1, 2, 3, 4, 5];",
+      "codeLabel": "Code to benchmark (runs per iteration)",
+      "phCode": "ctx.arr.map(x => x * x);",
+      "iterLabel": "Iterations",
+      "phIter": "e.g. 1000",
+      "warmupLabel": "Warmup runs",
+      "phWarmup": "e.g. 100",
+      "run": "Run benchmark",
+      "cancel": "Cancel",
+      "outTitle": "Results",
+      "descEmpty": "Run a benchmark to see the results.",
+      "descError": "The benchmark failed - see the error below.",
+      "descOk": "Benchmark results - timing statistics across all iterations.",
+      "statAvg": "Average",
+      "statOps": "Ops / sec",
+      "statMin": "Min",
+      "statMax": "Max",
+      "statMedian": "Median",
+      "statStdDev": "Std dev",
+      "statTotal": "Total time",
+      "statSamples": "Samples",
+      "copyAll": "Copy all stats"
+    },
+    "data-size-converter": {
+      "inputTitle": "Data size converter",
+      "desc": "Enter a value and pick the unit and convention to see all conversions.",
+      "phValue": "e.g. 1024",
+      "convLabel": "Convention",
+      "convBinary": "Binary (1024)",
+      "convDecimal": "Decimal (1000)"
+    },
+    "length-converter": {
+      "inputTitle": "Length converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1000"
+    },
+    "speed-converter": {
+      "inputTitle": "Speed converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 100"
+    },
+    "time-unit-converter": {
+      "inputTitle": "Time unit converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1"
+    },
+    "weight-converter": {
+      "inputTitle": "Weight converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1000"
+    },
+    "volume-converter": {
+      "inputTitle": "Volume converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1000"
+    },
+    "area-converter": {
+      "inputTitle": "Area converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1000"
+    },
+    "pressure-converter": {
+      "inputTitle": "Pressure converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1"
+    },
+    "energy-converter": {
+      "inputTitle": "Energy converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1000"
+    },
+    "angle-converter": {
+      "inputTitle": "Angle converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 90"
+    },
+    "fuel-economy-converter": {
+      "inputTitle": "Fuel economy converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 30"
+    },
+    "frequency-converter": {
+      "inputTitle": "Frequency converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1000"
+    },
+    "force-converter": {
+      "inputTitle": "Force converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 100"
+    },
+    "power-converter": {
+      "inputTitle": "Power converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 100"
+    },
+    "torque-converter": {
+      "inputTitle": "Torque converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 100"
+    },
+    "density-converter": {
+      "inputTitle": "Density converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 1000"
+    },
+    "acceleration-converter": {
+      "inputTitle": "Acceleration converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 9.8"
+    },
+    "flow-rate-converter": {
+      "inputTitle": "Flow rate converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 100"
+    },
+    "viscosity-converter": {
+      "inputTitle": "Viscosity converter",
+      "desc": "Pick a quantity mode, enter a value and unit to see all conversions.",
+      "phValue": "e.g. 1"
+    },
+    "radiation-converter": {
+      "inputTitle": "Radiation converter",
+      "desc": "Pick a quantity mode, enter a value and unit to see all conversions.",
+      "phValue": "e.g. 1"
+    },
+    "illuminance-converter": {
+      "inputTitle": "Illuminance converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 500"
+    },
+    "typography-converter": {
+      "inputTitle": "Typography unit converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 12",
+      "dpiLabel": "Pixel density (DPI)",
+      "emLabel": "Base font size (pt, for em)"
+    },
+    "cooking-converter": {
+      "inputTitle": "Cooking measures converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 250"
+    },
+    "data-rate-converter": {
+      "inputTitle": "Data rate converter",
+      "desc": "Enter a value and pick the unit to see all conversions.",
+      "phValue": "e.g. 100",
+      "transferTitle": "Transfer time",
+      "fileSizeLabel": "File size",
+      "durationLabel": "Duration at current rate"
+    },
+    "paper-size-converter": {
+      "inputTitle": "Paper size reference",
+      "desc": "Search ISO A/B/C and North American paper sizes.",
+      "phSearch": "e.g. A4, Letter, B5",
+      "seriesLabel": "Series",
+      "outTitle": "Sizes",
+      "descSizes": "{n} sizes shown. Click a row for details.",
+      "descSizesOne": "{n} size shown. Click a row for details.",
+      "colMm": "mm (W × H)",
+      "colIn": "inches (W × H)",
+      "noMatch": "No sizes match your search.",
+      "rowSelected": "Selected",
+      "rowDims": "Dimensions",
+      "rowClosest": "Closest ISO A"
+    },
+    "clothing-size-converter": {
+      "inputTitle": "Clothing & shoe size converter",
+      "desc": "Pick a table, then click a size to see equivalents. Approximate - sizing varies by brand.",
+      "outFallback": "Sizes",
+      "outDesc": "Click a cell to highlight the equivalent row.",
+      "rowEquiv": "Equivalent sizes"
+    },
+    "calendar-converter": {
+      "inputTitle": "Calendar converter",
+      "desc": "Enter a Gregorian date (YYYY-MM-DD) or a Julian Day Number.",
+      "dateLabel": "Gregorian date",
+      "jdnLabel": "Julian Day Number (reverse)",
+      "phJdn": "e.g. 2460000",
+      "descResult": "Details for {date}.",
+      "descEmpty": "Enter a valid date.",
+      "rowGregorian": "Gregorian date",
+      "rowJulian": "Julian calendar date",
+      "rowJdn": "Julian Day Number",
+      "rowDow": "Day of week",
+      "rowDoy": "Day of year",
+      "rowIsoWeek": "ISO week",
+      "rowLeap": "Leap year",
+      "yes": "Yes",
+      "no": "No",
+      "alertEmpty": "Enter a valid Gregorian date above.",
+      "jdnResolves": "JDN {jdn} resolves to",
+      "rowGregorianShort": "Gregorian",
+      "rowJulianShort": "Julian"
+    },
+    "ohms-law-calculator": {
+      "inputTitle": "Ohm's law calculator",
+      "desc": "Enter any two of voltage, current, resistance, power - the rest are solved.",
+      "resetTitle": "Clear all fields",
+      "clearTitle": "Clear field",
+      "phEg": "e.g. {n}",
+      "outTitle": "Solved values",
+      "descOk": "Derived via V = I·R and P = V·I.",
+      "descEmpty": "Enter at least two quantities."
+    }
+  },
+  "es": {
+    "chronometer": {
+      "inputTitle": "Cronómetro",
+      "desc": "Cronómetro de precisión con tiempos de vuelta. Usa performance.now() para una precisión inferior al milisegundo.",
+      "resetTitle": "Reiniciar cronómetro y borrar vueltas",
+      "btnStart": "Iniciar",
+      "btnPause": "Pausar",
+      "btnResume": "Reanudar",
+      "btnLap": "Vuelta",
+      "btnStop": "Detener",
+      "lapTitle": "Registrar una vuelta",
+      "stopTitle": "Detener y congelar el cronómetro",
+      "outTitle": "Vueltas",
+      "descLaps": "{n} vueltas registradas.",
+      "descLapsOne": "{n} vuelta registrada.",
+      "descEmpty": "Aún no hay vueltas. Pulsa Vuelta mientras el cronómetro está en marcha.",
+      "alertEmpty": "Aún no hay vueltas. Pulsa Vuelta mientras el cronómetro está en marcha.",
+      "colSplit": "Parcial",
+      "colTotal": "Total",
+      "copyLaps": "Copiar vueltas"
+    },
+    "temperature-converter": {
+      "inputTitle": "Valor de temperatura",
+      "desc": "Introduce una temperatura y elige su unidad - las demás escalas se actualizan en vivo.",
+      "phValue": "p. ej. 25",
+      "outTitle": "Conversiones",
+      "descEmpty": "Introduce un valor para ver todas las conversiones.",
+      "descBelow": "Por debajo del cero absoluto - valores matemáticamente válidos pero físicamente imposibles.",
+      "descOk": "Conversiones en vivo en las ocho escalas de temperatura.",
+      "alertBelow": "Por debajo del cero absoluto (0 K) - físicamente imposible.",
+      "alertEmpty": "Introduce un valor para ver todas las conversiones."
+    },
+    "benchmark-builder": {
+      "inputTitle": "Fragmento de código",
+      "desc": "Introduce código JavaScript para medir. Usa el bloque de preparación opcional para preparar datos (compartidos vía ctx). Haz clic en un preset para cargar un ejemplo.",
+      "resetTitle": "Restablecer todos los campos",
+      "presets": "Presets:",
+      "setupLabel": "Código de preparación (se ejecuta una vez, antes del calentamiento)",
+      "phSetup": "ctx.arr = [1, 2, 3, 4, 5];",
+      "codeLabel": "Código a medir (se ejecuta por iteración)",
+      "phCode": "ctx.arr.map(x => x * x);",
+      "iterLabel": "Iteraciones",
+      "phIter": "p. ej. 1000",
+      "warmupLabel": "Ejecuciones de calentamiento",
+      "phWarmup": "p. ej. 100",
+      "run": "Ejecutar benchmark",
+      "cancel": "Cancelar",
+      "outTitle": "Resultados",
+      "descEmpty": "Ejecuta un benchmark para ver los resultados.",
+      "descError": "El benchmark falló - consulta el error abajo.",
+      "descOk": "Resultados del benchmark - estadísticas de tiempo de todas las iteraciones.",
+      "statAvg": "Promedio",
+      "statOps": "Ops / s",
+      "statMin": "Mín",
+      "statMax": "Máx",
+      "statMedian": "Mediana",
+      "statStdDev": "Desv. estándar",
+      "statTotal": "Tiempo total",
+      "statSamples": "Muestras",
+      "copyAll": "Copiar todas las estadísticas"
+    },
+    "data-size-converter": {
+      "inputTitle": "Conversor de tamaño de datos",
+      "desc": "Introduce un valor y elige la unidad y la convención para ver todas las conversiones.",
+      "phValue": "p. ej. 1024",
+      "convLabel": "Convención",
+      "convBinary": "Binario (1024)",
+      "convDecimal": "Decimal (1000)"
+    },
+    "length-converter": {
+      "inputTitle": "Conversor de longitud",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1000"
+    },
+    "speed-converter": {
+      "inputTitle": "Conversor de velocidad",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 100"
+    },
+    "time-unit-converter": {
+      "inputTitle": "Conversor de unidades de tiempo",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1"
+    },
+    "weight-converter": {
+      "inputTitle": "Conversor de peso",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1000"
+    },
+    "volume-converter": {
+      "inputTitle": "Conversor de volumen",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1000"
+    },
+    "area-converter": {
+      "inputTitle": "Conversor de área",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1000"
+    },
+    "pressure-converter": {
+      "inputTitle": "Conversor de presión",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1"
+    },
+    "energy-converter": {
+      "inputTitle": "Conversor de energía",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1000"
+    },
+    "angle-converter": {
+      "inputTitle": "Conversor de ángulos",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 90"
+    },
+    "fuel-economy-converter": {
+      "inputTitle": "Conversor de consumo de combustible",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 30"
+    },
+    "frequency-converter": {
+      "inputTitle": "Conversor de frecuencia",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1000"
+    },
+    "force-converter": {
+      "inputTitle": "Conversor de fuerza",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 100"
+    },
+    "power-converter": {
+      "inputTitle": "Conversor de potencia",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 100"
+    },
+    "torque-converter": {
+      "inputTitle": "Conversor de par",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 100"
+    },
+    "density-converter": {
+      "inputTitle": "Conversor de densidad",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1000"
+    },
+    "acceleration-converter": {
+      "inputTitle": "Conversor de aceleración",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 9.8"
+    },
+    "flow-rate-converter": {
+      "inputTitle": "Conversor de caudal",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 100"
+    },
+    "viscosity-converter": {
+      "inputTitle": "Conversor de viscosidad",
+      "desc": "Elige un modo de magnitud, introduce un valor y una unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1"
+    },
+    "radiation-converter": {
+      "inputTitle": "Conversor de radiación",
+      "desc": "Elige un modo de magnitud, introduce un valor y una unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 1"
+    },
+    "illuminance-converter": {
+      "inputTitle": "Conversor de iluminancia",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 500"
+    },
+    "typography-converter": {
+      "inputTitle": "Conversor de unidades tipográficas",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 12",
+      "dpiLabel": "Densidad de píxeles (DPI)",
+      "emLabel": "Tamaño de fuente base (pt, para em)"
+    },
+    "cooking-converter": {
+      "inputTitle": "Conversor de medidas de cocina",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 250"
+    },
+    "data-rate-converter": {
+      "inputTitle": "Conversor de tasa de datos",
+      "desc": "Introduce un valor y elige la unidad para ver todas las conversiones.",
+      "phValue": "p. ej. 100",
+      "transferTitle": "Tiempo de transferencia",
+      "fileSizeLabel": "Tamaño de archivo",
+      "durationLabel": "Duración a la tasa actual"
+    },
+    "paper-size-converter": {
+      "inputTitle": "Referencia de tamaños de papel",
+      "desc": "Busca tamaños de papel ISO A/B/C y norteamericanos.",
+      "phSearch": "p. ej. A4, Letter, B5",
+      "seriesLabel": "Serie",
+      "outTitle": "Tamaños",
+      "descSizes": "{n} tamaños mostrados. Haz clic en una fila para ver detalles.",
+      "descSizesOne": "{n} tamaño mostrado. Haz clic en la fila para ver detalles.",
+      "colMm": "mm (An × Al)",
+      "colIn": "pulgadas (An × Al)",
+      "noMatch": "Ningún tamaño coincide con la búsqueda.",
+      "rowSelected": "Seleccionado",
+      "rowDims": "Dimensiones",
+      "rowClosest": "ISO A más cercano"
+    },
+    "clothing-size-converter": {
+      "inputTitle": "Conversor de tallas de ropa y calzado",
+      "desc": "Elige una tabla y haz clic en una talla para ver equivalencias. Aproximado - las tallas varían según la marca.",
+      "outFallback": "Tallas",
+      "outDesc": "Haz clic en una celda para resaltar la fila equivalente.",
+      "rowEquiv": "Tallas equivalentes"
+    },
+    "calendar-converter": {
+      "inputTitle": "Conversor de calendario",
+      "desc": "Introduce una fecha gregoriana (AAAA-MM-DD) o un número de día juliano.",
+      "dateLabel": "Fecha gregoriana",
+      "jdnLabel": "Número de día juliano (inverso)",
+      "phJdn": "p. ej. 2460000",
+      "descResult": "Detalles para {date}.",
+      "descEmpty": "Introduce una fecha válida.",
+      "rowGregorian": "Fecha gregoriana",
+      "rowJulian": "Fecha del calendario juliano",
+      "rowJdn": "Número de día juliano",
+      "rowDow": "Día de la semana",
+      "rowDoy": "Día del año",
+      "rowIsoWeek": "Semana ISO",
+      "rowLeap": "Año bisiesto",
+      "yes": "Sí",
+      "no": "No",
+      "alertEmpty": "Introduce una fecha gregoriana válida arriba.",
+      "jdnResolves": "JDN {jdn} corresponde a",
+      "rowGregorianShort": "Gregoriano",
+      "rowJulianShort": "Juliano"
+    },
+    "ohms-law-calculator": {
+      "inputTitle": "Calculadora de la ley de Ohm",
+      "desc": "Introduce dos de tensión, corriente, resistencia o potencia - el resto se calcula.",
+      "resetTitle": "Borrar todos los campos",
+      "clearTitle": "Borrar campo",
+      "phEg": "p. ej. {n}",
+      "outTitle": "Valores calculados",
+      "descOk": "Calculado mediante V = I·R y P = V·I.",
+      "descEmpty": "Introduce al menos dos magnitudes."
+    }
+  },
+  "fr": {
+    "chronometer": {
+      "inputTitle": "Chronomètre",
+      "desc": "Chronomètre de précision avec temps au tour. Utilise performance.now() pour une précision inférieure à la milliseconde.",
+      "resetTitle": "Réinitialiser le chronomètre et effacer les tours",
+      "btnStart": "Démarrer",
+      "btnPause": "Pause",
+      "btnResume": "Reprendre",
+      "btnLap": "Tour",
+      "btnStop": "Arrêter",
+      "lapTitle": "Enregistrer un temps au tour",
+      "stopTitle": "Arrêter et figer le chronomètre",
+      "outTitle": "Tours",
+      "descLaps": "{n} tours enregistrés.",
+      "descLapsOne": "{n} tour enregistré.",
+      "descEmpty": "Aucun tour enregistré. Appuyez sur Tour pendant que le chronomètre tourne.",
+      "alertEmpty": "Aucun tour enregistré. Appuyez sur Tour pendant que le chronomètre tourne.",
+      "colSplit": "Intermédiaire",
+      "colTotal": "Total",
+      "copyLaps": "Copier les tours"
+    },
+    "temperature-converter": {
+      "inputTitle": "Valeur de température",
+      "desc": "Saisissez une température et choisissez son unité - les autres échelles se mettent à jour en direct.",
+      "phValue": "p. ex. 25",
+      "outTitle": "Conversions",
+      "descEmpty": "Saisissez une valeur pour voir toutes les conversions.",
+      "descBelow": "En dessous du zéro absolu - valeurs mathématiquement valides mais physiquement impossibles.",
+      "descOk": "Conversions en direct sur les huit échelles de température.",
+      "alertBelow": "En dessous du zéro absolu (0 K) - physiquement impossible.",
+      "alertEmpty": "Saisissez une valeur pour voir toutes les conversions."
+    },
+    "benchmark-builder": {
+      "inputTitle": "Extrait de code",
+      "desc": "Saisissez du code JavaScript à mesurer. Utilisez le bloc de préparation optionnel pour préparer les données (partagées via ctx). Cliquez sur un preset pour charger un exemple.",
+      "resetTitle": "Réinitialiser tous les champs",
+      "presets": "Préréglages :",
+      "setupLabel": "Code de préparation (exécuté une fois, avant l'échauffement)",
+      "phSetup": "ctx.arr = [1, 2, 3, 4, 5];",
+      "codeLabel": "Code à mesurer (exécuté par itération)",
+      "phCode": "ctx.arr.map(x => x * x);",
+      "iterLabel": "Itérations",
+      "phIter": "p. ex. 1000",
+      "warmupLabel": "Exécutions d'échauffement",
+      "phWarmup": "p. ex. 100",
+      "run": "Lancer le benchmark",
+      "cancel": "Annuler",
+      "outTitle": "Résultats",
+      "descEmpty": "Lancez un benchmark pour voir les résultats.",
+      "descError": "Le benchmark a échoué - voir l'erreur ci-dessous.",
+      "descOk": "Résultats du benchmark - statistiques de temps sur toutes les itérations.",
+      "statAvg": "Moyenne",
+      "statOps": "Ops / s",
+      "statMin": "Min",
+      "statMax": "Max",
+      "statMedian": "Médiane",
+      "statStdDev": "Écart-type",
+      "statTotal": "Temps total",
+      "statSamples": "Échantillons",
+      "copyAll": "Copier toutes les stats"
+    },
+    "data-size-converter": {
+      "inputTitle": "Convertisseur de taille de données",
+      "desc": "Saisissez une valeur et choisissez l'unité et la convention pour voir toutes les conversions.",
+      "phValue": "p. ex. 1024",
+      "convLabel": "Convention",
+      "convBinary": "Binaire (1024)",
+      "convDecimal": "Décimal (1000)"
+    },
+    "length-converter": {
+      "inputTitle": "Convertisseur de longueur",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1000"
+    },
+    "speed-converter": {
+      "inputTitle": "Convertisseur de vitesse",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 100"
+    },
+    "time-unit-converter": {
+      "inputTitle": "Convertisseur d'unités de temps",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1"
+    },
+    "weight-converter": {
+      "inputTitle": "Convertisseur de poids",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1000"
+    },
+    "volume-converter": {
+      "inputTitle": "Convertisseur de volume",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1000"
+    },
+    "area-converter": {
+      "inputTitle": "Convertisseur de surface",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1000"
+    },
+    "pressure-converter": {
+      "inputTitle": "Convertisseur de pression",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1"
+    },
+    "energy-converter": {
+      "inputTitle": "Convertisseur d'énergie",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1000"
+    },
+    "angle-converter": {
+      "inputTitle": "Convertisseur d'angles",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 90"
+    },
+    "fuel-economy-converter": {
+      "inputTitle": "Convertisseur de consommation",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 30"
+    },
+    "frequency-converter": {
+      "inputTitle": "Convertisseur de fréquence",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1000"
+    },
+    "force-converter": {
+      "inputTitle": "Convertisseur de force",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 100"
+    },
+    "power-converter": {
+      "inputTitle": "Convertisseur de puissance",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 100"
+    },
+    "torque-converter": {
+      "inputTitle": "Convertisseur de couple",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 100"
+    },
+    "density-converter": {
+      "inputTitle": "Convertisseur de densité",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1000"
+    },
+    "acceleration-converter": {
+      "inputTitle": "Convertisseur d'accélération",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 9.8"
+    },
+    "flow-rate-converter": {
+      "inputTitle": "Convertisseur de débit",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 100"
+    },
+    "viscosity-converter": {
+      "inputTitle": "Convertisseur de viscosité",
+      "desc": "Choisissez un mode de grandeur, saisissez une valeur et une unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1"
+    },
+    "radiation-converter": {
+      "inputTitle": "Convertisseur de rayonnement",
+      "desc": "Choisissez un mode de grandeur, saisissez une valeur et une unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 1"
+    },
+    "illuminance-converter": {
+      "inputTitle": "Convertisseur d'éclairement",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 500"
+    },
+    "typography-converter": {
+      "inputTitle": "Convertisseur d'unités typographiques",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 12",
+      "dpiLabel": "Densité de pixels (DPI)",
+      "emLabel": "Taille de police de base (pt, pour em)"
+    },
+    "cooking-converter": {
+      "inputTitle": "Convertisseur de mesures de cuisine",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 250"
+    },
+    "data-rate-converter": {
+      "inputTitle": "Convertisseur de débit de données",
+      "desc": "Saisissez une valeur et choisissez l'unité pour voir toutes les conversions.",
+      "phValue": "p. ex. 100",
+      "transferTitle": "Temps de transfert",
+      "fileSizeLabel": "Taille du fichier",
+      "durationLabel": "Durée au débit actuel"
+    },
+    "paper-size-converter": {
+      "inputTitle": "Référence des formats de papier",
+      "desc": "Recherchez les formats de papier ISO A/B/C et nord-américains.",
+      "phSearch": "p. ex. A4, Letter, B5",
+      "seriesLabel": "Série",
+      "outTitle": "Formats",
+      "descSizes": "{n} formats affichés. Cliquez sur une ligne pour les détails.",
+      "descSizesOne": "{n} format affiché. Cliquez sur la ligne pour les détails.",
+      "colMm": "mm (L × H)",
+      "colIn": "pouces (L × H)",
+      "noMatch": "Aucun format ne correspond à la recherche.",
+      "rowSelected": "Sélectionné",
+      "rowDims": "Dimensions",
+      "rowClosest": "ISO A le plus proche"
+    },
+    "clothing-size-converter": {
+      "inputTitle": "Convertisseur de tailles de vêtements et chaussures",
+      "desc": "Choisissez un tableau puis cliquez sur une taille pour voir les équivalences. Approximatif - les tailles varient selon les marques.",
+      "outFallback": "Tailles",
+      "outDesc": "Cliquez sur une cellule pour surligner la ligne équivalente.",
+      "rowEquiv": "Tailles équivalentes"
+    },
+    "calendar-converter": {
+      "inputTitle": "Convertisseur de calendrier",
+      "desc": "Saisissez une date grégorienne (AAAA-MM-JJ) ou un nombre de jours juliens.",
+      "dateLabel": "Date grégorienne",
+      "jdnLabel": "Nombre de jours juliens (inverse)",
+      "phJdn": "p. ex. 2460000",
+      "descResult": "Détails pour {date}.",
+      "descEmpty": "Saisissez une date valide.",
+      "rowGregorian": "Date grégorienne",
+      "rowJulian": "Date du calendrier julien",
+      "rowJdn": "Nombre de jours juliens",
+      "rowDow": "Jour de la semaine",
+      "rowDoy": "Jour de l'année",
+      "rowIsoWeek": "Semaine ISO",
+      "rowLeap": "Année bissextile",
+      "yes": "Oui",
+      "no": "Non",
+      "alertEmpty": "Saisissez une date grégorienne valide ci-dessus.",
+      "jdnResolves": "JDN {jdn} correspond à",
+      "rowGregorianShort": "Grégorien",
+      "rowJulianShort": "Julien"
+    },
+    "ohms-law-calculator": {
+      "inputTitle": "Calculateur de la loi d'Ohm",
+      "desc": "Saisissez deux grandeurs parmi tension, courant, résistance, puissance - les autres sont calculées.",
+      "resetTitle": "Effacer tous les champs",
+      "clearTitle": "Effacer le champ",
+      "phEg": "p. ex. {n}",
+      "outTitle": "Valeurs calculées",
+      "descOk": "Calculé via V = I·R et P = V·I.",
+      "descEmpty": "Saisissez au moins deux grandeurs."
+    }
+  }
+}

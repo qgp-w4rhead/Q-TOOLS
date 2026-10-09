@@ -1,9 +1,9 @@
 /**
- * EmailNormalizer tool module — exports the lazy-loaded component plus its
+ * EmailNormalizer tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
- * No external npm dependencies — the disposable-domain set and provider map
+ * No external npm dependencies - the disposable-domain set and provider map
  * are bundled inside the composable.
  */
 import { defineAsyncComponent } from 'vue';

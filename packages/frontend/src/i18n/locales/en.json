@@ -1,0 +1,251 @@
+{
+  "app": {
+    "name": "Q-Tools",
+    "language": "Language",
+    "metaDescription": "Q-Tools - comprehensive developer & utility tools. Offline-first PWA, iframe-embeddable.",
+    "titleHome": "Q-Tools - Developer & Utility Tools",
+    "titleTool": "{name} - Q-Tools"
+  },
+  "nav": {
+    "open": "Open navigation",
+    "close": "Close navigation",
+    "categories": "Categories",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
+  "theme": {
+    "toLight": "Switch to light theme",
+    "toDark": "Switch to dark theme",
+    "light": "Light mode",
+    "dark": "Dark mode"
+  },
+  "common": {
+    "back": "Back",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copiedFeedback": "Copied!",
+    "failed": "Failed",
+    "clear": "Clear",
+    "download": "Download",
+    "generate": "Generate",
+    "input": "Input",
+    "output": "Output",
+    "loading": "Loading…",
+    "error": "Error",
+    "search": "Search",
+    "install": "Install",
+    "installing": "Installing…",
+    "copyAll": "Copy all",
+    "configuration": "Configuration",
+    "generating": "Generating…",
+    "working": "Working…",
+    "quantity": "Quantity",
+    "uppercase": "Uppercase",
+    "hyphenated": "Hyphenated",
+    "mode": "Mode",
+    "version": "Version",
+    "name": "Name",
+    "namespace": "Namespace",
+    "password": "Password",
+    "verify": "Verify",
+    "hash": "Hash",
+    "chars": "{n} chars",
+    "bits": "{n} bits",
+    "dismiss": "Dismiss",
+    "convert": "Convert",
+    "swap": "Swap",
+    "swapTitle": "Swap direction and feed the result back as input",
+    "direction": "Direction",
+    "encode": "Encode",
+    "decode": "Decode",
+    "copyResult": "Copy result",
+    "copyOutput": "Copy output",
+    "copyInput": "Copy input",
+    "text": "Text",
+    "format": "Format",
+    "outputs": "Outputs",
+    "words": "No words | {n} word | {n} words",
+    "lines": "No lines | {n} line | {n} lines",
+    "mapped": "{n} mapped",
+    "downloadFile": "Download file",
+    "now": "Now",
+    "file": "File",
+    "size": "Size",
+    "result": "Result",
+    "filename": "Filename",
+    "enterToConvert": "Enter a value above to convert.",
+    "typeOrPaste": "Type or paste text here…",
+    "dropFile": "Drop a file here or click to browse",
+    "dropFileHint": "Max 32 MiB · processed locally",
+    "readingFile": "Reading file…",
+    "urlSafe": "URL-safe",
+    "urlSafeTitle": "Use URL-safe alphabet (-_ instead of +/, no padding)",
+    "dataUri": "Data URI",
+    "dataUriTitle": "Output as a Data URI (data:<mime>;base64,...)",
+    "base64": "Base64",
+    "recoveredFile": "Recovered file",
+    "pasteBase64": "Paste Base64 or a data: URI here…",
+    "auto": "Auto",
+    "reset": "Reset",
+    "quality": "Quality",
+    "background": "Background",
+    "foreground": "Foreground",
+    "width": "Width",
+    "height": "Height",
+    "outputFormat": "Output format",
+    "unsupported": "unsupported",
+    "before": "Before",
+    "after": "After",
+    "noImageLoaded": "No image loaded.",
+    "loadImageStart": "Load an image to get started.",
+    "remove": "Remove",
+    "localOnly": "Processed locally - nothing leaves your browser.",
+    "value": "Value",
+    "unit": "Unit",
+    "convertedValues": "Converted values",
+    "allUnitsGlance": "All units at a glance.",
+    "resetDefaults": "Reset to defaults",
+    "refresh": "Refresh",
+    "type": "Type",
+    "add": "Add",
+    "optional": "Optional"
+  },
+  "home": {
+    "title": "Developer & utility tools, offline & embeddable",
+    "subtitle": "{count} tools across {categories} categories - runs in your browser, works offline, and embeds anywhere via iframe.",
+    "matchCount": "No tools matched | {n} tool matched | {n} tools matched",
+    "empty": "No tools match “{query}”.",
+    "footer": "Q-Tools - built with Vue 3 + Ionic + Pinia"
+  },
+  "search": {
+    "placeholder": "Search tools…",
+    "ariaLabel": "Search tools",
+    "clear": "Clear search",
+    "results": "Search results",
+    "matchCount": "No tools matched | {n} tool matched | {n} tools matched",
+    "recent": "Recent searches",
+    "clearRecent": "Clear",
+    "removeRecent": "Remove recent search",
+    "popular": "Popular tools",
+    "noResults": "No tools match “{query}”.",
+    "noResultsHint": "Try a different keyword, or browse the categories below.",
+    "hintNavigate": "navigate",
+    "hintOpen": "open",
+    "hintClose": "close",
+    "field": {
+      "name": "name",
+      "description": "description",
+      "keywords": "keyword",
+      "category": "category"
+    }
+  },
+  "favorites": {
+    "title": "Favorites",
+    "description": "Your starred tools, synced across devices when logged in.",
+    "add": "Add to favorites",
+    "remove": "Remove from favorites",
+    "favorited": "Favorited",
+    "favorite": "Favorite"
+  },
+  "tool": {
+    "fallbackTitle": "Tool",
+    "open": "Open {name}",
+    "openEmbed": "Open embed view",
+    "notImplemented": "This tool has not been implemented yet.",
+    "category": "Category:",
+    "comingSoon": "Coming soon - scaffolded in M0, implemented in a later milestone."
+  },
+  "offline": {
+    "banner": "You’re offline - tools still work, but backend features (sync, auth) are paused.",
+    "dismiss": "Dismiss offline banner"
+  },
+  "install": {
+    "title": "Install Q-Tools",
+    "subtitle": "Add to your home screen for quick, offline access to all tools.",
+    "ariaLabel": "Install Q-Tools",
+    "dismiss": "Dismiss install prompt"
+  },
+  "embed": {
+    "loadingTool": "Loading tool…",
+    "toolNotFound": "Tool not found"
+  },
+  "categories": {
+    "crypto": {
+      "label": "Crypto",
+      "description": "Hashing, encryption, keys, and password tools."
+    },
+    "converter": {
+      "label": "Converter",
+      "description": "Convert between data formats, encodings, and units."
+    },
+    "web": {
+      "label": "Web",
+      "description": "URL, HTTP, JWT, and browser-related utilities."
+    },
+    "media": {
+      "label": "Images & Videos",
+      "description": "QR codes, SVG placeholders, and camera recording."
+    },
+    "dev": {
+      "label": "Development",
+      "description": "Git, Docker, JSON, SQL, regex, and dev cheatsheets."
+    },
+    "network": {
+      "label": "Network",
+      "description": "IP, subnet, MAC, and IPv6 utilities."
+    },
+    "math": {
+      "label": "Math",
+      "description": "Evaluators and calculators."
+    },
+    "measurement": {
+      "label": "Measurement",
+      "description": "Timers, temperature, and benchmarks."
+    },
+    "text": {
+      "label": "Text",
+      "description": "Generators, statistics, diffs, and obfuscation."
+    },
+    "data": {
+      "label": "Data",
+      "description": "Phone numbers, IBAN, VIN, SSN, credit cards, ISBN, SWIFT/BIC, and barcodes."
+    },
+    "security": {
+      "label": "Security & Privacy",
+      "description": "PII redaction, security headers, breach checks, CSP analysis, and certificate decoding."
+    },
+    "cipher": {
+      "label": "Classical Ciphers",
+      "description": "Historical and educational cipher tools - Caesar, Vigenère, Atbash, Morse, and more."
+    },
+    "devops": {
+      "label": "DevOps & Infrastructure",
+      "description": "Nginx, systemd, Kubernetes, DNS, Dockerfile, cron, and port-forwarding utilities."
+    },
+    "api": {
+      "label": "API & Testing",
+      "description": "HTTP request building, API development, mock utilities, and schema validation."
+    },
+    "i18n": {
+      "label": "Internationalization",
+      "description": "ICU MessageFormat, locale formatting, plural rules, language/currency/country codes, and Unicode utilities."
+    },
+    "finance": {
+      "label": "Finance & Calculators",
+      "description": "Loan, compound interest, currency, VAT, income tax, invoice, ROI, depreciation, and break-even calculators."
+    },
+    "geo": {
+      "label": "Geographic & Coordinates",
+      "description": "Coordinate conversion, geohash, Plus Code, distance, timezone, bounding box, and what3words utilities."
+    },
+    "a11y": {
+      "label": "Accessibility",
+      "description": "Color contrast, ARIA labels, alt text, tab order, WCAG reference, heading structure, focus indicators, and screen reader text."
+    },
+    "av": {
+      "label": "Audio & Video",
+      "description": "Audio and video conversion, transcoding, trimming, merging, and metadata utilities."
+    }
+  },
+  "tools": {}
+}

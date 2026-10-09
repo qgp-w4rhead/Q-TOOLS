@@ -1,0 +1,251 @@
+{
+  "app": {
+    "name": "Q-Tools",
+    "language": "Langue",
+    "metaDescription": "Q-Tools - ensemble complet d'outils pour développeurs et utilitaires. PWA hors ligne, intégrable par iframe.",
+    "titleHome": "Q-Tools - Outils pour développeurs et utilitaires",
+    "titleTool": "{name} - Q-Tools"
+  },
+  "nav": {
+    "open": "Ouvrir la navigation",
+    "close": "Fermer la navigation",
+    "categories": "Catégories",
+    "collapse": "Réduire la barre latérale",
+    "expand": "Développer la barre latérale"
+  },
+  "theme": {
+    "toLight": "Passer au thème clair",
+    "toDark": "Passer au thème sombre",
+    "light": "Mode clair",
+    "dark": "Mode sombre"
+  },
+  "common": {
+    "back": "Retour",
+    "copy": "Copier",
+    "copied": "Copié",
+    "copiedFeedback": "Copié !",
+    "failed": "Échec",
+    "clear": "Effacer",
+    "download": "Télécharger",
+    "generate": "Générer",
+    "input": "Entrée",
+    "output": "Sortie",
+    "loading": "Chargement…",
+    "error": "Erreur",
+    "search": "Rechercher",
+    "install": "Installer",
+    "installing": "Installation…",
+    "copyAll": "Tout copier",
+    "configuration": "Configuration",
+    "generating": "Génération…",
+    "working": "Traitement…",
+    "quantity": "Quantité",
+    "uppercase": "Majuscules",
+    "hyphenated": "Avec tirets",
+    "mode": "Mode",
+    "version": "Version",
+    "name": "Nom",
+    "namespace": "Espace de noms",
+    "password": "Mot de passe",
+    "verify": "Vérifier",
+    "hash": "Hacher",
+    "chars": "{n} caractères",
+    "bits": "{n} bits",
+    "dismiss": "Ignorer",
+    "convert": "Convertir",
+    "swap": "Inverser",
+    "swapTitle": "Inverser la direction et réinjecter le résultat en entrée",
+    "direction": "Direction",
+    "encode": "Encoder",
+    "decode": "Décoder",
+    "copyResult": "Copier le résultat",
+    "copyOutput": "Copier la sortie",
+    "copyInput": "Copier l'entrée",
+    "text": "Texte",
+    "format": "Format",
+    "outputs": "Sorties",
+    "words": "Aucun mot | {n} mot | {n} mots",
+    "lines": "Aucune ligne | {n} ligne | {n} lignes",
+    "mapped": "{n} mappés",
+    "downloadFile": "Télécharger le fichier",
+    "now": "Maintenant",
+    "file": "Fichier",
+    "size": "Taille",
+    "result": "Résultat",
+    "filename": "Nom de fichier",
+    "enterToConvert": "Saisissez une valeur ci-dessus pour convertir.",
+    "typeOrPaste": "Tapez ou collez du texte ici…",
+    "dropFile": "Déposez un fichier ici ou cliquez pour parcourir",
+    "dropFileHint": "Max 32 Mio · traité localement",
+    "readingFile": "Lecture du fichier…",
+    "urlSafe": "URL-safe",
+    "urlSafeTitle": "Utiliser l'alphabet URL-safe (-_ au lieu de +/, sans remplissage)",
+    "dataUri": "Data URI",
+    "dataUriTitle": "Sortie en Data URI (data:<mime>;base64,...)",
+    "base64": "Base64",
+    "recoveredFile": "Fichier récupéré",
+    "pasteBase64": "Collez du Base64 ou un data: URI ici…",
+    "auto": "Auto",
+    "reset": "Réinitialiser",
+    "quality": "Qualité",
+    "background": "Arrière-plan",
+    "foreground": "Premier plan",
+    "width": "Largeur",
+    "height": "Hauteur",
+    "outputFormat": "Format de sortie",
+    "unsupported": "non pris en charge",
+    "before": "Avant",
+    "after": "Après",
+    "noImageLoaded": "Aucune image chargée.",
+    "loadImageStart": "Chargez une image pour commencer.",
+    "remove": "Supprimer",
+    "localOnly": "Traité localement - rien ne quitte votre navigateur.",
+    "value": "Valeur",
+    "unit": "Unité",
+    "convertedValues": "Valeurs converties",
+    "allUnitsGlance": "Toutes les unités en un coup d'œil.",
+    "resetDefaults": "Réinitialiser",
+    "refresh": "Actualiser",
+    "type": "Type",
+    "add": "Ajouter",
+    "optional": "Optionnel"
+  },
+  "home": {
+    "title": "Outils pour développeurs et utilitaires, hors ligne et intégrables",
+    "subtitle": "{count} outils répartis en {categories} catégories - fonctionnent dans votre navigateur, hors ligne, et s'intègrent partout via iframe.",
+    "matchCount": "Aucun outil trouvé | {n} outil trouvé | {n} outils trouvés",
+    "empty": "Aucun outil ne correspond à « {query} ».",
+    "footer": "Q-Tools - conçu avec Vue 3 + Ionic + Pinia"
+  },
+  "search": {
+    "placeholder": "Rechercher des outils…",
+    "ariaLabel": "Rechercher des outils",
+    "clear": "Effacer la recherche",
+    "results": "Résultats de recherche",
+    "matchCount": "Aucun outil trouvé | {n} outil trouvé | {n} outils trouvés",
+    "recent": "Recherches récentes",
+    "clearRecent": "Effacer",
+    "removeRecent": "Supprimer la recherche récente",
+    "popular": "Outils populaires",
+    "noResults": "Aucun outil ne correspond à « {query} ».",
+    "noResultsHint": "Essayez un autre mot-clé ou parcourez les catégories ci-dessous.",
+    "hintNavigate": "naviguer",
+    "hintOpen": "ouvrir",
+    "hintClose": "fermer",
+    "field": {
+      "name": "nom",
+      "description": "description",
+      "keywords": "mot-clé",
+      "category": "catégorie"
+    }
+  },
+  "favorites": {
+    "title": "Favoris",
+    "description": "Vos outils favoris, synchronisés entre appareils une fois connecté.",
+    "add": "Ajouter aux favoris",
+    "remove": "Retirer des favoris",
+    "favorited": "Ajouté aux favoris",
+    "favorite": "Favori"
+  },
+  "tool": {
+    "fallbackTitle": "Outil",
+    "open": "Ouvrir {name}",
+    "openEmbed": "Ouvrir la vue d'intégration",
+    "notImplemented": "Cet outil n'est pas encore implémenté.",
+    "category": "Catégorie :",
+    "comingSoon": "Bientôt disponible - créé en M0, implémenté dans un jalon ultérieur."
+  },
+  "offline": {
+    "banner": "Vous êtes hors ligne - les outils fonctionnent toujours, mais les fonctions backend (synchronisation, authentification) sont en pause.",
+    "dismiss": "Fermer la bannière hors ligne"
+  },
+  "install": {
+    "title": "Installer Q-Tools",
+    "subtitle": "Ajoutez-le à votre écran d'accueil pour un accès rapide et hors ligne à tous les outils.",
+    "ariaLabel": "Installer Q-Tools",
+    "dismiss": "Fermer l'invite d'installation"
+  },
+  "embed": {
+    "loadingTool": "Chargement de l'outil…",
+    "toolNotFound": "Outil introuvable"
+  },
+  "categories": {
+    "crypto": {
+      "label": "Crypto",
+      "description": "Outils de hachage, chiffrement, clés et mots de passe."
+    },
+    "converter": {
+      "label": "Convertisseurs",
+      "description": "Conversion entre formats de données, encodages et unités."
+    },
+    "web": {
+      "label": "Web",
+      "description": "Utilitaires URL, HTTP, JWT et navigateur."
+    },
+    "media": {
+      "label": "Images et vidéos",
+      "description": "Codes QR, placeholders SVG et enregistrement caméra."
+    },
+    "dev": {
+      "label": "Développement",
+      "description": "Git, Docker, JSON, SQL, regex et antisèches de développement."
+    },
+    "network": {
+      "label": "Réseau",
+      "description": "Utilitaires IP, sous-réseaux, MAC et IPv6."
+    },
+    "math": {
+      "label": "Maths",
+      "description": "Évaluateurs et calculatrices."
+    },
+    "measurement": {
+      "label": "Mesures",
+      "description": "Minuteurs, température et benchmarks."
+    },
+    "text": {
+      "label": "Texte",
+      "description": "Générateurs, statistiques, diffs et obfuscation."
+    },
+    "data": {
+      "label": "Données",
+      "description": "Numéros de téléphone, IBAN, VIN, SSN, cartes bancaires, ISBN, SWIFT/BIC et codes-barres."
+    },
+    "security": {
+      "label": "Sécurité et confidentialité",
+      "description": "Masquage de PII, en-têtes de sécurité, fuites de données, analyse CSP et décodage de certificats."
+    },
+    "cipher": {
+      "label": "Chiffres classiques",
+      "description": "Chiffres historiques et éducatifs : César, Vigenère, Atbash, Morse et plus."
+    },
+    "devops": {
+      "label": "DevOps et infrastructure",
+      "description": "Utilitaires Nginx, systemd, Kubernetes, DNS, Dockerfile, cron et redirection de ports."
+    },
+    "api": {
+      "label": "API et tests",
+      "description": "Construction de requêtes HTTP, développement d'API, mocks et validation de schémas."
+    },
+    "i18n": {
+      "label": "Internationalisation",
+      "description": "ICU MessageFormat, formats locaux, règles de pluriel, codes langue/devise/pays et utilitaires Unicode."
+    },
+    "finance": {
+      "label": "Finance et calculatrices",
+      "description": "Calculatrices de prêt, intérêts composés, devises, TVA, impôts, factures, ROI, amortissement et seuil de rentabilité."
+    },
+    "geo": {
+      "label": "Géographie et coordonnées",
+      "description": "Conversion de coordonnées, geohash, Plus Code, distance, fuseaux horaires, bounding box et what3words."
+    },
+    "a11y": {
+      "label": "Accessibilité",
+      "description": "Contraste des couleurs, labels ARIA, texte alternatif, ordre de tabulation, référence WCAG, structure des titres, indicateurs de focus et texte pour lecteurs d'écran."
+    },
+    "av": {
+      "label": "Audio et vidéo",
+      "description": "Conversion, transcodage, découpe, fusion et métadonnées audio et vidéo."
+    }
+  },
+  "tools": {}
+}

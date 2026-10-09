@@ -1,5 +1,5 @@
 /**
- * useCrontabGenerator — composable + pure logic for the Crontab generator tool.
+ * useCrontabGenerator - composable + pure logic for the Crontab generator tool.
  *
  * A visual cron expression builder covering the five standard Vixie-cron
  * fields: minute, hour, day-of-month, month, day-of-week. Each field supports
@@ -24,7 +24,7 @@ import { useEmbed } from '@/composables/useEmbed';
 import type { EmbedInputPayload } from '@q-tools/shared';
 
 /* -------------------------------------------------------------------------- */
-/* Pure logic — no Vue dependency below this point                            */
+/* Pure logic - no Vue dependency below this point                            */
 /* -------------------------------------------------------------------------- */
 
 /** The five Vixie-cron fields, in canonical order. */
@@ -448,7 +448,7 @@ export function validateCron(fields: CronFields): FieldValidation {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Composable — reactive state + embed integration                            */
+/* Composable - reactive state + embed integration                            */
 /* -------------------------------------------------------------------------- */
 
 export interface UseCrontabGeneratorReturn {

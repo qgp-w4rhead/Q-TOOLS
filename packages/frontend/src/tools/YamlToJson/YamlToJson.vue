@@ -1,16 +1,17 @@
 <script setup lang="ts">
 /**
- * YamlToJson — convert YAML documents to JSON.
+ * YamlToJson - convert YAML documents to JSON.
  *
  * Parses YAML (single document or multi-document `---` streams) and emits
  * pretty-printed JSON. The `yaml` package is part of the initial bundle
  * (per `tech-stack.md`), so this tool does not produce its own lazy chunk
- * for the parser — it rides the app-shell bundle.
+ * for the parser - it rides the app-shell bundle.
  *
  * Works in embed mode: receives `input` PostMessages to pre-fill the YAML,
  * and sends `output` PostMessages whenever the computed JSON changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, RefreshCw, FileJson } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -30,10 +31,11 @@ const {
   setIndent,
 } = useYamlToJson();
 
+const { t } = useI18n();
+const U = 'tools.yaml-to-json.ui.';
+
 const description = computed(() =>
-  forceArray.value
-    ? 'Parse YAML and emit a JSON array (one entry per document).'
-    : 'Parse YAML and emit JSON. Multi-document streams produce a JSON array.',
+  forceArray.value ? t(U + 'descArray') : t(U + 'descSingle'),
 );
 
 const indentOptions: Array<{ value: JsonIndent; label: string }> = [
@@ -42,13 +44,18 @@ const indentOptions: Array<{ value: JsonIndent; label: string }> = [
   { value: 0, label: 'Compact' },
 ];
 
+/** Localized indent-option label (0 = compact). */
+function indentLabel(o: { value: JsonIndent }): string {
+  return o.value === 0 ? t(U + 'compact') : t(U + 'indentN', { n: o.value });
+}
+
 const errorLocation = computed(() => {
   if (!error.value) return '';
   const e = error.value;
   if (e.line != null && e.column != null) {
-    return `Line ${e.line}, column ${e.column}`;
+    return t(U + 'errLineCol', { line: e.line, col: e.column });
   }
-  if (e.line != null) return `Line ${e.line}`;
+  if (e.line != null) return t(U + 'errLine', { line: e.line });
   return '';
 });
 
@@ -67,51 +74,51 @@ function onForceArrayToggle(): void {
 </script>
 
 <template>
-  <div class="y2j">
-    <ToolInput title="YAML input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t(U + 'inputTitle')" :description="description">
       <template #actions>
         <button
-          class="y2j__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="y2j__opts">
-        <label class="y2j__opt">
-          <span class="y2j__label">Indent</span>
+      <div class="qt-row qt-row--end" style="--qt-row-gap:12px">
+        <label class="qt-field">
+          <span class="qt-label">{{ t(U + 'indent') }}</span>
           <select
-            class="y2j__select"
+            class="qt-input"
             :value="indent"
             @change="onIndentChange"
           >
             <option v-for="o in indentOptions" :key="o.value" :value="o.value">
-              {{ o.label }}
+              {{ indentLabel(o) }}
             </option>
           </select>
         </label>
         <button
           type="button"
-          class="y2j__toggle"
-          :class="{ 'y2j__toggle--active': forceArray }"
+          class="qt-chip qt-chip--filled"
+          :class="{ 'qt-chip--solid': forceArray }"
           :aria-pressed="forceArray"
-          title="Always emit a JSON array (one entry per YAML document)"
+          :title="t(U + 'forceArrayTitle')"
           @click="onForceArrayToggle"
         >
           <FileJson :size="13" />
-          <span>Force array</span>
+          <span>{{ t(U + 'forceArray') }}</span>
         </button>
       </div>
 
-      <label class="y2j__field">
-        <span class="y2j__label">YAML</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ t(U + 'yamlLabel') }}</span>
         <textarea
-          class="y2j__textarea y2j__textarea--mono"
-          placeholder="Paste YAML here…"
+          class="qt-input qt-input--mono y2j__textarea"
+          :placeholder="t(U + 'placeholder')"
           :value="input"
           rows="10"
           spellcheck="false"
@@ -122,12 +129,12 @@ function onForceArrayToggle(): void {
     </ToolInput>
 
     <ToolOutput
-      title="JSON output"
-      :description="outputs ? `${outputs.documentCount} document${outputs.documentCount === 1 ? '' : 's'} · ${outputs.outputBytes} bytes` : 'Paste YAML above to convert.'"
+      :title="t(U + 'outputTitle')"
+      :description="outputs ? t(U + 'outputDesc', { docs: t(U + 'docsFull', outputs.documentCount), bytes: outputs.outputBytes }) : t(U + 'empty')"
       :copy-text="outputs?.json ?? ''"
-      copy-label="Copy JSON"
+      :copy-label="t(U + 'copyJson')"
     >
-      <p v-if="error" class="y2j__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>
           <strong v-if="errorLocation">{{ errorLocation }}:</strong>
@@ -135,22 +142,22 @@ function onForceArrayToggle(): void {
         </span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="y2j__empty">
-          Paste YAML above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t(U + 'empty') }}
         </p>
-        <div v-if="outputs" class="y2j__result">
-          <div class="y2j__result-head">
-            <span class="y2j__result-label">JSON</span>
-            <CopyButton :text="outputs.json" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">JSON</span>
+            <CopyButton :text="outputs.json" :label="t('common.copy')" icon-only />
           </div>
-          <pre v-if="outputs.json" class="y2j__code">{{ outputs.json }}</pre>
-          <p v-else class="y2j__empty">YAML parsed to an empty result.</p>
-          <div class="y2j__meta">
-            <span>{{ outputs.documentCount }} doc{{ outputs.documentCount === 1 ? '' : 's' }}</span>
+          <pre v-if="outputs.json" class="qt-mono y2j__code">{{ outputs.json }}</pre>
+          <p v-else class="qt-alert qt-alert--empty">{{ t(U + 'emptyResult') }}</p>
+          <div class="qt-row qt-row--center qt-hint" style="--qt-row-gap:6px">
+            <span>{{ t(U + 'docs', outputs.documentCount) }}</span>
             <span class="y2j__dot">·</span>
-            <span>{{ outputs.inputBytes }} bytes in</span>
+            <span>{{ t(U + 'bytesIn', { n: outputs.inputBytes }) }}</span>
             <span class="y2j__dot">·</span>
-            <span>{{ outputs.outputBytes }} bytes out</span>
+            <span>{{ t(U + 'bytesOut', { n: outputs.outputBytes }) }}</span>
           </div>
         </div>
       </template>
@@ -159,166 +166,14 @@ function onForceArrayToggle(): void {
 </template>
 
 <style scoped>
-.y2j {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.y2j__opts {
-  display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.y2j__opt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.y2j__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.y2j__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.y2j__select {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13px;
-  padding: 6px 10px;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  will-change: border-color;
-}
-.y2j__select:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.y2j__toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  padding: 6px 11px;
-  cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
-  will-change: color, border-color;
-}
-.y2j__toggle--active {
-  color: var(--qt-bg);
-  background: var(--qt-accent);
-  border-color: var(--qt-accent);
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Input textarea floor (control + mono via .qt-input--mono). */
 .y2j__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
   min-height: 180px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
 }
-.y2j__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.y2j__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.y2j__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.y2j__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.y2j__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.y2j__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.y2j__error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-  line-height: 1.4;
-}
-.y2j__error strong {
-  margin-right: 4px;
-}
-.y2j__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.y2j__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.y2j__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.y2j__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* JSON output block (font via .qt-mono) — scrollable, pre-wrapped. */
 .y2j__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 13.5px;
   color: var(--qt-text);
   white-space: pre-wrap;
@@ -327,14 +182,7 @@ function onForceArrayToggle(): void {
   max-height: 60vh;
   overflow: auto;
 }
-.y2j__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--qt-muted);
-  flex-wrap: wrap;
-}
+/* Meta separator dot. */
 .y2j__dot {
   opacity: 0.6;
 }

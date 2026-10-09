@@ -1,24 +1,28 @@
 <script setup lang="ts">
 /**
- * Ipv4RangeExpander — IPv4 range expander.
+ * Ipv4RangeExpander - IPv4 range expander.
  *
  * Takes a start IP + end IP (or a single range expression such as
  * `192.168.1.0 - 192.168.1.255` or a CIDR block `192.168.1.0/24`) and expands
  * it into the minimal list of CIDR blocks that exactly cover the inclusive
  * range, plus the total number of addresses.
  *
- * No external dependencies — all arithmetic uses 32-bit unsigned integers.
+ * No external dependencies - all arithmetic uses 32-bit unsigned integers.
  *
  * Works in embed mode: receives `start`/`from`/`end`/`to`/`range`/`input`/
  * `value` PostMessages to pre-fill the fields; sends `output` PostMessages
  * with the full expansion whenever the result changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, List, Layers } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
 import CopyButton from '@/components/CopyButton.vue';
 import { useIpv4RangeExpander } from './useIpv4RangeExpander';
+
+const { t, locale } = useI18n();
+const U = 'tools.ipv4-range-expander.ui.';
 
 const { startInput, endInput, result, error } = useIpv4RangeExpander();
 
@@ -56,19 +60,20 @@ const allCidrs = computed(() => {
 </script>
 
 <template>
-  <div class="range">
+  <div class="qt-tool">
     <ToolInput
-      title="IPv4 range"
-      description="Enter a start and end IP, a single range expression (192.168.1.0 - 192.168.1.255), or a CIDR block (192.168.1.0/24) in the start field."
+      :title="t(U + 'inputTitle')"
+      :description="t(U + 'desc')"
     >
-      <div class="range__inputs">
-        <div class="range__field">
-          <label class="range__field-label" for="range-start">Start IP / range / CIDR</label>
+      <div class="qt-grid" style="--qt-grid-min:200px;--qt-grid-gap:10px">
+        <div class="qt-field" style="gap:4px">
+          <label class="qt-stat-head" for="range-start">{{ t(U + 'startLabel') }}</label>
           <input
             id="range-start"
-            class="range__input"
+            class="qt-input qt-input--mono"
+            style="font-size:13.5px"
             type="text"
-            placeholder="192.168.1.0 or 192.168.1.0/24 or 192.168.1.0-192.168.1.255"
+            :placeholder="t(U + 'phStart')"
             :value="startInput"
             spellcheck="false"
             autocomplete="off"
@@ -76,13 +81,14 @@ const allCidrs = computed(() => {
             @input="onStartInput"
           />
         </div>
-        <div class="range__field">
-          <label class="range__field-label" for="range-end">End IP (optional)</label>
+        <div class="qt-field" style="gap:4px">
+          <label class="qt-stat-head" for="range-end">{{ t(U + 'endLabel') }}</label>
           <input
             id="range-end"
-            class="range__input"
+            class="qt-input qt-input--mono"
+            style="font-size:13.5px"
             type="text"
-            placeholder="192.168.1.255"
+            :placeholder="t(U + 'phEnd')"
             :value="endInput"
             spellcheck="false"
             autocomplete="off"
@@ -93,13 +99,14 @@ const allCidrs = computed(() => {
       </div>
 
       <!-- Presets -->
-      <div class="range__presets">
-        <span class="range__presets-label">Examples:</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:6px;margin-top:10px">
+        <span class="qt-label" style="margin-right:2px">{{ t(U + 'examples') }}</span>
         <button
           v-for="p in PRESETS"
           :key="p.label"
           type="button"
-          class="range__preset"
+          class="qt-chip qt-chip--filled"
+          style="font-family:var(--qt-font-mono)"
           @click="applyPreset(p)"
         >
           {{ p.label }}
@@ -108,61 +115,62 @@ const allCidrs = computed(() => {
     </ToolInput>
 
     <ToolOutput
-      title="CIDR expansion"
+      :title="t(U + 'outTitle')"
       :description="
         result
-          ? `${result.start} – ${result.end} • ${result.totalIps.toLocaleString()} addresses • ${result.cidrCount} CIDR block${result.cidrCount === 1 ? '' : 's'}`
-          : 'Enter an IPv4 range above to expand it into CIDR blocks.'
+          ? t(U + (result.cidrCount === 1 ? 'descResultOne' : 'descResult'), { start: result.start, end: result.end, n: result.totalIps.toLocaleString(locale), c: result.cidrCount })
+          : t(U + 'descEmpty')
       "
       :copy-text="allCidrs"
-      copy-label="Copy all CIDRs"
+      :copy-label="t(U + 'copyAll')"
     >
       <template v-if="!hasInput">
-        <p class="range__empty">Enter a start and end IP above to expand the range.</p>
+        <p class="qt-alert qt-alert--empty">{{ t(U + 'alertEmpty') }}</p>
       </template>
       <template v-else-if="error">
-        <p class="range__error">
+        <p class="qt-banner qt-banner--error" style="margin:0">
           <AlertCircle :size="14" />
           <span>{{ error }}</span>
         </p>
       </template>
       <template v-else-if="result">
         <!-- Summary badges -->
-        <div class="range__badges">
-          <span class="range__badge range__badge--total">
+        <div class="qt-row" style="--qt-row-gap:8px;margin-bottom:12px">
+          <span class="qt-badge qt-badge--info" style="text-transform:uppercase;font-weight:700">
             <Layers :size="13" />
-            <span>{{ result.totalIps.toLocaleString() }} addresses</span>
+            <span>{{ t(U + 'badgeAddresses', { n: result.totalIps.toLocaleString(locale) }) }}</span>
           </span>
-          <span class="range__badge range__badge--count">
+          <span class="qt-badge" style="color:var(--qt-text);text-transform:uppercase;font-weight:700">
             <List :size="13" />
-            <span>{{ result.cidrCount }} CIDR{{ result.cidrCount === 1 ? '' : 's' }}</span>
+            <span>{{ t(U + (result.cidrCount === 1 ? 'badgeCidrsOne' : 'badgeCidrs'), { n: result.cidrCount }) }}</span>
           </span>
           <span
             v-if="result.isSingleCidr"
-            class="range__badge range__badge--single"
+            class="qt-badge qt-badge--success"
+            style="text-transform:uppercase;font-weight:700"
           >
-            <span>Single block</span>
+            <span>{{ t(U + 'badgeSingle') }}</span>
           </span>
         </div>
 
         <!-- Range boundary rows -->
-        <div class="range__boundary">
-          <div class="range__row">
-            <span class="range__row-label">Start</span>
-            <code class="range__row-value range__row-value--mono">{{ result.start }}</code>
-            <CopyButton :text="result.start" icon-only label="Copy start" />
+        <div class="qt-stack" style="--qt-stack-gap:6px;margin-bottom:12px">
+          <div class="qt-result-row">
+            <span class="qt-label" style="flex:0 0 80px">{{ t(U + 'startRow') }}</span>
+            <code style="flex:1;font-family:var(--qt-font-mono);font-size:13.5px;font-weight:700;color:var(--qt-text);font-variant-numeric:tabular-nums;word-break:break-all">{{ result.start }}</code>
+            <CopyButton :text="result.start" icon-only :label="t(U + 'copyStart')" />
           </div>
-          <div class="range__row">
-            <span class="range__row-label">End</span>
-            <code class="range__row-value range__row-value--mono">{{ result.end }}</code>
-            <CopyButton :text="result.end" icon-only label="Copy end" />
+          <div class="qt-result-row">
+            <span class="qt-label" style="flex:0 0 80px">{{ t(U + 'endRow') }}</span>
+            <code style="flex:1;font-family:var(--qt-font-mono);font-size:13.5px;font-weight:700;color:var(--qt-text);font-variant-numeric:tabular-nums;word-break:break-all">{{ result.end }}</code>
+            <CopyButton :text="result.end" icon-only :label="t(U + 'copyEnd')" />
           </div>
         </div>
 
         <!-- CIDR list -->
         <div class="range__cidrs">
           <div class="range__cidrs-header">
-            <span>CIDR blocks</span>
+            <span>{{ t(U + 'cidrBlocks') }}</span>
           </div>
           <div
             v-for="(c, idx) in result.cidrs"
@@ -172,8 +180,8 @@ const allCidrs = computed(() => {
             <span class="range__cidr-index">{{ idx + 1 }}</span>
             <code class="range__cidr-value">{{ c.cidr }}</code>
             <span class="range__cidr-range">{{ c.first }} – {{ c.last }}</span>
-            <span class="range__cidr-count">{{ c.count.toLocaleString() }}</span>
-            <CopyButton :text="c.cidr" icon-only label="Copy CIDR" />
+            <span class="range__cidr-count">{{ c.count.toLocaleString(locale) }}</span>
+            <CopyButton :text="c.cidr" icon-only :label="t(U + 'copyCidr')" />
           </div>
         </div>
       </template>
@@ -182,183 +190,9 @@ const allCidrs = computed(() => {
 </template>
 
 <style scoped>
-.range {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
 
-/* Inputs */
-.range__inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.range__field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.range__field-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--qt-muted);
-}
-.range__input {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 13.5px;
-  padding: 8px 10px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.range__input:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-
-/* Presets */
-.range__presets {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-}
-.range__presets-label {
-  font-size: 12.5px;
-  color: var(--qt-muted);
-  font-weight: 600;
-  margin-right: 2px;
-}
-.range__preset {
-  padding: 4px 10px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: 999px;
-  color: var(--qt-text);
-  font: inherit;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition:
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.range__preset:hover {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-
-/* Empty / error */
-.range__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.range__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: oklch(from var(--qt-danger) 35% c h / 0.18);
-  border: 1px solid oklch(from var(--qt-danger) 60% c h / 0.5);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-size: 13.5px;
-  margin: 0;
-}
-.range__error svg {
-  color: var(--qt-danger);
-  flex-shrink: 0;
-}
-
-/* Badges */
-.range__badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.range__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border: 1px solid transparent;
-}
-.range__badge--total {
-  background: oklch(from var(--qt-accent) 35% c h / 0.18);
-  border-color: oklch(from var(--qt-accent) 60% c h / 0.5);
-  color: var(--qt-accent);
-}
-.range__badge--count {
-  background: var(--qt-bg);
-  border-color: var(--qt-border);
-  color: var(--qt-text);
-}
-.range__badge--single {
-  background: oklch(from var(--qt-success) 35% c h / 0.2);
-  border-color: oklch(from var(--qt-success) 60% c h / 0.55);
-  color: var(--qt-success);
-}
-
-/* Boundary rows */
-.range__boundary {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-.range__row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-}
-.range__row-label {
-  flex: 0 0 80px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.range__row-value {
-  flex: 1 1 auto;
-  font-size: 13.5px;
-  color: var(--qt-text);
-  word-break: break-all;
-}
-.range__row-value--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-/* CIDR list */
+/* CIDR list — bordered table with a header row + hover + narrow-screen hide. */
 .range__cidrs {
   border: 1px solid var(--qt-border);
   border-radius: var(--qt-radius-sm);
@@ -398,8 +232,7 @@ const allCidrs = computed(() => {
 }
 .range__cidr-value {
   flex: 0 0 auto;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
+  font-family: var(--qt-font-mono);
   font-size: 13.5px;
   font-weight: 700;
   color: var(--qt-text);
@@ -407,8 +240,7 @@ const allCidrs = computed(() => {
 }
 .range__cidr-range {
   flex: 1 1 auto;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas,
-    monospace;
+  font-family: var(--qt-font-mono);
   font-size: 12px;
   color: var(--qt-muted);
   word-break: break-all;
@@ -422,9 +254,6 @@ const allCidrs = computed(() => {
 }
 
 @media (max-width: 560px) {
-  .range__inputs {
-    grid-template-columns: 1fr;
-  }
   .range__cidr-range {
     display: none;
   }

@@ -1,30 +1,36 @@
 <script setup lang="ts">
 /**
- * ToolInput — reusable labelled input wrapper for tool components.
+ * ToolInput - reusable labelled input wrapper for tool components.
  *
  * Provides a consistent header (title + optional description + optional
  * actions slot) and a content slot for the tool's input controls. Pure
- * presentational wrapper — no logic.
+ * presentational wrapper - no logic.
  */
-withDefaults(
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const props = withDefaults(
   defineProps<{
-    /** Section title (e.g. "Input"). */
+    /** Section title (defaults to localized "Input"). */
     title?: string;
     /** Optional helper text shown under the title. */
     description?: string;
   }>(),
   {
-    title: 'Input',
+    title: undefined,
     description: '',
   },
 );
+
+const { t } = useI18n();
+const resolvedTitle = computed(() => props.title ?? t('common.input'));
 </script>
 
 <template>
   <section class="tool-input">
-    <header v-if="title || $slots.actions" class="tool-input__header">
+    <header v-if="resolvedTitle || $slots.actions" class="tool-input__header">
       <div class="tool-input__heading">
-        <h2 v-if="title" class="tool-input__title">{{ title }}</h2>
+        <h2 v-if="resolvedTitle" class="tool-input__title">{{ resolvedTitle }}</h2>
         <p v-if="description" class="tool-input__desc">{{ description }}</p>
       </div>
       <div v-if="$slots.actions" class="tool-input__actions">

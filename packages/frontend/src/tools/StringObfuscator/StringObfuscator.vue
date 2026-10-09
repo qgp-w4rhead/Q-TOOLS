@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * StringObfuscator — obfuscate text to deter casual reading.
+ * StringObfuscator - obfuscate text to deter casual reading.
  *
  * Two modes:
  *  - Obfuscate: replace ASCII characters with Unicode lookalike homoglyphs
@@ -15,7 +15,8 @@
  * Works in embed mode: receives `input` PostMessages to set the text and
  * options, sends `output` PostMessages with the result.
  */
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { ArrowDownUp, RotateCcw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import CopyButton from '@/components/CopyButton.vue';
@@ -60,22 +61,25 @@ function onReset(): void {
   draft.value = '';
 }
 
-const modes: { value: ObfuscatorMode; label: string }[] = [
-  { value: 'obfuscate', label: 'Obfuscate' },
-  { value: 'deobfuscate', label: 'Deobfuscate' },
-];
+const { t } = useI18n();
+const U = 'tools.string-obfuscator.ui.';
 
-const methods: { value: ObfuscationMethod; label: string; hint: string }[] = [
-  { value: 'homoglyph', label: 'Homoglyph', hint: 'Lookalike Unicode chars' },
-  { value: 'zero-width', label: 'Zero-width', hint: 'Invisible chars between letters' },
-  { value: 'mixed', label: 'Mixed', hint: 'Both combined' },
-];
+const modes = computed<{ value: ObfuscatorMode; label: string }[]>(() => [
+  { value: 'obfuscate', label: t(U + 'modeObfuscate') },
+  { value: 'deobfuscate', label: t(U + 'modeDeobfuscate') },
+]);
 
-const intensities: { value: Intensity; label: string }[] = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-];
+const methods = computed<{ value: ObfuscationMethod; label: string; hint: string }[]>(() => [
+  { value: 'homoglyph', label: t(U + 'methodHomoglyph'), hint: t(U + 'methodHomoglyphHint') },
+  { value: 'zero-width', label: t(U + 'methodZeroWidth'), hint: t(U + 'methodZeroWidthHint') },
+  { value: 'mixed', label: t(U + 'methodMixed'), hint: t(U + 'methodMixedHint') },
+]);
+
+const intensities = computed<{ value: Intensity; label: string }[]>(() => [
+  { value: 'low', label: t(U + 'intensityLow') },
+  { value: 'medium', label: t(U + 'intensityMedium') },
+  { value: 'high', label: t(U + 'intensityHigh') },
+]);
 
 function setMode(m: ObfuscatorMode): void {
   mode.value = m;
@@ -87,38 +91,38 @@ function setIntensity(i: Intensity): void {
   intensity.value = i;
 }
 
-const inputLabel = () => (mode.value === 'deobfuscate' ? 'Obfuscated text' : 'Plain text');
-const outputLabel = () => (mode.value === 'deobfuscate' ? 'Deobfuscated text' : 'Obfuscated text');
+const inputLabel = () => (mode.value === 'deobfuscate' ? t(U + 'labelObfuscated') : t(U + 'labelPlain'));
+const outputLabel = () => (mode.value === 'deobfuscate' ? t(U + 'labelDeobfuscated') : t(U + 'labelObfuscated'));
 </script>
 
 <template>
-  <div class="so">
+  <div class="qt-tool">
     <ToolInput
-      title="Options"
+      :title="t(U + 'inputTitle')"
       :description="mode === 'deobfuscate'
-        ? 'Strip zero-width characters and reverse homoglyph substitution.'
-        : 'Replace characters with lookalike Unicode and/or insert zero-width chars.'"
+        ? t(U + 'descDeobfuscate')
+        : t(U + 'descObfuscate')"
     >
       <template #actions>
         <button
           type="button"
-          class="so__btn so__btn--ghost"
-          title="Reset to defaults"
+          class="qt-btn qt-btn--ghost"
+          :title="t(U + 'resetTitle')"
           @click="onReset"
         >
           <RotateCcw :size="14" />
-          <span>Reset</span>
+          <span>{{ t('common.reset') }}</span>
         </button>
       </template>
 
-      <div class="so__row">
-        <div class="so__seg">
+      <div class="qt-row qt-row--center">
+        <div class="qt-seg">
           <button
             v-for="m in modes"
             :key="m.value"
             type="button"
-            class="so__seg-btn"
-            :class="{ 'so__seg-btn--active': mode === m.value }"
+            class="qt-seg__btn"
+            :class="{ 'qt-seg__btn--active': mode === m.value }"
             @click="setMode(m.value)"
           >
             {{ m.label }}
@@ -126,10 +130,10 @@ const outputLabel = () => (mode.value === 'deobfuscate' ? 'Deobfuscated text' : 
         </div>
       </div>
 
-      <div v-if="mode === 'obfuscate'" class="so__row so__row--options">
-        <div class="so__opt">
-          <span class="so__opt-label">Method</span>
-          <div class="so__chips">
+      <div v-if="mode === 'obfuscate'" class="qt-row qt-row--center" style="--qt-row-gap:20px;margin-top:10px">
+        <div class="qt-field">
+          <span class="qt-label">{{ t(U + 'method') }}</span>
+          <div class="qt-row" style="--qt-row-gap:6px">
             <button
               v-for="m in methods"
               :key="m.value"
@@ -143,9 +147,9 @@ const outputLabel = () => (mode.value === 'deobfuscate' ? 'Deobfuscated text' : 
             </button>
           </div>
         </div>
-        <div class="so__opt">
-          <span class="so__opt-label">Intensity</span>
-          <div class="so__chips">
+        <div class="qt-field">
+          <span class="qt-label">{{ t(U + 'intensity') }}</span>
+          <div class="qt-row" style="--qt-row-gap:6px">
             <button
               v-for="i in intensities"
               :key="i.value"
@@ -162,14 +166,15 @@ const outputLabel = () => (mode.value === 'deobfuscate' ? 'Deobfuscated text' : 
     </ToolInput>
 
     <div class="so__panes">
-      <div class="so__pane">
-        <div class="so__pane-head">
-          <span class="so__pane-title">{{ inputLabel() }}</span>
+      <div class="qt-field" style="min-width:0">
+        <div class="qt-row qt-row--center qt-row--between" style="--qt-row-gap:8px;flex-wrap:nowrap">
+          <span class="qt-stat-head">{{ inputLabel() }}</span>
         </div>
         <textarea
-          class="so__textarea"
+          class="qt-input qt-input--mono"
+          style="min-height:240px;font-size:13.5px;line-height:1.6;padding:12px 14px"
           spellcheck="false"
-          placeholder="Type or paste text…"
+          :placeholder="t(U + 'placeholder')"
           :value="draft"
           @input="onInput"
           :aria-label="inputLabel()"
@@ -179,24 +184,25 @@ const outputLabel = () => (mode.value === 'deobfuscate' ? 'Deobfuscated text' : 
       <button
         type="button"
         class="so__swap"
-        title="Feed output back into input"
+        :title="t(U + 'swapTitle')"
         :disabled="output.length === 0"
         @click="onSwap"
       >
         <ArrowDownUp :size="16" />
       </button>
 
-      <div class="so__pane">
-        <div class="so__pane-head">
-          <span class="so__pane-title">{{ outputLabel() }}</span>
+      <div class="qt-field" style="min-width:0">
+        <div class="qt-row qt-row--center qt-row--between" style="--qt-row-gap:8px;flex-wrap:nowrap">
+          <span class="qt-stat-head">{{ outputLabel() }}</span>
           <CopyButton
             :text="output"
-            label="Copy"
-            class="so__copy"
+            :label="t('common.copy')"
+            style="flex-shrink:0"
           />
         </div>
         <textarea
-          class="so__textarea so__textarea--out"
+          class="qt-input qt-input--mono"
+          style="min-height:240px;font-size:13.5px;line-height:1.6;padding:12px 14px;background:var(--qt-bg-alt, var(--qt-bg))"
           readonly
           spellcheck="false"
           :value="output"
@@ -208,71 +214,9 @@ const outputLabel = () => (mode.value === 'deobfuscate' ? 'Deobfuscated text' : 
 </template>
 
 <style scoped>
-.so {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.so__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-}
-.so__row--options {
-  gap: 20px;
-  margin-top: 10px;
-}
-.so__seg {
-  display: inline-flex;
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  overflow: hidden;
-}
-.so__seg-btn {
-  background: transparent;
-  border: none;
-  border-right: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 16px;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-}
-.so__seg-btn:last-child {
-  border-right: none;
-}
-.so__seg-btn:hover {
-  color: var(--qt-text);
-}
-.so__seg-btn--active {
-  background: var(--qt-accent);
-  color: var(--qt-accent-contrast, #fff);
-}
-.so__seg-btn--active:hover {
-  color: var(--qt-accent-contrast, #fff);
-}
-.so__opt {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.so__opt-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.so__chips {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Option chip — rounded-sm toggle chip (vs the pill .qt-chip). */
 .so__chip {
   background: var(--qt-bg);
   border: 1px solid var(--qt-border);
@@ -297,84 +241,13 @@ const outputLabel = () => (mode.value === 'deobfuscate' ? 'Deobfuscated text' : 
   border-color: var(--qt-accent);
   color: var(--qt-accent-contrast, #fff);
 }
-.so__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: var(--qt-radius-sm);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    border-color 0.15s ease,
-    color 0.15s ease,
-    background 0.15s ease;
-}
-.so__btn--ghost {
-  background: transparent;
-  border: 1px solid var(--qt-border);
-  color: var(--qt-muted);
-}
-.so__btn--ghost:hover {
-  color: var(--qt-text);
-  border-color: var(--qt-accent);
-}
-.so__btn--ghost:active {
-  transform: translateY(1px);
-}
+
+/* 3-pane input / swap / output grid — collapses to stacked on narrow. */
 .so__panes {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   gap: 10px;
   align-items: stretch;
-}
-.so__pane {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-.so__pane-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.so__pane-title {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.so__textarea {
-  width: 100%;
-  min-height: 240px;
-  resize: vertical;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  font-size: 13.5px;
-  line-height: 1.6;
-  padding: 12px 14px;
-  white-space: pre-wrap;
-  word-break: break-word;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-.so__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.so__textarea--out {
-  background: var(--qt-bg-alt, var(--qt-bg));
 }
 .so__swap {
   align-self: center;
@@ -403,9 +276,6 @@ const outputLabel = () => (mode.value === 'deobfuscate' ? 'Deobfuscated text' : 
 .so__swap:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-.so__copy {
-  flex-shrink: 0;
 }
 @media (max-width: 720px) {
   .so__panes {

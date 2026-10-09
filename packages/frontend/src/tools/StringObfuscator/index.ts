@@ -1,5 +1,5 @@
 /**
- * StringObfuscator tool module — exports the lazy-loaded component plus its
+ * StringObfuscator tool module - exports the lazy-loaded component plus its
  * metadata and composable so the tool can be registered in the registry
  * and routed dynamically.
  *
@@ -8,7 +8,7 @@
  * zero-width characters between visible characters. Provides a deobfuscate
  * mode that strips zero-width characters and reverses homoglyph substitution.
  *
- * No external dependencies — pure string + Unicode code-point arithmetic.
+ * No external dependencies - pure string + Unicode code-point arithmetic.
  */
 import { defineAsyncComponent } from 'vue';
 import type { ToolMetadata } from '@q-tools/shared';

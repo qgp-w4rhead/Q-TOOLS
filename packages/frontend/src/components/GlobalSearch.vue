@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * GlobalSearch — search bar with ranked dropdown results.
+ * GlobalSearch - search bar with ranked dropdown results.
  *
  * Features:
  *   - Filters tools by name, description, keywords, and category.
@@ -11,25 +11,30 @@
  */
 import { computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import { Search, X, Clock, CornerDownLeft, ArrowUp, ArrowDown } from 'lucide-vue-next';
 import { getIcon } from '@/utils/icons';
-import { useToolSearch, type SearchResult, type MatchField } from '@/composables/useToolSearch';
+import { useToolSearch, type SearchResult } from '@/composables/useToolSearch';
+import { usePwaInstall } from '@/composables/usePwaInstall';
 
 const props = withDefaults(
   defineProps<{
     /** Two-way bound query string (parent filters the grid with this). */
     query?: string;
-    /** Placeholder text for the input. */
+    /** Placeholder text for the input (defaults to localized string). */
     placeholder?: string;
     /** Maximum dropdown results (default 8). */
     maxResults?: number;
   }>(),
   {
     query: '',
-    placeholder: 'Search tools…',
+    placeholder: undefined,
     maxResults: 8,
   },
 );
+
+const { t } = useI18n();
+const inputPlaceholder = computed(() => props.placeholder ?? t('search.placeholder'));
 
 const emit = defineEmits<{
   (e: 'update:query', value: string): void;
@@ -39,6 +44,7 @@ const emit = defineEmits<{
 const router = useRouter();
 
 const search = useToolSearch({ maxResults: props.maxResults });
+const { shouldShowPrompt } = usePwaInstall();
 
 /* ---- Two-way query binding with the parent ---- */
 watch(
@@ -76,22 +82,15 @@ const showNoResults = computed(
   () => hasQuery.value && search.results.value.length === 0,
 );
 
-const FIELD_LABELS: Record<MatchField, string> = {
-  name: 'name',
-  description: 'description',
-  keywords: 'keyword',
-  category: 'category',
-};
-
 function fieldLabel(result: SearchResult): string {
-  return result.matchedFields.map((f) => FIELD_LABELS[f]).join(', ');
+  return result.matchedFields.map((f) => t(`search.field.${f}`)).join(', ');
 }
 
 function openTool(result: SearchResult): void {
   search.addRecent();
   search.close();
   emit('select', result);
-  router.push({ name: 'tool', params: { slug: result.tool.slug } });
+  router.push({ name: 'tool-view', params: { slug: result.tool.slug } });
 }
 
 function runRecent(query: string): void {
@@ -177,8 +176,9 @@ function isMac(): boolean {
         v-model="search.query.value"
         type="search"
         class="global-search__input"
-        :placeholder="placeholder"
-        aria-label="Search tools"
+        :class="{ 'global-search__input--seamless': shouldShowPrompt && !hasQuery }"
+        :placeholder="inputPlaceholder"
+        :aria-label="t('search.ariaLabel')"
         autocomplete="off"
         spellcheck="false"
         @focus="onInputFocus"
@@ -189,7 +189,7 @@ function isMac(): boolean {
         v-if="hasQuery"
         class="global-search__clear"
         type="button"
-        aria-label="Clear search"
+        :aria-label="t('search.clear')"
         @click="clearInput"
       >
         <X :size="16" />
@@ -213,13 +213,12 @@ function isMac(): boolean {
       id="qt-global-search-panel"
       class="global-search__panel"
       role="listbox"
-      aria-label="Search results"
+      :aria-label="t('search.results')"
     >
       <!-- Match count header -->
       <div v-if="hasQuery" class="global-search__header">
         <span>
-          {{ search.totalMatches.value }}
-          tool{{ search.totalMatches.value === 1 ? '' : 's' }} matched
+          {{ t('search.matchCount', { n: search.totalMatches.value }, search.totalMatches.value) }}
         </span>
       </div>
 
@@ -227,33 +226,35 @@ function isMac(): boolean {
       <div v-if="showRecent" class="global-search__section">
         <div class="global-search__section-title">
           <Clock :size="13" />
-          <span>Recent searches</span>
+          <span>{{ t('search.recent') }}</span>
           <button
             class="global-search__section-action"
             type="button"
             @click="search.clearRecent()"
           >
-            Clear
+            {{ t('search.clearRecent') }}
           </button>
         </div>
         <ul class="global-search__recent">
           <li v-for="entry in search.recent.value" :key="entry.query">
-            <button
+            <div
               class="global-search__recent-item"
-              type="button"
+              role="button"
+              tabindex="0"
               @mousedown.prevent="runRecent(entry.query)"
+              @keydown.enter.prevent="runRecent(entry.query)"
             >
               <Clock :size="13" />
               <span class="global-search__recent-text">{{ entry.query }}</span>
               <button
                 class="global-search__recent-remove"
                 type="button"
-                aria-label="Remove recent search"
+                :aria-label="t('search.removeRecent')"
                 @mousedown.prevent.stop="removeRecent($event, entry.query)"
               >
                 <X :size="13" />
               </button>
-            </button>
+            </div>
           </li>
         </ul>
       </div>
@@ -261,7 +262,7 @@ function isMac(): boolean {
       <!-- Suggestions (empty query) -->
       <div v-if="showSuggestions" class="global-search__section">
         <div class="global-search__section-title">
-          <span>Popular tools</span>
+          <span>{{ t('search.popular') }}</span>
         </div>
         <ul class="global-search__list">
           <li
@@ -320,9 +321,9 @@ function isMac(): boolean {
 
       <!-- No results -->
       <div v-if="showNoResults" class="global-search__empty">
-        <p class="global-search__empty-title">No tools match “{{ search.query.value }}”.</p>
+        <p class="global-search__empty-title">{{ t('search.noResults', { query: search.query.value }) }}</p>
         <p class="global-search__empty-hint">
-          Try a different keyword, or browse the categories below.
+          {{ t('search.noResultsHint') }}
         </p>
       </div>
 
@@ -330,11 +331,11 @@ function isMac(): boolean {
       <div v-if="hasQuery && search.results.value.length > 0" class="global-search__footer">
         <span class="global-search__hint">
           <kbd><ArrowUp :size="11" /><ArrowDown :size="11" /></kbd>
-          navigate
+          {{ t('search.hintNavigate') }}
           <kbd><CornerDownLeft :size="11" /></kbd>
-          open
+          {{ t('search.hintOpen') }}
           <kbd>Esc</kbd>
-          close
+          {{ t('search.hintClose') }}
         </span>
       </div>
     </div>
@@ -362,12 +363,16 @@ function isMac(): boolean {
 .global-search__input {
   width: 100%;
   padding: 12px 44px 12px 42px;
-  border-radius: 999px;
+  border-radius: 1vw;
   border: 1px solid var(--qt-border);
   background: var(--qt-surface);
   color: var(--qt-text);
   font: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, border-radius 0.25s ease;
+}
+.global-search__input--seamless {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .global-search__input:focus {
   border-color: var(--qt-accent);
@@ -495,6 +500,11 @@ function isMac(): boolean {
   font: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+.global-search__recent-item:focus-visible {
+  outline: 2px solid var(--qt-accent);
+  outline-offset: -2px;
 }
 .global-search__recent-item:hover {
   background: var(--qt-bg);

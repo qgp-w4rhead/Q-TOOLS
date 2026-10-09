@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /**
- * TextToUnicode — convert text to Unicode escape sequences and back.
+ * TextToUnicode - convert text to Unicode escape sequences and back.
  *
  * Bidirectional: text → `\uXXXX` escapes (encode) and `\uXXXX` → text
  * (decode). Encode renders each UTF-16 code unit as one `\uXXXX` escape, so
@@ -21,6 +21,7 @@
  * whenever the computed output changes.
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { AlertCircle, ArrowLeftRight, RefreshCw } from 'lucide-vue-next';
 import ToolInput from '@/components/ToolInput.vue';
 import ToolOutput from '@/components/ToolOutput.vue';
@@ -42,19 +43,22 @@ const {
   swap,
 } = useTextToUnicode();
 
+const { t } = useI18n();
+const U = 'tools.text-to-unicode.ui.';
+
 const placeholder = computed(() =>
   mode.value === 'encode'
-    ? 'Enter text to convert to \\uXXXX escapes…'
-    : 'Enter \\uXXXX escape sequences to decode…',
+    ? t(U + 'placeholderEncode')
+    : t(U + 'placeholderDecode'),
 );
 
-const inputLabel = computed(() => (mode.value === 'encode' ? 'Text' : 'Unicode escapes'));
-const outputLabel = computed(() => (mode.value === 'encode' ? 'Unicode escapes' : 'Text'));
+const inputLabel = computed(() => (mode.value === 'encode' ? t('common.text') : t(U + 'unicodeEscapes')));
+const outputLabel = computed(() => (mode.value === 'encode' ? t(U + 'unicodeEscapes') : t('common.text')));
 
 const description = computed(() =>
   mode.value === 'encode'
-    ? 'Encode text to \\uXXXX Unicode escape sequences (one escape per UTF-16 code unit).'
-    : 'Decode \\uXXXX / \\UXXXX escape sequences back to text. Unrecognized characters are preserved.',
+    ? t(U + 'descEncode')
+    : t(U + 'descDecode'),
 );
 
 const analysis = computed(() => outputs.value?.analysis ?? null);
@@ -82,31 +86,31 @@ function onPrefixChange(e: Event): void {
 </script>
 
 <template>
-  <div class="uni">
-    <ToolInput title="Input" :description="description">
+  <div class="qt-tool">
+    <ToolInput :title="t('common.input')" :description="description">
       <template #actions>
         <button
-          class="uni__btn uni__btn--ghost"
+          class="qt-btn qt-btn--ghost"
           type="button"
-          title="Swap direction and feed the result back as input"
+          :title="t('common.swapTitle')"
           @click="swap"
         >
           <ArrowLeftRight :size="14" />
-          <span>Swap</span>
+          <span>{{ t('common.swap') }}</span>
         </button>
         <button
-          class="uni__btn"
+          class="qt-btn qt-btn--primary"
           type="button"
           :disabled="input.trim().length === 0"
           @click="recompute"
         >
           <RefreshCw :size="14" />
-          <span>Convert</span>
+          <span>{{ t('common.convert') }}</span>
         </button>
       </template>
 
-      <div class="uni__mode-row">
-        <span class="uni__label">Direction</span>
+      <div class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <span class="qt-label">{{ t('common.direction') }}</span>
         <div class="uni__mode-toggle">
           <button
             type="button"
@@ -115,7 +119,7 @@ function onPrefixChange(e: Event): void {
             :aria-pressed="mode === 'encode'"
             @click="onModeChange('encode')"
           >
-            Encode
+            {{ t('common.encode') }}
           </button>
           <button
             type="button"
@@ -124,28 +128,28 @@ function onPrefixChange(e: Event): void {
             :aria-pressed="mode === 'decode'"
             @click="onModeChange('decode')"
           >
-            Decode
+            {{ t('common.decode') }}
           </button>
         </div>
       </div>
 
-      <div v-if="mode === 'encode'" class="uni__prefix-row">
-        <label class="uni__label" for="uni-prefix">Escape prefix</label>
+      <div v-if="mode === 'encode'" class="qt-row qt-row--center" style="--qt-row-gap:10px">
+        <label class="qt-label" for="uni-prefix">{{ t(U + 'escapePrefix') }}</label>
         <select
           id="uni-prefix"
-          class="uni__select"
+          class="qt-input"
           :value="prefix"
           @change="onPrefixChange"
         >
-          <option value="\u">\uXXXX (lowercase)</option>
-          <option value="\U">\UXXXX (uppercase)</option>
+          <option value="\u">{{ t(U + 'prefixLower') }}</option>
+          <option value="\U">{{ t(U + 'prefixUpper') }}</option>
         </select>
       </div>
 
-      <label class="uni__field">
-        <span class="uni__label">{{ inputLabel }}</span>
+      <label class="qt-field">
+        <span class="qt-label">{{ inputLabel }}</span>
         <textarea
-          class="uni__textarea uni__textarea--mono"
+          class="qt-input qt-input--mono uni__textarea"
           :placeholder="placeholder"
           :value="input"
           rows="6"
@@ -158,68 +162,68 @@ function onPrefixChange(e: Event): void {
 
     <ToolOutput
       :title="outputLabel"
-      :description="outputs ? `${analysis?.codePointCount} code points · ${analysis?.codeUnits} UTF-16 units · ${analysis?.utf8Bytes} UTF-8 bytes` : 'Enter a value above to convert.'"
+      :description="outputs ? t(U + 'outputDesc', { codePoints: analysis?.codePointCount, units: analysis?.codeUnits, bytes: analysis?.utf8Bytes }) : t('common.enterToConvert')"
       :copy-text="outputs?.output ?? ''"
-      copy-label="Copy result"
+      :copy-label="t('common.copyResult')"
     >
-      <p v-if="error" class="uni__error">
+      <p v-if="error" class="qt-alert qt-alert--error">
         <AlertCircle :size="14" />
         <span>{{ error }}</span>
       </p>
       <template v-else>
-        <p v-if="!outputs" class="uni__empty">
-          Enter a value above to convert.
+        <p v-if="!outputs" class="qt-alert qt-alert--empty">
+          {{ t('common.enterToConvert') }}
         </p>
-        <div v-if="outputs" class="uni__result">
-          <div class="uni__result-head">
-            <span class="uni__result-label">{{ outputLabel }}</span>
-            <CopyButton :text="outputs.output" label="Copy" icon-only />
+        <div v-if="outputs" class="qt-result">
+          <div class="qt-row qt-row--center qt-row--between qt-row--nowrap" style="--qt-row-gap:8px">
+            <span class="qt-label">{{ outputLabel }}</span>
+            <CopyButton :text="outputs.output" :label="t('common.copy')" icon-only />
           </div>
-          <code class="uni__code">{{ outputs.output || '—' }}</code>
+          <code class="qt-mono uni__code">{{ outputs.output || '-' }}</code>
         </div>
 
-        <div v-if="analysis" class="uni__panel">
-          <h3 class="uni__panel-title">Analysis</h3>
-          <dl class="uni__stats">
-            <div class="uni__stat">
-              <dt>Code points</dt>
+        <div v-if="analysis" class="qt-panel uni__panel">
+          <h3 class="uni__panel-title">{{ t(U + 'analysis') }}</h3>
+          <dl class="qt-grid" style="--qt-grid-min:120px;--qt-grid-gap:8px;margin:0">
+            <div class="qt-result uni__stat">
+              <dt>{{ t(U + 'codePoints') }}</dt>
               <dd>{{ analysis.codePointCount }}</dd>
             </div>
-            <div class="uni__stat">
-              <dt>UTF-16 units</dt>
+            <div class="qt-result uni__stat">
+              <dt>{{ t(U + 'utf16Units') }}</dt>
               <dd>{{ analysis.codeUnits }}</dd>
             </div>
-            <div class="uni__stat">
-              <dt>UTF-16 bytes</dt>
+            <div class="qt-result uni__stat">
+              <dt>{{ t(U + 'utf16Bytes') }}</dt>
               <dd>{{ analysis.utf16Bytes }}</dd>
             </div>
-            <div class="uni__stat">
-              <dt>UTF-8 bytes</dt>
+            <div class="qt-result uni__stat">
+              <dt>{{ t(U + 'utf8Bytes') }}</dt>
               <dd>{{ analysis.utf8Bytes }}</dd>
             </div>
           </dl>
 
-          <div class="uni__cps">
-            <span class="uni__cps-label">Code points</span>
-            <code class="uni__cps-list">{{ codePointsPreview || '—' }}</code>
+          <div class="qt-field">
+            <span class="qt-label">{{ t(U + 'codePoints') }}</span>
+            <code class="qt-mono uni__cps-list">{{ codePointsPreview || '-' }}</code>
           </div>
 
           <div v-if="analysis.rows.length" class="uni__table-wrap">
             <table class="uni__table">
               <thead>
                 <tr>
-                  <th scope="col">Char</th>
-                  <th scope="col">Code point</th>
-                  <th scope="col">UTF-16</th>
-                  <th scope="col">UTF-8</th>
+                  <th scope="col">{{ t(U + 'colChar') }}</th>
+                  <th scope="col">{{ t(U + 'colCodePoint') }}</th>
+                  <th scope="col">{{ t(U + 'colUtf16') }}</th>
+                  <th scope="col">{{ t(U + 'colUtf8') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(row, i) in analysis.rows" :key="i">
                   <td class="uni__cell-char" :title="row.display">{{ row.display }}</td>
                   <td class="uni__cell-cp">{{ row.codePoint }}</td>
-                  <td>{{ row.utf16Units }} unit<span v-if="row.utf16Units > 1">s</span></td>
-                  <td>{{ row.utf8Bytes }} byte<span v-if="row.utf8Bytes > 1">s</span></td>
+                  <td>{{ t(U + 'unitsCount', row.utf16Units) }}</td>
+                  <td>{{ t(U + 'bytesCount', row.utf8Bytes) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -231,54 +235,9 @@ function onPrefixChange(e: Event): void {
 </template>
 
 <style scoped>
-.uni {
-  display: flex;
-  flex-direction: column;
-  gap: var(--qt-gap);
-  max-width: var(--qt-max-content);
-  margin: 0 auto;
-}
-.uni__field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.uni__label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-muted);
-}
-.uni__textarea {
-  width: 100%;
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 14px;
-  padding: 10px 12px;
-  resize: vertical;
-  min-height: 120px;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-  will-change: border-color;
-}
-.uni__textarea--mono {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-}
-.uni__textarea:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.uni__mode-row,
-.uni__prefix-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+/* Kept scoped: patterns unique to this tool (no generic utility). */
+
+/* Direction pill segmented control (solid-accent active). */
 .uni__mode-toggle {
   display: inline-flex;
   background: var(--qt-bg);
@@ -299,116 +258,25 @@ function onPrefixChange(e: Event): void {
   transition:
     color 0.15s ease,
     background 0.15s ease;
-  will-change: color, background;
 }
 .uni__mode-opt--active {
   color: var(--qt-bg);
   background: var(--qt-accent);
 }
-.uni__select {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-text);
-  font: inherit;
-  font-size: 13px;
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
-  padding: 5px 9px;
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-  will-change: border-color;
+/* Input textarea floor (control + mono via .qt-input--mono). */
+.uni__textarea {
+  min-height: 120px;
 }
-.uni__select:focus {
-  border-color: var(--qt-accent);
-  outline: none;
-  box-shadow: 0 0 0 2px oklch(from var(--qt-accent) 90% c h / 0.25);
-}
-.uni__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--qt-accent);
-  border: 1px solid var(--qt-accent);
-  border-radius: var(--qt-radius-sm);
-  color: var(--qt-bg);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 7px 12px;
-  cursor: pointer;
-  transition:
-    transform 0.1s ease,
-    opacity 0.15s ease;
-  will-change: transform;
-}
-.uni__btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.uni__btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-.uni__btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.uni__btn--ghost {
-  background: transparent;
-  color: var(--qt-text);
-  border-color: var(--qt-border);
-}
-.uni__btn--ghost:hover:not(:disabled) {
-  border-color: var(--qt-accent);
-  color: var(--qt-accent);
-}
-.uni__error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--qt-danger);
-  font-size: 13.5px;
-}
-.uni__empty {
-  margin: 0;
-  color: var(--qt-muted);
-  font-size: 13.5px;
-}
-.uni__result {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.uni__result-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.uni__result-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--qt-text);
-  flex: 1;
-}
+/* Output code (font via .qt-mono) — break-anywhere, pre-wrapped. */
 .uni__code {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 14px;
   color: var(--qt-text);
   word-break: break-all;
   white-space: pre-wrap;
 }
+/* Analysis panel offset (card via .qt-panel). */
 .uni__panel {
   margin-top: 10px;
-  background: var(--qt-surface);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
 .uni__panel-title {
   margin: 0;
@@ -416,21 +284,7 @@ function onPrefixChange(e: Event): void {
   font-weight: 700;
   color: var(--qt-text);
 }
-.uni__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 8px;
-  margin: 0;
-}
-.uni__stat {
-  background: var(--qt-bg);
-  border: 1px solid var(--qt-border);
-  border-radius: var(--qt-radius-sm);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+/* Stat card internals (card via .qt-result). */
 .uni__stat dt {
   font-size: 11.5px;
   color: var(--qt-muted);
@@ -443,23 +297,14 @@ function onPrefixChange(e: Event): void {
   color: var(--qt-text);
   font-variant-numeric: tabular-nums;
 }
-.uni__cps {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.uni__cps-label {
-  font-size: 11.5px;
-  color: var(--qt-muted);
-  font-weight: 600;
-}
+/* Code-point list (font via .qt-mono) — break-anywhere, pre-wrapped. */
 .uni__cps-list {
-  font-family: 'SFMono-Regular', ui-monospace, 'Cascadia Code', Menlo, Consolas, monospace;
   font-size: 12.5px;
   color: var(--qt-text);
   word-break: break-all;
   white-space: pre-wrap;
 }
+/* Per-character breakdown table (scroll wrapper + sticky head). */
 .uni__table-wrap {
   overflow-x: auto;
   border: 1px solid var(--qt-border);

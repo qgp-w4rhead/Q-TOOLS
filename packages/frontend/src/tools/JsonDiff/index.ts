@@ -1,10 +1,10 @@
 /**
- * JsonDiff tool module — exports the lazy-loaded component plus its metadata
+ * JsonDiff tool module - exports the lazy-loaded component plus its metadata
  * and composable so the tool can be registered in the registry and routed
  * dynamically.
  *
  * The diff is computed by a hand-rolled recursive walker (no external
- * dependency — the milestone spec explicitly allows a custom implementation),
+ * dependency - the milestone spec explicitly allows a custom implementation),
  * so this tool declares no npm dependencies and rides its own Vite chunk.
  */
 import { defineAsyncComponent } from 'vue';
