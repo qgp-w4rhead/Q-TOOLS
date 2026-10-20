@@ -590,6 +590,15 @@ export const TOOLS: ToolMetadata[] = [
     keywords: ['image', 'redact', 'blur', 'pixelate', 'censor', 'privacy', 'hide'],
     dependencies: [],
   },
+  {
+    slug: 'image-to-svg',
+    name: 'Image to SVG vectorizer',
+    description: 'Trace a raster image into vector SVG paths that scale to any size.',
+    category: 'media',
+    icon: 'pen-tool',
+    keywords: ['image', 'svg', 'vector', 'vectorize', 'trace', 'tracing', 'upscale', 'paths', 'logo'],
+    dependencies: ['imagetracerjs'],
+  },
 
   // ---- Development (M5) ----
   {

@@ -110,6 +110,7 @@ async function loadToolModule(slug: string): Promise<{ default: unknown }> {
     'svg-optimizer': () => import('@/tools/SvgOptimizer/index'),
     'image-to-ascii': () => import('@/tools/ImageToAscii/index'),
     'image-redactor': () => import('@/tools/ImageRedactor/index'),
+    'image-to-svg': () => import('@/tools/ImageToSvg/index'),
     'random-port-generator': () =>
       import('@/tools/RandomPortGenerator/index'),
     'crontab-generator': () => import('@/tools/CrontabGenerator/index'),

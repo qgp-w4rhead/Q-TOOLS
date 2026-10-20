@@ -116,6 +116,7 @@ import {
   MailCheck,
   FileKey,
   Eye,
+  PenTool,
 } from 'lucide-vue-next';
 import type { Component } from 'vue';
 
@@ -230,6 +231,7 @@ const ICON_MAP: Record<string, Component> = {
   'mail-check': MailCheck,
   'file-key': FileKey,
   eye: Eye,
+  'pen-tool': PenTool,
 };
 
 /** Resolve an icon name to its lucide component, falling back to a default. */

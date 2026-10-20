@@ -1468,6 +1468,43 @@
         "altRedacted": "Redacted image"
       }
     },
+    "image-to-svg": {
+      "ui": {
+        "desc": "Drop an image, tune the tracing options, and vectorize it into SVG paths that scale to any size. Processed locally - nothing leaves your browser.",
+        "resetTitle": "Reset options",
+        "dropTitle": "Drop an image here or click to browse",
+        "dropHint": "Logos, icons and illustrations trace best",
+        "preset": "Preset",
+        "preset_default": "Balanced",
+        "preset_detailed": "Detailed",
+        "preset_smoothed": "Smooth",
+        "preset_curvy": "Curvy",
+        "preset_sharp": "Sharp",
+        "preset_posterized3": "Poster",
+        "preset_grayscale": "Grayscale",
+        "colors": "Colors",
+        "detail": "Detail",
+        "noise": "Noise reduction",
+        "smoothing": "Smoothing",
+        "traceSize": "Trace resolution",
+        "traceSizeFull": "Full",
+        "scale": "Output scale",
+        "lineFilter": "Simplify edges",
+        "outputTitle": "Vectorize",
+        "descSource": "{name} · {w}×{h} · {size}",
+        "vectorize": "Vectorize",
+        "vectorizing": "Vectorizing…",
+        "downloadTitle": "Download SVG",
+        "downloadSvg": "Download SVG",
+        "stats": "{paths} paths · {colors} colors · {size}",
+        "pngScale": "Rasterize at",
+        "exportPng": "Export PNG",
+        "exportPngTitle": "Render the SVG to PNG at the chosen scale",
+        "exporting": "Exporting…",
+        "altOriginal": "Original image",
+        "pressVectorize": "Press Vectorize to trace the image."
+      }
+    },
     "math-evaluator": {
       "ui": {
         "inputTitle": "Expression",
